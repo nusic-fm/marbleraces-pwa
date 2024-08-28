@@ -58,7 +58,7 @@ const initializeDB = async () => {
 const addToDB = async (id: string, data: Float32Array) => {
   if (!db) await initializeDB();
   const dbInstance = await db!;
-  await dbInstance.put("covers", { id, data });
+  await dbInstance.put("covers", { id, data }, id);
 };
 
 const getFromDB = async (id: string): Promise<Float32Array | undefined> => {
