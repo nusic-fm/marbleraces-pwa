@@ -31,7 +31,7 @@ import SelectRacetracks from "../src/components/SelectRacetracks";
 import { createChallenge } from "../src/services/db/challenge.service";
 import {
   getBackgroundPath,
-  getSkinPath,
+  getTrailPath,
   getVoiceAvatarPath,
 } from "../src/helpers";
 import { useRouter } from "next/router";
@@ -41,6 +41,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { getCover } from "../src/services/db/cover.service";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import Head from "next/head";
+import Header from "../src/components/Header";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -86,7 +87,7 @@ const cardVariants: Variants = {
   },
 };
 const Index = () => {
-  const [user, loading, authError] = useAuthState(auth);
+  const [user, authLoading, authError] = useAuthState(auth);
   const [recordsLimit, setRecordsLimit] = useState(5);
   const [isLatest, setIsLatest] = useState(false);
   const [coversCollectionSnapshot, coversLoading, error] = useCollection(
@@ -106,6 +107,7 @@ const Index = () => {
     id: string;
   } | null>(null);
   const [selectedSkin, setSelectedSkin] = useState("smoke01.png");
+  const [selectedTrail, setSelectedTrail] = useState("snow.png");
   const [selectedTracksList, setSelectedTracksList] = useState<string[]>([
     "01",
     "03",
@@ -114,7 +116,7 @@ const Index = () => {
     "16",
   ]);
   const router = useRouter();
-  const { coverId } = router.query;
+  const { coverId, qBgNo } = router.query;
 
   useEffect(() => {
     if (coversCollectionSnapshot?.size) {
@@ -162,6 +164,7 @@ const Index = () => {
           id: coverDoc.voices[0].id,
           name: coverDoc.voices[0].name,
         });
+        if (qBgNo) setBgNo(Number(qBgNo));
       })();
     }
   }, [coverId]);
@@ -175,24 +178,14 @@ const Index = () => {
       <Stack
         height={"100vh"}
         sx={{
-          backgroundImage: `url('bg_pattern.png')`,
+          backgroundImage: `url(/bg_pattern.png)`,
           backgroundSize: "120% 120%",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           // transform: "scale(1.1)",
         }}
       >
-        {user && (
-          <Box display={"flex"} alignItems={"center"} width={"100%"} p={2}>
-            <Stack direction={"row"} gap={2} alignItems="center">
-              <img src="favicon.ico" alt="" style={{ width: 40 }} />
-              <Typography variant="h5" textTransform={"uppercase"}>
-                Marble Races
-              </Typography>
-            </Stack>
-            <Chip label={user.email} sx={{ ml: "auto" }} />
-          </Box>
-        )}
+        <Header user={user} />
         <Stack
           width={"100%"}
           alignItems={"center"}
@@ -433,7 +426,13 @@ const Index = () => {
                     <Typography align="center" variant="h5">
                       Choose your Voice
                     </Typography>
-                    <Stack direction={"row"} gap={1} alignItems="center">
+                    <Stack
+                      direction={"row"}
+                      gap={1}
+                      alignItems="center"
+                      sx={{ overflowX: "auto" }}
+                      width={400}
+                    >
                       {selectedCoverDoc.voices.map((voice) => (
                         <Avatar
                           key={voice.id}
@@ -467,7 +466,7 @@ const Index = () => {
                   </Box>
                   <Stack gap={2}>
                     <Typography align="center" variant="h6">
-                      Choose your Skin
+                      Choose your Trail
                     </Typography>
                     <Stack
                       direction={"row"}
@@ -478,7 +477,7 @@ const Index = () => {
                       {["stars_01.png", "snow.png"].map((name) => (
                         <Avatar
                           key={name}
-                          src={getSkinPath(name)}
+                          src={getTrailPath(name)}
                           sx={{
                             // width: 50,
                             // height: 50,
@@ -486,11 +485,11 @@ const Index = () => {
                             objectFit: "cover",
                             cursor: "pointer",
                             outline:
-                              name === selectedSkin
+                              name === selectedTrail
                                 ? "1px solid white"
                                 : "unset",
                           }}
-                          onClick={() => setSelectedSkin(name)}
+                          onClick={() => setSelectedTrail(name)}
                         />
                       ))}
                     </Stack>
@@ -625,11 +624,16 @@ const Index = () => {
           </Stack>
         )} */}
         </Stack>
-        <Dialog open={activeStep === 1 && !user}>
+        <Dialog open={activeStep === 1 && !user && !authLoading}>
           <DialogTitle>Provide your Email to Create a Challenge</DialogTitle>
           <DialogContent>
             <EmailLink
-              url={`https://marblerace.ai?coverId=${selectedCoverDoc?.id}`}
+              url={
+                typeof window !== "undefined"
+                  ? window.location.origin +
+                    `?coverId=${selectedCoverDoc?.id}&qBgNo=${bgNo}`
+                  : `https://marblerace.ai?coverId=${selectedCoverDoc?.id}&qBgNo=${bgNo}`
+              }
             />
           </DialogContent>
         </Dialog>

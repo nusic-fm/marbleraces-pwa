@@ -27,7 +27,12 @@ import { CoverV1 } from "../../src/models/Cover";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../src/services/firebase.service";
 import EmailLink from "../../src/components/AuthUI/EmailLink";
-import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
+import {
+  isSignInWithEmailLink,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
+} from "firebase/auth";
+import Header from "../../src/components/Header";
 
 type Props = {};
 
@@ -89,21 +94,35 @@ const Challenge = (props: Props) => {
       // the sign-in operation.
       // Get the email if available. This should be available if the user completes
       // the flow on the same device where they started it.
-      const email = window.prompt("Please provide your email for confirmation");
+
+      const loginEnteredEmail = new URLSearchParams(window.location.search).get(
+        "loginEnteredEmail"
+      );
+      const email =
+        loginEnteredEmail ||
+        window.prompt("Please provide your email for confirmation");
       if (email)
         (async () => {
           try {
             // The client SDK will parse the code from the link for you.
             await signInWithEmailLink(auth, email, window.location.href);
-            window.localStorage.removeItem("emailForSignIn");
-            router.push(`/challenges/${challengeId}`, undefined, {
-              shallow: true,
-            });
+            // window.localStorage.removeItem("emailForSignIn");
+            router.push(
+              typeof window !== "undefined" ? window.location.pathname : "",
+              undefined,
+              {
+                shallow: true,
+              }
+            );
           } catch (e) {
             alert("Invalid Login, Please try again.");
-            router.push(`/challenges/${challengeId}`, undefined, {
-              shallow: true,
-            });
+            router.push(
+              typeof window !== "undefined" ? window.location.pathname : "",
+              undefined,
+              {
+                shallow: true,
+              }
+            );
           }
         })();
     }
@@ -132,21 +151,17 @@ const Challenge = (props: Props) => {
           key="title"
         />
       </Head>
-      <Stack gap={4} sx={{ background: "black" }}>
-        <Box display={"flex"} alignItems={"center"} width={"100%"} p={2}>
-          <Stack direction={"row"} gap={2} alignItems="center">
-            <img src="/favicon.ico" alt="" style={{ width: 40 }} />
-            <Typography
-              variant="h5"
-              textTransform={"uppercase"}
-              sx={{ cursor: "pointer" }}
-              onClick={() => router.push("/")}
-            >
-              Marble Races
-            </Typography>
-          </Stack>
-          {user && <Chip label={user.email} sx={{ ml: "auto" }} />}
-        </Box>
+      <Stack
+        gap={4}
+        sx={{
+          backgroundImage: `url(/bg_pattern.png)`,
+          backgroundSize: "120% 120%",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          // transform: "scale(1.1)",
+        }}
+      >
+        <Header user={user} />
         <Typography
           variant="h5"
           align="center"
@@ -158,7 +173,14 @@ const Challenge = (props: Props) => {
             }
           }
         >
-          Challenge to Race against {challenge?.voices[0].name}
+          <Typography
+            variant="h5"
+            textTransform={"capitalize"}
+            component="span"
+          >
+            {challenge?.userObj.email?.split("@")[0]}
+          </Typography>{" "}
+          has Challenged you to Marble Race against {challenge?.voices[0].name}
         </Typography>
         {!ready &&
           (challenge?.userObj.id === user?.uid ? (
@@ -180,11 +202,16 @@ const Challenge = (props: Props) => {
                   onClick={() => {
                     if (enteredEmail) {
                       (async () => {
-                        await signInWithEmailLink(
-                          auth,
-                          enteredEmail,
-                          `https://marblerace.ai/challenges/${challengeId}`
-                        );
+                        // continueUrl=http://localhost:3000/challenges/m9lhvxube2QBPriHgBPk?loginEnteredEmail%3Dlogesh.r24@gmail.com&lang=en
+                        await sendSignInLinkToEmail(auth, enteredEmail, {
+                          url:
+                            typeof window !== "undefined"
+                              ? window.location.origin +
+                                `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
+                              : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
+                          handleCodeInApp: true,
+                        });
+
                         alert("Successfully Invited to Play the challenge");
                         setEnteredEmail("");
                       })();
@@ -381,7 +408,7 @@ const Challenge = (props: Props) => {
             )}
           </Box>
         </Box>
-        <Dialog open={!user || user.uid !== challenge?.userObj.id}>
+        <Dialog open={!user}>
           <DialogTitle>
             Sign In with your Email to Play the Challenge
           </DialogTitle>
@@ -390,7 +417,11 @@ const Challenge = (props: Props) => {
               <Skeleton variant="rectangular" animation="wave" />
             ) : (
               <EmailLink
-                url={`https://marblerace.ai/challenges/${challengeId}`}
+                url={
+                  typeof window !== "undefined"
+                    ? window.location.origin + `/challenges/${challengeId}`
+                    : `https://marblerace.ai/challenges/${challengeId}`
+                }
               />
             )}
           </DialogContent>
