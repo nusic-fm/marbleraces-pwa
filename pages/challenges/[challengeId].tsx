@@ -2,6 +2,11 @@ import {
   Avatar,
   Box,
   Button,
+  Chip,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Skeleton,
   Stack,
   TextField,
   Typography,
@@ -21,6 +26,8 @@ import { getCover } from "../../src/services/db/cover.service";
 import { CoverV1 } from "../../src/models/Cover";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../src/services/firebase.service";
+import EmailLink from "../../src/components/AuthUI/EmailLink";
+import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 
 type Props = {};
 
@@ -41,7 +48,8 @@ const Challenge = (props: Props) => {
   const [ready, setReady] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
-  const [user, loading, authError] = useAuthState(auth);
+  const [user, authLoading, authError] = useAuthState(auth);
+  const [enteredEmail, setEnteredEmail] = useState("");
 
   const canvasElemWidth = 414;
 
@@ -74,6 +82,32 @@ const Challenge = (props: Props) => {
       setReady(true);
     }
   };
+  useEffect(() => {
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      // Additional state parameters can also be passed via URL.
+      // This can be used to continue the user's intended action before triggering
+      // the sign-in operation.
+      // Get the email if available. This should be available if the user completes
+      // the flow on the same device where they started it.
+      const email = window.prompt("Please provide your email for confirmation");
+      if (email)
+        (async () => {
+          try {
+            // The client SDK will parse the code from the link for you.
+            await signInWithEmailLink(auth, email, window.location.href);
+            window.localStorage.removeItem("emailForSignIn");
+            router.push(`/challenges/${challengeId}`, undefined, {
+              shallow: true,
+            });
+          } catch (e) {
+            alert("Invalid Login, Please try again.");
+            router.push(`/challenges/${challengeId}`, undefined, {
+              shallow: true,
+            });
+          }
+        })();
+    }
+  }, []);
 
   useEffect(() => {
     if (challengeId) {
@@ -91,22 +125,75 @@ const Challenge = (props: Props) => {
   return (
     <>
       <Head>
-        <title>Challenge | Marble Races</title>
+        <title>Challenge | Marble Race</title>
         <meta
           property="og:title"
           content={"You have been Challenged"}
           key="title"
         />
       </Head>
-      <Stack gap={4} py={2}>
-        <Typography variant="h5" align="center">
-          A Challenge to Race against {challenge?.voices[0].name}
+      <Stack gap={4} sx={{ background: "black" }}>
+        <Box display={"flex"} alignItems={"center"} width={"100%"} p={2}>
+          <Stack direction={"row"} gap={2} alignItems="center">
+            <img src="/favicon.ico" alt="" style={{ width: 40 }} />
+            <Typography
+              variant="h5"
+              textTransform={"uppercase"}
+              sx={{ cursor: "pointer" }}
+              onClick={() => router.push("/")}
+            >
+              Marble Races
+            </Typography>
+          </Stack>
+          {user && <Chip label={user.email} sx={{ ml: "auto" }} />}
+        </Box>
+        <Typography
+          variant="h5"
+          align="center"
+          sx={
+            {
+              // background:
+              //   "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%) text",
+              // WebkitTextFillColor: "transparent",
+            }
+          }
+        >
+          Challenge to Race against {challenge?.voices[0].name}
         </Typography>
         {!ready &&
           (challenge?.userObj.id === user?.uid ? (
             <Stack alignItems={"center"} gap={1}>
-              <Typography variant="h6">Invite your Friends</Typography>
-              <TextField label="email" size="small"></TextField>
+              <Typography variant="subtitle1">
+                Invite your Friends to the Challenge
+              </Typography>
+              <Stack direction={"row"} gap={1}>
+                <TextField
+                  label="email"
+                  size="small"
+                  type={"email"}
+                  value={enteredEmail}
+                  onChange={(e) => setEnteredEmail(e.target.value)}
+                />
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => {
+                    if (enteredEmail) {
+                      (async () => {
+                        await signInWithEmailLink(
+                          auth,
+                          enteredEmail,
+                          `https://marblerace.ai/challenges/${challengeId}`
+                        );
+                        alert("Successfully Invited to Play the challenge");
+                        setEnteredEmail("");
+                      })();
+                    }
+                  }}
+                >
+                  Send
+                </Button>
+              </Stack>
             </Stack>
           ) : (
             <Stack
@@ -276,9 +363,11 @@ const Challenge = (props: Props) => {
                     {user?.uid !== challenge?.userObj.id && (
                       <Button
                         onClick={() => {
-                          if (challenge && challenge.voices.length > 1)
+                          if (challenge && challenge.voices.length > 1 && user)
                             downloadAndPlay();
-                          else alert("Choose a Voice to Play the Race");
+                          else if (user)
+                            alert("Choose a Voice to Play the Race");
+                          else alert("Sign In to play the Challenge");
                         }}
                         variant="contained"
                         color="primary"
@@ -292,6 +381,20 @@ const Challenge = (props: Props) => {
             )}
           </Box>
         </Box>
+        <Dialog open={!user || user.uid !== challenge?.userObj.id}>
+          <DialogTitle>
+            Sign In with your Email to Play the Challenge
+          </DialogTitle>
+          <DialogContent>
+            {authLoading ? (
+              <Skeleton variant="rectangular" animation="wave" />
+            ) : (
+              <EmailLink
+                url={`https://marblerace.ai/challenges/${challengeId}`}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </Stack>
     </>
   );
