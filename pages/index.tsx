@@ -55,8 +55,18 @@ const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   } else {
     return query(
       collection(db, "covers"),
-      where(documentId(), "in", []),
-      where("audioUrl", "!=", "")
+      where(documentId(), "in", [
+        "PkOBGtGbdyMSEkG0BQ6O",
+        "f0pmE4twBXnJmVrJzh18",
+        "ByE2N5MsLcSYpUR8s6a3",
+        "YE7LMzWbCKgkLgSKVX9Q",
+        "bkvtnO1D4fOUYvzwn0NJ",
+        "abRoiarmwTRMqWTyqSGn",
+        "Sey1qVFqitYhnKkddMuQ",
+        "RL2bdU5NJOukDwQzzW1s",
+        "NAc4aENdcDHIh2k4K5oG",
+        "8FbtvPhkC13vo3HnAirx",
+      ])
     );
   }
 };
@@ -191,6 +201,7 @@ const Index = () => {
                   const coverDoc = doc.data() as CoverV1;
                   return (
                     <motion.div
+                      key={id}
                       style={{
                         overflow: "hidden",
                         display: "flex",
@@ -265,6 +276,7 @@ const Index = () => {
                           >
                             {coverDoc.voices.map((voice) => (
                               <Avatar
+                                key={voice.id}
                                 src={`https://voxaudio.nusic.fm/${encodeURIComponent(
                                   "voice_models/avatars/thumbs/"
                                 )}${voice.id}_200x200?alt=media`}
@@ -400,6 +412,7 @@ const Index = () => {
                   <Stack direction={"row"} gap={1} alignItems="center">
                     {selectedCoverDoc.voices.map((voice) => (
                       <Avatar
+                        key={voice.id}
                         src={getVoiceAvatarPath(voice.id)}
                         sx={{
                           width: 70,
@@ -438,8 +451,9 @@ const Index = () => {
                     alignItems="center"
                     justifyContent={"center"}
                   >
-                    {["smoke01.png", "stone.png"].map((name) => (
+                    {["stars_01.png", "snow.png"].map((name) => (
                       <Avatar
+                        key={name}
                         src={getSkinPath(name)}
                         sx={{
                           // width: 50,

@@ -5,9 +5,9 @@ import {
 } from "../../hooks/useTonejs";
 import _ from "lodash";
 import { GameVoiceInfo } from "./Preloader";
-import { IGameDataParams } from "../PhaserGame";
 import { BodyType } from "matter";
 import { duplicateArrayElemToN } from "../../helpers";
+import { IGameDataParams } from "../../models/Phaser";
 
 export default class Game extends Phaser.Scene {
   constructor() {
