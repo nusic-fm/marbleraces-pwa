@@ -202,8 +202,8 @@ const Header = ({ user }: { user: User | null | undefined }) => {
       </Stack>
       {user && (
         <Chip
-          label={user.email}
-          sx={{ ml: "auto" }}
+          label={user.email?.split("@")[0]}
+          sx={{ ml: "auto", textTransform: "capitalize" }}
           clickable
           onClick={() => signOut(auth)}
         />
