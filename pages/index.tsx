@@ -42,6 +42,7 @@ import { getCover } from "../src/services/db/cover.service";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import Head from "next/head";
 import Header from "../src/components/Header";
+import RequestInvitation from "../src/components/ Modals/RequestInvitation";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -431,6 +432,7 @@ const Index = () => {
                       alignItems="center"
                       sx={{ overflowX: "auto" }}
                       width={400}
+                      py={1}
                     >
                       {selectedCoverDoc.voices.map((voice) => (
                         <Avatar
@@ -623,32 +625,15 @@ const Index = () => {
           </Stack>
         )} */}
         </Stack>
-        <Dialog open={activeStep === 1 && !user && !authLoading}>
-          <DialogTitle>Request a Free Invitation</DialogTitle>
-          <DialogContent>
-            {/* <Stack
-              direction={"row"}
-              gap={1}
-              alignItems="center"
-              justifyContent={"center"}
-            >
-              <Typography variant="caption" align="center">
-                Invitations Remaining Today:
-              </Typography>
-              <Typography component={"span"} variant="h5">
-                3
-              </Typography>
-            </Stack> */}
-            <EmailLink
-              url={
-                typeof window !== "undefined"
-                  ? window.location.origin +
-                    `?coverId=${selectedCoverDoc?.id}&qBgNo=${bgNo}`
-                  : `https://marblerace.ai?coverId=${selectedCoverDoc?.id}&qBgNo=${bgNo}`
-              }
-            />
-          </DialogContent>
-        </Dialog>
+        <RequestInvitation
+          show={activeStep === 1 && !user && !authLoading}
+          redirectUrl={
+            typeof window !== "undefined"
+              ? window.location.origin +
+                `?coverId=${selectedCoverDoc?.id}&qBgNo=${bgNo}`
+              : `https://marblerace.ai?coverId=${selectedCoverDoc?.id}&qBgNo=${bgNo}`
+          }
+        />
       </Stack>
     </>
   );

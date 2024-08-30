@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useSendSignInLinkToEmail } from "react-firebase-hooks/auth";
 import { auth } from "../../services/firebase.service";
 
-type Props = { url: string };
+type Props = { url: string; successCallback?: () => void };
 
-const EmailLink = ({ url }: Props) => {
+const EmailLink = ({ url, successCallback }: Props) => {
   const [email, setEmail] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   // const [password, setPassword] = useState<string>("");
@@ -28,12 +28,13 @@ const EmailLink = ({ url }: Props) => {
       if (isSuccess) {
         window.localStorage.setItem("emailForSignIn", email);
         alert(`Invitation Code Sent to ${email}`);
+        if (successCallback) successCallback();
       }
     } catch (e) {
       console.log(e);
       alert("Errer occurred, try again");
     } finally {
-      setIsLoading(true);
+      setIsLoading(false);
     }
   };
 
