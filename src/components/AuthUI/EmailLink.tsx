@@ -8,6 +8,7 @@ type Props = { url: string };
 
 const EmailLink = ({ url }: Props) => {
   const [email, setEmail] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   // const [password, setPassword] = useState<string>("");
 
   const [sendSignInLinkToEmail, sending, emailLinkError] =
@@ -18,13 +19,21 @@ const EmailLink = ({ url }: Props) => {
       alert("Enter the email");
       return;
     }
-    const isSuccess = await sendSignInLinkToEmail(email, {
-      url,
-      handleCodeInApp: true,
-    });
-    if (isSuccess) {
-      window.localStorage.setItem("emailForSignIn", email);
-      alert("Email has been sent");
+    setIsLoading(true);
+    try {
+      const isSuccess = await sendSignInLinkToEmail(email, {
+        url,
+        handleCodeInApp: true,
+      });
+      if (isSuccess) {
+        window.localStorage.setItem("emailForSignIn", email);
+        alert(`Invitation Code Sent to ${email}`);
+      }
+    } catch (e) {
+      console.log(e);
+      alert("Errer occurred, try again");
+    } finally {
+      setIsLoading(true);
     }
   };
 
@@ -87,12 +96,12 @@ const EmailLink = ({ url }: Props) => {
           </Box> */}
       <Box display={"flex"} justifyContent="center" gap={1}>
         <LoadingButton
-          loading={sending}
+          loading={isLoading}
           variant="contained"
           onClick={onEmailLinkSignIn}
           size="medium"
         >
-          Verify
+          Request
         </LoadingButton>
         {/* <Button size="small" color="secondary">
           Skip

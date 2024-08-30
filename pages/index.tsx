@@ -193,8 +193,14 @@ const Index = () => {
           gap={1}
           height="100%"
         >
-          <Typography align="center" variant="h4">
-            Create a Challenge
+          <Typography
+            align="center"
+            variant="h4"
+            lineHeight={1.8}
+            // sx={{ background: "black" }}
+            // px={2}
+          >
+            Challenge Friend <br /> To A Marble Race
           </Typography>
           {activeStep === 0 && (
             <Box
@@ -357,22 +363,15 @@ const Index = () => {
               /> */}
                 </Box>
               )}
-              {/* <Box
-              display={"flex"}
-              mt="130px"
-              justifyContent={"center"}
-              alignItems="center"
-              p={1}
-              gap={2}
-            >
-              <IconButton onClick={() => bgNo > 11 && setBgNo(bgNo - 1)}>
-                <ArrowBackIosRoundedIcon />
-              </IconButton>
-              <Typography>Background</Typography>
-              <IconButton onClick={() => bgNo < 41 && setBgNo(bgNo + 1)}>
-                <ArrowForwardIosRoundedIcon />
-              </IconButton>
-            </Box> */}
+
+              <Typography
+                align="center"
+                variant="h4"
+                lineHeight={1.8}
+                mt={"150px"}
+              >
+                Winner Takes All!
+              </Typography>
             </Box>
           )}
           {activeStep === 1 && selectedCoverDoc && (
@@ -625,8 +624,21 @@ const Index = () => {
         )} */}
         </Stack>
         <Dialog open={activeStep === 1 && !user && !authLoading}>
-          <DialogTitle>Provide your Email to Create a Challenge</DialogTitle>
+          <DialogTitle>Request a Free Invitation</DialogTitle>
           <DialogContent>
+            {/* <Stack
+              direction={"row"}
+              gap={1}
+              alignItems="center"
+              justifyContent={"center"}
+            >
+              <Typography variant="caption" align="center">
+                Invitations Remaining Today:
+              </Typography>
+              <Typography component={"span"} variant="h5">
+                3
+              </Typography>
+            </Stack> */}
             <EmailLink
               url={
                 typeof window !== "undefined"

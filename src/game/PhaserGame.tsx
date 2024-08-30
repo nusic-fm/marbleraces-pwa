@@ -86,7 +86,6 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
   };
 
   useLayoutEffect(() => {
-    debugger;
     game.current = StartGame("game-container", {
       voices,
       coverDocId,

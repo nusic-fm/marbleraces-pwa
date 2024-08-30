@@ -178,15 +178,20 @@ const Challenge = (props: Props) => {
             textTransform={"capitalize"}
             component="span"
           >
-            {challenge?.userObj.email?.split("@")[0]}
-          </Typography>{" "}
-          has Challenged you to Marble Race against {challenge?.voices[0].name}
+            {challenge?.userObj.id === user?.uid
+              ? `Your Challenge Has Been Created`
+              : `${
+                  challenge?.userObj.email?.split("@")[0]
+                } has Challenged you to Marble Race against ${
+                  challenge?.voices[0].name
+                }`}
+          </Typography>
         </Typography>
         {!ready &&
           (challenge?.userObj.id === user?.uid ? (
             <Stack alignItems={"center"} gap={1}>
               <Typography variant="subtitle1">
-                Invite your Friends to the Challenge
+                Invite a Friend to join this Challenge
               </Typography>
               <Stack direction={"row"} gap={1}>
                 <TextField
@@ -212,7 +217,9 @@ const Challenge = (props: Props) => {
                           handleCodeInApp: true,
                         });
 
-                        alert("Successfully Invited to Play the challenge");
+                        alert(
+                          `Your Challenge has been sent to ${enteredEmail}`
+                        );
                         setEnteredEmail("");
                       })();
                     }
@@ -409,9 +416,7 @@ const Challenge = (props: Props) => {
           </Box>
         </Box>
         <Dialog open={!user}>
-          <DialogTitle>
-            Sign In with your Email to Play the Challenge
-          </DialogTitle>
+          <DialogTitle>Request a Free Invitation</DialogTitle>
           <DialogContent>
             {authLoading ? (
               <Skeleton variant="rectangular" animation="wave" />
