@@ -260,9 +260,15 @@ const Challenge = (props: Props) => {
               gap={2}
               justifyContent="center"
               alignItems={"center"}
+              flexWrap="wrap"
             >
               <Typography>Choose your Voice: </Typography>
-              <Stack direction={"row"} justifyContent="center">
+              <Stack
+                direction={"row"}
+                justifyContent="start"
+                sx={{ overflowX: "auto" }}
+                width={{ xs: "80%", md: "unset" }}
+              >
                 {cover?.voices
                   .filter(
                     (v) => !challenge?.voices.map((v) => v.id).includes(v.id)
