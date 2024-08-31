@@ -19,7 +19,11 @@ import { Challenge } from "../../src/models/Challenge";
 import { getChallenge } from "../../src/services/db/challenge.service";
 import LinearProgressWithLabel from "../../src/components/LinearProgressWithLabel";
 import { downloadAudioFiles } from "../../src/hooks/useTonejs";
-import { getBackgroundPath, getSkinPath } from "../../src/helpers";
+import {
+  getBackgroundPath,
+  // getSkinPath,
+  validateEmail,
+} from "../../src/helpers";
 import dynamic from "next/dynamic";
 import { IRefPhaserGame } from "../../src/models/Phaser";
 import { getCover } from "../../src/services/db/cover.service";
@@ -29,10 +33,12 @@ import { auth } from "../../src/services/firebase.service";
 import EmailLink from "../../src/components/AuthUI/EmailLink";
 import {
   isSignInWithEmailLink,
-  sendSignInLinkToEmail,
+  // sendSignInLinkToEmail,
   signInWithEmailLink,
 } from "firebase/auth";
 import Header from "../../src/components/Header";
+import axios from "axios";
+import { LoadingButton } from "@mui/lab";
 
 type Props = {};
 
@@ -55,6 +61,7 @@ const Challenge = (props: Props) => {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [user, authLoading, authError] = useAuthState(auth);
   const [enteredEmail, setEnteredEmail] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   const canvasElemWidth = 414;
 
@@ -201,21 +208,39 @@ const Challenge = (props: Props) => {
                   value={enteredEmail}
                   onChange={(e) => setEnteredEmail(e.target.value)}
                 />
-                <Button
+                <LoadingButton
+                  loading={sendingEmail}
                   variant="contained"
                   size="small"
                   onClick={() => {
                     if (enteredEmail) {
+                      if (!validateEmail(enteredEmail))
+                        return alert("Enter valid Email");
                       (async () => {
+                        setSendingEmail(true);
                         // continueUrl=http://localhost:3000/challenges/m9lhvxube2QBPriHgBPk?loginEnteredEmail%3Dlogesh.r24@gmail.com&lang=en
-                        await sendSignInLinkToEmail(auth, enteredEmail, {
-                          url:
-                            typeof window !== "undefined"
-                              ? window.location.origin +
-                                `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
-                              : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
-                          handleCodeInApp: true,
-                        });
+                        // await sendSignInLinkToEmail(auth, enteredEmail, {
+                        //   url:
+                        //     typeof window !== "undefined"
+                        //       ? window.location.origin +
+                        //         `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
+                        //       : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
+                        //   handleCodeInApp: true,
+                        // });
+                        await axios.post(
+                          `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-challenge-invitation`,
+                          {
+                            email: enteredEmail,
+                            redirectUrl:
+                              typeof window !== "undefined"
+                                ? window.location.origin +
+                                  `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
+                                : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
+                            name: user?.email?.split("@")[0] || "Marble Race",
+                            voiceName: challenge?.voices[0].name,
+                          }
+                        );
+                        setSendingEmail(false);
 
                         alert(
                           `Your Challenge has been sent to ${enteredEmail}`
@@ -226,7 +251,7 @@ const Challenge = (props: Props) => {
                   }}
                 >
                   Send
-                </Button>
+                </LoadingButton>
               </Stack>
             </Stack>
           ) : (

@@ -1,7 +1,9 @@
 import { LoadingButton } from "@mui/lab";
 import { Stack, TextField, Typography, Box, Button } from "@mui/material";
+import axios from "axios";
 import { useState } from "react";
-import { useSendSignInLinkToEmail } from "react-firebase-hooks/auth";
+// import { useSendSignInLinkToEmail } from "react-firebase-hooks/auth";
+import { validateEmail } from "../../helpers";
 import { auth } from "../../services/firebase.service";
 
 type Props = { url: string; successCallback?: () => void };
@@ -11,25 +13,32 @@ const EmailLink = ({ url, successCallback }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   // const [password, setPassword] = useState<string>("");
 
-  const [sendSignInLinkToEmail, sending, emailLinkError] =
-    useSendSignInLinkToEmail(auth);
+  // const [sendSignInLinkToEmail, sending, emailLinkError] =
+  //   useSendSignInLinkToEmail(auth);
 
   const onEmailLinkSignIn = async () => {
-    if (!email) {
-      alert("Enter the email");
+    if (!email || !validateEmail(email)) {
+      alert("Enter a valid email");
       return;
     }
     setIsLoading(true);
     try {
-      const isSuccess = await sendSignInLinkToEmail(email, {
-        url,
-        handleCodeInApp: true,
-      });
-      if (isSuccess) {
-        window.localStorage.setItem("emailForSignIn", email);
-        alert(`Invitation Code Sent to ${email}`);
-        if (successCallback) successCallback();
-      }
+      // const isSuccess = await sendSignInLinkToEmail(email, {
+      //   url,
+      //   handleCodeInApp: true,
+      // });
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-signin-link`,
+        {
+          redirectUrl: url,
+          email: email,
+        }
+      );
+      // if (isSuccess) {
+      window.localStorage.setItem("emailForSignIn", email);
+      alert(`Invitation Code Sent to ${email}`);
+      if (successCallback) successCallback();
+      // }
     } catch (e) {
       console.log(e);
       alert("Errer occurred, try again");
@@ -59,7 +68,7 @@ const EmailLink = ({ url, successCallback }: Props) => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         type="email"
-        error={!!emailLinkError}
+        // error={!!emailLinkError}
         autoComplete="off"
         label="email"
         color="info"
@@ -71,11 +80,11 @@ const EmailLink = ({ url, successCallback }: Props) => {
             onChange={(e) => setPassword(e.target.value)}
             error={!!emailError}
           ></TextField> */}
-      {emailLinkError?.message && (
+      {/* {emailLinkError?.message && (
         <Typography color={"error"} align="center">
           {emailLinkError?.message}
         </Typography>
-      )}
+      )} */}
       {/* <Box display="flex" justifyContent={"start"} gap={1}>
             <Link
               variant="body2"
