@@ -1,4 +1,11 @@
-import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import {
+  addDoc,
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { Challenge } from "../../models/Challenge";
 import { db } from "../firebase.service";
 
@@ -12,7 +19,17 @@ const createChallenge = async (challengeObj: Challenge) => {
 const getChallenge = async (challengeId: string) => {
   const docRef = doc(db, "challenges", challengeId);
   const challengeDoc = await getDoc(docRef);
-  return challengeDoc.data() as Challenge;
+  return challengeDoc.data() as Challenge | undefined;
 };
 
-export { createChallenge, getChallenge };
+const updateChallengeInvites = async (
+  inviteEmailId: string,
+  challengeId: string
+) => {
+  const docRef = doc(db, "challenges", challengeId);
+  await updateDoc(docRef, {
+    inviteEmails: arrayUnion(inviteEmailId),
+  });
+};
+
+export { createChallenge, getChallenge, updateChallengeInvites };

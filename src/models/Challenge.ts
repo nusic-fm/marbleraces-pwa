@@ -6,6 +6,8 @@ export type Challenge = {
   title: string;
   tracksList: string[];
 
-  userObj: { id: string; name?: string; email: string | null };
   voices: { name: string; id: string }[];
+  creatorUserObj: { id: string; name?: string; email: string | null };
+  inviteEmails: string[];
+  creatorUid: string;
 };

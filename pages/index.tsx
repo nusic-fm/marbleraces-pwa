@@ -382,7 +382,6 @@ const Index = () => {
               alignItems={"center"}
               width={800}
               height={700}
-              pt={3}
             >
               <motion.div
                 style={{
@@ -523,9 +522,11 @@ const Index = () => {
                             title: selectedCoverDoc.title,
                             coverId: selectedCoverDoc.id,
                             trailpath: "stars_01.png", // TODO
-                            userObj: { id: user.uid, email: user.email },
+                            creatorUserObj: { id: user.uid, email: user.email },
                             voices: [{ ...selectedVoiceObj }],
                             tracksList: selectedTracksList,
+                            creatorUid: user.uid,
+                            inviteEmails: [],
                           });
                           // setNewChallengeId(challengeId);
                           // TODO: Route
