@@ -139,7 +139,9 @@ const Challenge = (props: Props) => {
   useEffect(() => {
     if (challengeId) {
       (async () => {
-        const challengeDoc = await getChallenge(challengeId);
+        const challengeDoc = await getChallenge(challengeId, (latestDoc) => {
+          challengeDoc && setChallenge(challengeDoc);
+        });
         if (challengeDoc) {
           setChallenge(challengeDoc);
           const _cover = await getCover(challengeDoc.coverId);
@@ -238,6 +240,7 @@ const Challenge = (props: Props) => {
                       label="email"
                       size="small"
                       type={"email"}
+                      color="info"
                       value={enteredEmail}
                       onChange={(e) => setEnteredEmail(e.target.value)}
                     />
@@ -246,9 +249,17 @@ const Challenge = (props: Props) => {
                       variant="contained"
                       size="small"
                       onClick={() => {
+                        if (sendingEmail) return;
                         if (enteredEmail) {
                           if (!validateEmail(enteredEmail))
                             return alert("Enter valid Email");
+                          else if (enteredEmail === user.email)
+                            return alert("You cannot enter your email");
+                          else if (challenge.invites[enteredEmail]) {
+                            return alert(
+                              `You have already invited ${enteredEmail}`
+                            );
+                          }
                           (async () => {
                             setSendingEmail(true);
                             // continueUrl=http://localhost:3000/challenges/m9lhvxube2QBPriHgBPk?loginEnteredEmail%3Dlogesh.r24@gmail.com&lang=en
@@ -275,6 +286,7 @@ const Challenge = (props: Props) => {
                               }
                             );
                             await updateChallengeInvites(
+                              { email: enteredEmail, isCompleted: false },
                               enteredEmail,
                               challengeId
                             );

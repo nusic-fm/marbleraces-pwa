@@ -43,6 +43,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import Head from "next/head";
 import Header from "../src/components/Header";
 import RequestInvitation from "../src/components/ Modals/RequestInvitation";
+import { LoadingButton } from "@mui/lab";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -98,7 +99,7 @@ const Index = () => {
     QuerySnapshot<DocumentData> | undefined
   >();
   const [songsLoading, setSongsLoading] = useState(true);
-  const [bgNo, setBgNo] = useState(-1);
+  const [bgNo, setBgNo] = useState(15); // TODO
   const [activeStep, setActiveStep] = useState(0);
   const [selectedCoverDoc, setSelectedCoverDoc] = useState<CoverV1Doc | null>(
     null
@@ -118,6 +119,8 @@ const Index = () => {
   ]);
   const router = useRouter();
   const { coverId, qBgNo } = router.query;
+  const [isCreateChallengeLoading, setIsCreateChallengeLoading] =
+    useState(false);
 
   useEffect(() => {
     if (coversCollectionSnapshot?.size) {
@@ -507,7 +510,8 @@ const Index = () => {
                         <ArrowBackRoundedIcon />
                       </IconButton>
                     </Box>
-                    <Button
+                    <LoadingButton
+                      loading={isCreateChallengeLoading}
                       variant="contained"
                       sx={{
                         background:
@@ -516,6 +520,7 @@ const Index = () => {
                       size="large"
                       onClick={async () => {
                         if (selectedVoiceObj && user) {
+                          setIsCreateChallengeLoading(true);
                           const challengeId = await createChallenge({
                             bgId: bgNo.toString(),
                             skinId: selectedSkin,
@@ -526,7 +531,7 @@ const Index = () => {
                             voices: [{ ...selectedVoiceObj }],
                             tracksList: selectedTracksList,
                             creatorUid: user.uid,
-                            inviteEmails: [],
+                            invites: {},
                           });
                           // setNewChallengeId(challengeId);
                           // TODO: Route
@@ -536,7 +541,7 @@ const Index = () => {
                       }}
                     >
                       Create Challenge
-                    </Button>
+                    </LoadingButton>
                   </Box>
                 </Stack>
               </Stack>
