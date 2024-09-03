@@ -78,6 +78,9 @@ export default class Game extends Phaser.Scene {
     lifespan: 400,
     alpha: 0.5,
   };
+  isGameOver: boolean = false;
+  winnerIdx: number = -1;
+  isResultShown = false;
 
   init(data: IGameDataParams) {
     // Sort the voices randomly
@@ -959,7 +962,29 @@ export default class Game extends Phaser.Scene {
       () => (this.isInstrumentPlaying = true)
     );
   }
+  showResult() {
+    const labelContent = this.winnerIdx === 1 ? "You Win!" : "You Lose";
+    console.log(labelContent);
+    const label = this.add.text(
+      this.centerX,
+      this.finishLineOffset - 400,
+      labelContent,
+      {
+        fontSize: "64px",
+        color: "#ffffff",
+        stroke: "#000",
+        strokeThickness: 4,
+      }
+    );
+    label.setDepth(1);
+    label.setPosition(label.x - label.width / 2, label.y);
+    this.isResultShown = true;
+  }
   update(time: number, delta: number): void {
+    if (this.isGameOver && this.isResultShown === false) {
+      // if (this.isResultShown) return;
+      this.showResult();
+    }
     if (this.enableMotion && !this.isRotating && this.background)
       this.background.tilePositionX += 0.08;
     if (this.marbles.length) {
@@ -1055,6 +1080,12 @@ export default class Game extends Phaser.Scene {
       const unFinishedPositions = voicesPositions.filter(
         (y) => y < this.finishLineOffset
       );
+      const finishedPositions = voicesPositions.filter(
+        (y) => y > this.finishLineOffset
+      );
+      if (this.winnerIdx === -1 && finishedPositions.length) {
+        this.winnerIdx = voicesPositions.indexOf(finishedPositions[0]);
+      }
       const largest = Math.max(...unFinishedPositions);
       const secondLargest = Math.max(
         ...unFinishedPositions.filter((p) => p !== largest)
@@ -1068,7 +1099,10 @@ export default class Game extends Phaser.Scene {
       //             .reduce((a, b) => (a > b ? a : b))
       //     );
       // }
-      if (index === -1) return;
+      if (index === -1) {
+        this.isGameOver = true;
+        return;
+      }
       if (
         this.prevVoiceIdx !== index &&
         largest > secondLargest + this.marbleRadius

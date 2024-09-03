@@ -344,7 +344,7 @@ const Challenge = (props: Props) => {
                     direction={"row"}
                     justifyContent="start"
                     sx={{ overflowX: "auto" }}
-                    width={{ xs: "80%", md: "unset" }}
+                    width={{ xs: "80%", md: "400px" }}
                   >
                     {cover?.voices
                       .filter(

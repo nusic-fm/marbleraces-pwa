@@ -22,10 +22,16 @@ const Xp = ({ currentXp }: Props) => {
         variant="outlined"
         label={
           <Typography variant="body2">
-            <motion.div>{rounded}</motion.div>
+            <motion.div
+              style={{
+                color: "greenyellow",
+              }}
+            >
+              {rounded}
+            </motion.div>
           </Typography>
         }
-        deleteIcon={<img src="xp.png" width={35} />}
+        deleteIcon={<img src="/xp.png" width={35} />}
         onDelete={() => {}}
       />
       {/* <Typography variant="h6">{currentXp}</Typography> */}

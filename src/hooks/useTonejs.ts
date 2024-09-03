@@ -46,10 +46,12 @@ let db: Promise<IDBPDatabase<CoversDB>> | null = null;
 const initializeDB = async () => {
   db = openDB<CoversDB>("nusic-covers", 1, {
     upgrade(db) {
-      const store = db.createObjectStore("covers", {
-        keyPath: "id",
-      });
-      store.createIndex("id", "id", { unique: true });
+      if (!db.objectStoreNames.contains("covers")) {
+        const store = db.createObjectStore("covers", {
+          keyPath: "id",
+        });
+        store.createIndex("id", "id", { unique: true });
+      }
     },
   });
   return db;
@@ -58,7 +60,7 @@ const initializeDB = async () => {
 const addToDB = async (id: string, data: Float32Array) => {
   if (!db) await initializeDB();
   const dbInstance = await db!;
-  await dbInstance.put("covers", { id, data }, id);
+  await dbInstance.put("covers", { id, data });
 };
 
 const getFromDB = async (id: string): Promise<Float32Array | undefined> => {
