@@ -40,7 +40,7 @@ const EditProfile = ({ open, onClose, uid, userDoc }: Props) => {
   useEffect(() => {
     if (userDoc) {
       setProfileObj(userDoc);
-      if (userDoc.avatarUrl) setLocalFile(userDoc.avatarUrl);
+      // if (userDoc.avatarUrl) setLocalFile(userDoc.avatarUrl);
     }
   }, [userDoc]);
 
@@ -66,10 +66,10 @@ const EditProfile = ({ open, onClose, uid, userDoc }: Props) => {
   };
 
   const onProfileSave = async () => {
-    if (!profileObj?.name) {
-      setNameError(true);
-      return;
-    }
+    // if (!profileObj?.name) {
+    //   setNameError(true);
+    //   return;
+    // }
     setLoading(true);
     if (localFile && storageObj) {
       await uploadFromFile(
@@ -98,7 +98,7 @@ const EditProfile = ({ open, onClose, uid, userDoc }: Props) => {
     value: string
   ) => {
     const newProfileObj = { ...profileObj } ?? {};
-    newProfileObj[prop] = value;
+    // newProfileObj[prop] = value;
     setProfileObj(newProfileObj);
   };
 
@@ -167,16 +167,16 @@ const EditProfile = ({ open, onClose, uid, userDoc }: Props) => {
                 <input hidden accept="image/*" type="file" />
               </Button>
             )}
-            <TextField
+            {/* <TextField
               label="Name"
               fullWidth
               color="info"
               value={profileObj?.name}
               onChange={(e) => onChangeHandler("name", e.target.value)}
               error={nameError}
-            ></TextField>
+            ></TextField> */}
           </Box>
-          <TextField
+          {/* <TextField
             label="Bio"
             multiline
             minRows={3}
@@ -184,9 +184,9 @@ const EditProfile = ({ open, onClose, uid, userDoc }: Props) => {
             color="info"
             value={profileObj?.bio}
             onChange={(e) => onChangeHandler("bio", e.target.value)}
-          ></TextField>
+          ></TextField> */}
           <Typography>Socials</Typography>
-          <TextField
+          {/* <TextField
             placeholder="Instagram Url"
             value={profileObj?.instagramUrl}
             onChange={(e) => onChangeHandler("instagramUrl", e.target.value)}
@@ -247,7 +247,7 @@ const EditProfile = ({ open, onClose, uid, userDoc }: Props) => {
                 />
               ),
             }}
-          />
+          /> */}
         </Stack>
       </DialogContent>
       <DialogActions>

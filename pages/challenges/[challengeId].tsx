@@ -34,6 +34,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../src/services/firebase.service";
 import EmailLink from "../../src/components/AuthUI/EmailLink";
 import {
+  getAdditionalUserInfo,
   isSignInWithEmailLink,
   // sendSignInLinkToEmail,
   signInWithEmailLink,
@@ -41,6 +42,8 @@ import {
 import Header from "../../src/components/Header";
 import axios from "axios";
 import { LoadingButton } from "@mui/lab";
+import { createUser, getUserDoc } from "../../src/services/db/user.service";
+import { UserDoc } from "../../src/models/User";
 
 type Props = {};
 
@@ -64,6 +67,7 @@ const Challenge = (props: Props) => {
   const [enteredEmail, setEnteredEmail] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const [userDoc, setUserDoc] = useState<UserDoc | null>(null);
 
   const canvasElemWidth = 414;
 
@@ -113,7 +117,19 @@ const Challenge = (props: Props) => {
         (async () => {
           try {
             // The client SDK will parse the code from the link for you.
-            await signInWithEmailLink(auth, email, window.location.href);
+            const creds = await signInWithEmailLink(
+              auth,
+              email,
+              window.location.href
+            );
+            const additionalInfo = getAdditionalUserInfo(creds);
+            if (additionalInfo?.isNewUser && creds.user.email) {
+              const newUserObj = await createUser(
+                creds.user.uid,
+                creds.user.email
+              );
+              setUserDoc(newUserObj);
+            }
             // window.localStorage.removeItem("emailForSignIn");
             router.push(
               typeof window !== "undefined" ? window.location.pathname : "",
@@ -155,6 +171,17 @@ const Challenge = (props: Props) => {
     }
   }, [challengeId]);
 
+  useEffect(() => {
+    if (user) {
+      (async () => {
+        const doc = await getUserDoc(user.uid, (latestDoc) => {
+          if (latestDoc) setUserDoc(latestDoc);
+        });
+        if (doc) setUserDoc(doc);
+      })();
+    }
+  }, [user]);
+
   return (
     <>
       <Head>
@@ -176,7 +203,7 @@ const Challenge = (props: Props) => {
         }}
         height="100vh"
       >
-        <Header user={user} />
+        <Header user={userDoc} />
         {isPageLoading ? (
           <Stack gap={4} alignItems="center">
             <Box width={"80%"} height={80}>
@@ -519,7 +546,7 @@ const Challenge = (props: Props) => {
               variant="h5"
               align="center"
             >
-              Challenge doesn't exists anymore. Create a new challenge{" "}
+              Challenge doesn&apos;t exists anymore. Create a new challenge{" "}
               <Typography
                 component="a"
                 variant="h5"

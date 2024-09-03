@@ -23,35 +23,28 @@ function RequestInvitation({ show, redirectUrl }: Props) {
     <Dialog open={show}>
       <DialogTitle>Request a Free Invitation</DialogTitle>
       <DialogContent>
-        {docData?.remainingInvites && docData?.remainingInvites > 0 ? (
-          <>
-            <Stack
-              direction={"row"}
-              gap={1}
-              alignItems="center"
-              justifyContent={"center"}
-            >
-              <Typography variant="caption" align="center">
-                Invitations Remaining Today:
-              </Typography>
-              <Typography component={"span"} variant="h5">
-                {docData?.remainingInvites}
-              </Typography>
-            </Stack>
-            <EmailLink
-              url={redirectUrl}
-              successCallback={() => {
-                updateRemainingInvites();
-              }}
-            />
-          </>
-        ) : (
-          <>
-            <Typography variant="caption" align="center">
-              No Invitations Available for Today
-            </Typography>
-          </>
-        )}
+        <Stack
+          direction={"row"}
+          gap={1}
+          alignItems="center"
+          justifyContent={"center"}
+        >
+          <Typography variant="caption" align="center">
+            Invitations Remaining Today:
+          </Typography>
+          <Typography component={"span"} variant="h5">
+            {docData?.remainingInvites}
+          </Typography>
+        </Stack>
+        <EmailLink
+          url={redirectUrl}
+          successCallback={() => {
+            updateRemainingInvites();
+          }}
+          isWaitingList={
+            !(docData?.remainingInvites && docData?.remainingInvites > 0)
+          }
+        />
       </DialogContent>
     </Dialog>
   );

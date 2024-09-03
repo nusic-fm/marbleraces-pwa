@@ -16,9 +16,11 @@
 // import { getEnsName } from "../../helpers";
 
 import { Stack, Typography, Chip, Box } from "@mui/material";
-import { signOut, User } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { useRouter } from "next/router";
+import { UserDoc } from "../../models/User";
 import { auth } from "../../services/firebase.service";
+import Xp from "../Xp";
 
 // type Props = {};
 
@@ -184,7 +186,7 @@ import { auth } from "../../services/firebase.service";
 //   );
 // };
 
-const Header = ({ user }: { user: User | null | undefined }) => {
+const Header = ({ user }: { user: UserDoc | null }) => {
   const router = useRouter();
 
   return (
@@ -201,12 +203,15 @@ const Header = ({ user }: { user: User | null | undefined }) => {
         </Typography>
       </Stack>
       {user && (
-        <Chip
-          label={user.email?.split("@")[0]}
-          sx={{ ml: "auto", textTransform: "capitalize" }}
-          clickable
-          onClick={() => signOut(auth)}
-        />
+        <Stack direction={"row"} gap={1} ml="auto">
+          <Xp currentXp={user.xp} />
+          <Chip
+            label={user.email?.split("@")[0]}
+            sx={{ ml: "auto" }}
+            clickable
+            onClick={() => signOut(auth)}
+          />
+        </Stack>
       )}
     </Box>
     // <Box display={"flex"} alignItems={"center"} width={"100%"} p={2}>

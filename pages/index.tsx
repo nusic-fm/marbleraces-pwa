@@ -35,8 +35,11 @@ import {
   getVoiceAvatarPath,
 } from "../src/helpers";
 import { useRouter } from "next/router";
-import EmailLink from "../src/components/AuthUI/EmailLink";
-import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
+import {
+  getAdditionalUserInfo,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
+} from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { getCover } from "../src/services/db/cover.service";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
@@ -44,6 +47,8 @@ import Head from "next/head";
 import Header from "../src/components/Header";
 import RequestInvitation from "../src/components/ Modals/RequestInvitation";
 import { LoadingButton } from "@mui/lab";
+import { createUser, getUserDoc } from "../src/services/db/user.service";
+import { UserDoc } from "../src/models/User";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -90,6 +95,7 @@ const cardVariants: Variants = {
 };
 const Index = () => {
   const [user, authLoading, authError] = useAuthState(auth);
+  const [userDoc, setUserDoc] = useState<UserDoc | null>(null);
   const [recordsLimit, setRecordsLimit] = useState(5);
   const [isLatest, setIsLatest] = useState(false);
   const [coversCollectionSnapshot, coversLoading, error] = useCollection(
@@ -146,11 +152,23 @@ const Index = () => {
         (async () => {
           try {
             // The client SDK will parse the code from the link for you.
-            await signInWithEmailLink(auth, email, window.location.href);
+            const creds = await signInWithEmailLink(
+              auth,
+              email,
+              window.location.href
+            );
+            const additionalInfo = getAdditionalUserInfo(creds);
+            if (additionalInfo?.isNewUser && creds.user.email) {
+              const newUserObj = await createUser(
+                creds.user.uid,
+                creds.user.email
+              );
+              setUserDoc(newUserObj);
+            }
             window.localStorage.removeItem("emailForSignIn");
             router.push("/", undefined, { shallow: true });
-            window.localStorage.removeItem("email");
           } catch (e) {
+            console.log({ e });
             alert("Invalid Login, Please try again.");
             router.push("/", undefined, { shallow: true });
           }
@@ -173,6 +191,17 @@ const Index = () => {
     }
   }, [coverId]);
 
+  useEffect(() => {
+    if (user) {
+      (async () => {
+        const doc = await getUserDoc(user.uid, (latestDoc) => {
+          if (latestDoc) setUserDoc(latestDoc);
+        });
+        if (doc) setUserDoc(doc);
+      })();
+    }
+  }, [user]);
+
   return (
     <>
       <Head>
@@ -189,7 +218,7 @@ const Index = () => {
           // transform: "scale(1.1)",
         }}
       >
-        <Header user={user} />
+        <Header user={userDoc} />
         <Stack
           width={"100%"}
           alignItems={"center"}

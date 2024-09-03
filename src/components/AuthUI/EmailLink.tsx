@@ -1,14 +1,18 @@
 import { LoadingButton } from "@mui/lab";
-import { Stack, TextField, Typography, Box, Button } from "@mui/material";
+import { Stack, TextField, Box } from "@mui/material";
 import axios from "axios";
 import { useState } from "react";
 // import { useSendSignInLinkToEmail } from "react-firebase-hooks/auth";
 import { validateEmail } from "../../helpers";
-import { auth } from "../../services/firebase.service";
+import { createWaitlist } from "../../services/db/waitlist.service";
 
-type Props = { url: string; successCallback?: () => void };
+type Props = {
+  url: string;
+  successCallback?: () => void;
+  isWaitingList?: boolean;
+};
 
-const EmailLink = ({ url, successCallback }: Props) => {
+const EmailLink = ({ url, successCallback, isWaitingList }: Props) => {
   const [email, setEmail] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   // const [password, setPassword] = useState<string>("");
@@ -61,6 +65,41 @@ const EmailLink = ({ url, successCallback }: Props) => {
   //   }
   // };
 
+  if (isWaitingList)
+    return (
+      <Stack gap={2} alignContent="center" justifyContent={"center"} py={1}>
+        <TextField
+          // placeholder="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          type="email"
+          // error={!!emailLinkError}
+          autoComplete="off"
+          label="email"
+          color="info"
+        ></TextField>
+        <Box display={"flex"} justifyContent="center" gap={1}>
+          <LoadingButton
+            loading={isLoading}
+            variant="contained"
+            onClick={async () => {
+              if (validateEmail(email)) {
+                setIsLoading(true);
+                await createWaitlist(email);
+                alert("Joined! You will be notified with an Invitation soon.");
+                setEmail("");
+                setIsLoading(false);
+              }
+            }}
+            size="medium"
+            sx={{ textTransform: "capitalize" }}
+          >
+            Join Waitlist
+          </LoadingButton>
+        </Box>
+      </Stack>
+    );
+
   return (
     <Stack gap={2} alignContent="center" justifyContent={"center"} py={1}>
       <TextField
@@ -73,37 +112,6 @@ const EmailLink = ({ url, successCallback }: Props) => {
         label="email"
         color="info"
       ></TextField>
-      {/* <TextField
-            placeholder="password"
-            type={"password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={!!emailError}
-          ></TextField> */}
-      {/* {emailLinkError?.message && (
-        <Typography color={"error"} align="center">
-          {emailLinkError?.message}
-        </Typography>
-      )} */}
-      {/* <Box display="flex" justifyContent={"start"} gap={1}>
-            <Link
-              variant="body2"
-              color={"rgb(155,155,164)"}
-              sx={{ cursor: "pointer" }}
-              onClick={() => setShowForgotPassword(true)}
-            >
-              Forgot Password?
-            </Link>
-          </Box> */}
-      {/* <Box display={"flex"} justifyContent="center">
-            <LoadingButton
-              loading={sending}
-              variant="contained"
-              onClick={onEmailSignIn}
-            >
-              Login
-            </LoadingButton>
-          </Box> */}
       <Box display={"flex"} justifyContent="center" gap={1}>
         <LoadingButton
           loading={isLoading}
@@ -113,22 +121,7 @@ const EmailLink = ({ url, successCallback }: Props) => {
         >
           Request
         </LoadingButton>
-        {/* <Button size="small" color="secondary">
-          Skip
-        </Button> */}
       </Box>
-      {/* <Box display="flex" justifyContent={"center"} gap={1}>
-            <Typography variant="body2" color={"rgb(155,155,164)"}>
-              Create a Password
-            </Typography>
-            <Link
-              variant="body2"
-              color={"#A794FF"}
-              onClick={() => setShowRegistrationForm(true)}
-            >
-              here
-            </Link>
-          </Box> */}
     </Stack>
   );
 };

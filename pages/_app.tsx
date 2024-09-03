@@ -4,21 +4,21 @@ import { ThemeProvider } from "@mui/material/styles";
 import createEmotionCache from "../src/createEmotionCache";
 import { EmotionCache, CacheProvider } from "@emotion/react";
 import {
-  BottomNavigation,
-  BottomNavigationAction,
+  // BottomNavigation,
+  // BottomNavigationAction,
   CssBaseline,
-  Paper,
+  // Paper,
 } from "@mui/material";
 // import { Head } from "next/document";
 import theme from "../src/theme";
-import PlayCircleOutlineRoundedIcon from "@mui/icons-material/PlayCircleOutlineRounded";
-import ExploreRoundedIcon from "@mui/icons-material/ExploreRounded";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
-import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
-// import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
+// import PlayCircleOutlineRoundedIcon from "@mui/icons-material/PlayCircleOutlineRounded";
+// import ExploreRoundedIcon from "@mui/icons-material/ExploreRounded";
+// import { useRouter } from "next/router";
+// import { useEffect, useState } from "react";
+// import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
+// import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
+// // import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+// import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -33,24 +33,24 @@ export default function MyApp(props: MyAppProps) {
     emotionCache = clientSideEmotionCache,
     pageProps: { session, ...pageProps },
   } = props;
-  const router = useRouter();
+  // const router = useRouter();
 
-  const [value, setValue] = useState<number>();
+  // const [value, setValue] = useState<number>();
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    if (router.pathname === "/") {
-      setValue(0);
-    } else if (router.pathname === "/library") {
-      setValue(1);
-    } else if (router.pathname === "/discover") {
-      setValue(2);
-    } else if (router.pathname.startsWith("/market")) {
-      setValue(3);
-    } else if (router.pathname.startsWith("/profile")) {
-      setValue(4);
-    }
-  }, [router.isReady, router.pathname]);
+  // useEffect(() => {
+  //   if (!router.isReady) return;
+  //   if (router.pathname === "/") {
+  //     setValue(0);
+  //   } else if (router.pathname === "/library") {
+  //     setValue(1);
+  //   } else if (router.pathname === "/discover") {
+  //     setValue(2);
+  //   } else if (router.pathname.startsWith("/market")) {
+  //     setValue(3);
+  //   } else if (router.pathname.startsWith("/profile")) {
+  //     setValue(4);
+  //   }
+  // }, [router.isReady, router.pathname]);
 
   return (
     <CacheProvider value={emotionCache}>
