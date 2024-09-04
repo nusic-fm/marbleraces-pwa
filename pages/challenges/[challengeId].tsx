@@ -99,6 +99,19 @@ const Challenge = (props: Props) => {
       setReady(true);
     }
   };
+
+  const onGameComplete = async (win: boolean, videoId: string) => {
+    // alert(win ? "You Won the Challenge" : "You Lost!");
+    if (win && userDoc) {
+      // const newChallenge = {...challenge};
+      // if (newChallenge.invites) {
+      //   newChallenge.invites[userDoc.email].result = {}
+      // }
+      // setChallenge({...challenge, invites})
+      setUserDoc({ ...userDoc, xp: userDoc.xp + 500 });
+    }
+  };
+
   useEffect(() => {
     if (isSignInWithEmailLink(auth, window.location.href)) {
       // Additional state parameters can also be passed via URL.
@@ -443,6 +456,7 @@ const Challenge = (props: Props) => {
                     // noOfRaceTracks={4}
                     // gravityY={0.5}
                     canvasElemWidth={canvasElemWidth}
+                    onGameComplete={onGameComplete}
                     // enableMotion={false}
                     // trailPath={challenge.trailpath}
                     // trailsLifeSpace={300}

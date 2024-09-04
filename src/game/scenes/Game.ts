@@ -8,6 +8,7 @@ import { GameVoiceInfo } from "./Preloader";
 import { BodyType } from "matter";
 import { duplicateArrayElemToN } from "../../helpers";
 import { IGameDataParams } from "../../models/Phaser";
+import { EventBus } from "../EventBus";
 
 export default class Game extends Phaser.Scene {
   constructor() {
@@ -964,6 +965,7 @@ export default class Game extends Phaser.Scene {
   }
   showResult() {
     const labelContent = this.winnerIdx === 1 ? "You Win!" : "You Lose";
+    const xpContent = this.winnerIdx === 1 ? "+500 XP" : "+0 XP";
     console.log(labelContent);
     const label = this.add.text(
       this.centerX,
@@ -978,6 +980,20 @@ export default class Game extends Phaser.Scene {
     );
     label.setDepth(1);
     label.setPosition(label.x - label.width / 2, label.y);
+    const labelXp = this.add.text(
+      this.centerX,
+      this.finishLineOffset - 300,
+      xpContent,
+      {
+        fontSize: "52px",
+        color: "#573FC8",
+        stroke: "#fff",
+        strokeThickness: 4,
+      }
+    );
+    labelXp.setDepth(1);
+    labelXp.setPosition(labelXp.x - labelXp.width / 2, labelXp.y);
+    EventBus.emit("game-over", { win: this.winnerIdx === 1, videoId: "test" });
     this.isResultShown = true;
   }
   update(time: number, delta: number): void {

@@ -1,10 +1,9 @@
-import { Box, Typography } from "@mui/material";
-import { forwardRef } from "react";
+import { forwardRef, useEffect } from "react";
+import { EventBus } from "../game/EventBus";
 import PhaserGame from "../game/PhaserGame";
 import {
   getSkinPath,
   getBackgroundPath,
-  getTrackPath,
   getTrailPath,
   getVoiceAvatarPath,
 } from "../helpers";
@@ -13,12 +12,24 @@ import { IRefPhaserGame } from "../models/Phaser";
 // import { PhaserGame } from "../game/PhaserGame";
 // import { getBackgroundPath, getSkinPath } from "../helpers";
 
-type Props = { challenge: Challenge; canvasElemWidth: number };
+type Props = {
+  challenge: Challenge;
+  canvasElemWidth: number;
+  onGameComplete: (win: boolean, videoId: string) => Promise<void>;
+};
 
 const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
-  { challenge, canvasElemWidth },
+  { challenge, canvasElemWidth, onGameComplete },
   ref
 ) {
+  useEffect(() => {
+    EventBus.on("game-over", onGameComplete);
+
+    return () => {
+      EventBus.removeListener("game-over", onGameComplete);
+    };
+  }, []);
+
   return (
     <PhaserGame
       ref={ref}
