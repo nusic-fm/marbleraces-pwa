@@ -3,18 +3,16 @@ import {
   Box,
   Button,
   Chip,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   Skeleton,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
-import { Challenge } from "../../src/models/Challenge";
+import type { Challenge } from "../../src/models/Challenge";
 import {
   getChallenge,
   updateChallengeInvites,
@@ -44,6 +42,7 @@ import axios from "axios";
 import { LoadingButton } from "@mui/lab";
 import { createUser, getUserDoc } from "../../src/services/db/user.service";
 import { UserDoc } from "../../src/models/User";
+import RequestInvitation from "../../src/components/ Modals/RequestInvitation";
 
 type Props = {};
 
@@ -108,6 +107,7 @@ const Challenge = (props: Props) => {
       //   newChallenge.invites[userDoc.email].result = {}
       // }
       // setChallenge({...challenge, invites})
+      // TODO: update challenge
       setUserDoc({ ...userDoc, xp: userDoc.xp + 500 });
     }
   };
@@ -243,34 +243,27 @@ const Challenge = (props: Props) => {
             </Box>
           </Stack>
         ) : challenge ? (
-          <Stack gap={4}>
+          <Stack gap={2}>
             <Typography
               variant="h5"
               align="center"
-              sx={
-                {
-                  // background:
-                  //   "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%) text",
-                  // WebkitTextFillColor: "transparent",
-                }
-              }
+              sx={{
+                background:
+                  "linear-gradient(45deg, #8BFBFF 0%, #C8A4FF 50%, #FFB3D9 100%) text",
+                WebkitTextFillColor: "transparent",
+                fontWeight: "bold",
+              }}
             >
-              <Typography
-                variant="h5"
-                textTransform={"capitalize"}
-                component="span"
-              >
-                {challenge?.creatorUserObj.id === user?.uid
-                  ? `Your Challenge Has Been Created`
-                  : `${
-                      challenge?.creatorUserObj.email?.split("@")[0]
-                    } has Challenged you to Marble Race against ${
-                      challenge?.voices[0].name
-                    }`}
-              </Typography>
+              {challenge?.creatorUid === user?.uid
+                ? `Your Challenge Has Been Created`
+                : `${
+                    challenge?.creatorUserObj.email?.split("@")[0]
+                  } has Challenged you to Marble Race against ${
+                    challenge?.voices[0].name
+                  }`}
             </Typography>
             {!ready &&
-              (challenge?.creatorUserObj.id === user?.uid ? (
+              (challenge?.creatorUid === user?.uid ? (
                 <Stack alignItems={"center"} gap={1}>
                   <Typography variant="subtitle1">
                     Invite a Friend to join this Challenge
@@ -406,6 +399,7 @@ const Challenge = (props: Props) => {
               justifyContent="center"
               alignItems={"center"}
               width={"100%"}
+              gap={2}
             >
               <Box
                 width={canvasElemWidth}
@@ -550,6 +544,69 @@ const Challenge = (props: Props) => {
                   </Stack>
                 )}
               </Box>
+              {challenge.creatorUid === userDoc?.uid && (
+                <Stack
+                  alignItems={"center"}
+                  justifyContent={"start"}
+                  height={"100%"}
+                >
+                  <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                    Invites
+                  </Typography>
+                  {Object.entries(challenge.invites).length > 0 ? (
+                    <Stack spacing={1}>
+                      {Object.entries(challenge.invites).map(
+                        ([email, { isCompleted, result }]) => (
+                          <Box
+                            key={email}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
+                            gap={2}
+                          >
+                            <Tooltip title={email}>
+                              <Typography>{email.split("@")[0]}</Typography>
+                            </Tooltip>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                              <Chip
+                                label={
+                                  isCompleted
+                                    ? result?.winnerId === challenge.creatorUid
+                                      ? "+500 XP"
+                                      : "+0 XP"
+                                    : "Pending"
+                                }
+                                color={
+                                  isCompleted
+                                    ? result?.winnerId === challenge.creatorUid
+                                      ? "success"
+                                      : "error"
+                                    : "warning"
+                                }
+                                size="small"
+                                sx={{ mr: 1 }}
+                              />
+                              {/* {!isCompleted && (
+                                <Tooltip title="Resend Invite">
+                                  <IconButton onClick={() => {}} size="small">
+                                    <SendRoundedIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              )} */}
+                            </Box>
+                          </Box>
+                        )
+                      )}
+                    </Stack>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      No invites sent yet.
+                    </Typography>
+                  )}
+                </Stack>
+              )}
             </Box>
           </Stack>
         ) : (
@@ -576,22 +633,23 @@ const Challenge = (props: Props) => {
             </Typography>
           </Stack>
         )}
-        <Dialog open={!user}>
+        <RequestInvitation
+          show={!user && !authLoading}
+          redirectUrl={
+            typeof window !== "undefined"
+              ? window.location.origin + `/challenges/${challengeId}`
+              : `https://marblerace.ai/challenges/${challengeId}`
+          }
+        />
+        {/* <Dialog open={!user}>
           <DialogTitle>Request a Free Invitation</DialogTitle>
           <DialogContent>
             {authLoading ? (
               <Skeleton variant="rectangular" animation="wave" />
             ) : (
-              <EmailLink
-                url={
-                  typeof window !== "undefined"
-                    ? window.location.origin + `/challenges/${challengeId}`
-                    : `https://marblerace.ai/challenges/${challengeId}`
-                }
-              />
             )}
           </DialogContent>
-        </Dialog>
+        </Dialog> */}
       </Stack>
     </>
   );

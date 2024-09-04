@@ -3,6 +3,7 @@ export type ChallengeInvite = {
   isCompleted: boolean;
   uid?: string;
   result?: { videoId: string; winnerId: string; updatedAt: string };
+  xpClaimed?: boolean;
 };
 export type Challenge = {
   coverId: string;

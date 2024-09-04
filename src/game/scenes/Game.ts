@@ -85,7 +85,8 @@ export default class Game extends Phaser.Scene {
 
   init(data: IGameDataParams) {
     // Sort the voices randomly
-    this.voices = data.voices.sort(() => Math.random() - 0.5);
+    this.voices = data.voices;
+    // .sort(() => Math.random() - 0.5);
     this.coverDocId = data.coverDocId;
     this.musicStartOffset = data.musicStartOffset;
     this.noOfRaceTracks = data.noOfRaceTracks;
