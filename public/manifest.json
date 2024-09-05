@@ -4,9 +4,9 @@
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
-  "name": "NUSIC Player",
-  "short_name": "NUSIC Player",
-  "description": "Powering the Evolution of Music",
+  "name": "AI Marble Race",
+  "short_name": "AI Marble Race",
+  "description": "Challenge Friend to a Marble Race",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
