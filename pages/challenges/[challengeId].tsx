@@ -283,9 +283,9 @@ const Challenge = (props: Props) => {
               }}
             >
               {challenge.invites[userDoc?.email || ""]?.isCompleted
-                ? `Challenge ${
-                    challenge.creatorUserObj.email?.split("@")[0]
-                  } Vs ${userDoc?.email.split("@")[0]} is Completed!`
+                ? `${challenge.creatorUserObj.email?.split("@")[0]} (${
+                    challenge.voices[0]?.name
+                  }) Vs ${userDoc?.email.split("@")[0]} is Completed!`
                 : challenge?.creatorUid === user?.uid
                 ? `Your Challenge Has Been Created`
                 : `${
@@ -635,6 +635,17 @@ const Challenge = (props: Props) => {
                                 size="small"
                                 sx={{ mr: 1 }}
                               />
+                              {isCompleted && result?.videoUrl && (
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  color="info"
+                                  href={result.videoUrl}
+                                  target="_blank"
+                                >
+                                  Watch It
+                                </Button>
+                              )}
                               {/* {!isCompleted && (
                                 <Tooltip title="Resend Invite">
                                   <IconButton onClick={() => {}} size="small">
