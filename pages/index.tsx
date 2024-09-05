@@ -169,7 +169,7 @@ const Index = () => {
             router.push("/", undefined, { shallow: true });
           } catch (e) {
             console.log({ e });
-            alert("Invalid Login, Please try again.");
+            // alert("Invalid Login, Please try again.");
             router.push("/", undefined, { shallow: true });
           }
         })();

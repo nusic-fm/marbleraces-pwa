@@ -180,7 +180,7 @@ const Challenge = (props: Props) => {
               }
             );
           } catch (e) {
-            alert("Invalid Login, Please try again.");
+            // alert("Invalid Login, Please try again.");
             router.push(
               typeof window !== "undefined" ? window.location.pathname : "",
               undefined,
