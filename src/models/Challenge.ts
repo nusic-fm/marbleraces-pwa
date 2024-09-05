@@ -1,8 +1,10 @@
+import { FieldValue } from "firebase/firestore";
+
 export type ChallengeInvite = {
   email: string;
   isCompleted: boolean;
   uid?: string;
-  result?: { videoId: string; winnerId: string; updatedAt: string };
+  result?: { videoUrl: string; winnerId: string; updatedAt: FieldValue };
   xpClaimed?: boolean;
 };
 export type Challenge = {
@@ -18,3 +20,4 @@ export type Challenge = {
   invites: { [email: string]: ChallengeInvite };
   creatorUid: string;
 };
+export type ChallengeDoc = Challenge & { id: string };

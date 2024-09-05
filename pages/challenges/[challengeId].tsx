@@ -12,13 +12,16 @@ import {
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
-import type { Challenge } from "../../src/models/Challenge";
+import type { Challenge, ChallengeDoc } from "../../src/models/Challenge";
 import {
   getChallenge,
   updateChallengeInvites,
 } from "../../src/services/db/challenge.service";
 import LinearProgressWithLabel from "../../src/components/LinearProgressWithLabel";
-import { downloadAudioFiles } from "../../src/hooks/useTonejs";
+import {
+  downloadAudioFiles,
+  stopAndDestroyPlayers,
+} from "../../src/hooks/useTonejs";
 import {
   getBackgroundPath,
   // getSkinPath,
@@ -40,9 +43,14 @@ import {
 import Header from "../../src/components/Header";
 import axios from "axios";
 import { LoadingButton } from "@mui/lab";
-import { createUser, getUserDoc } from "../../src/services/db/user.service";
+import {
+  createUser,
+  getUserDoc,
+  updateUserProfile,
+} from "../../src/services/db/user.service";
 import { UserDoc } from "../../src/models/User";
 import RequestInvitation from "../../src/components/ Modals/RequestInvitation";
+import { increment, serverTimestamp } from "firebase/firestore";
 
 type Props = {};
 
@@ -56,7 +64,7 @@ const AppWithoutSSR = dynamic(
 const Challenge = (props: Props) => {
   const router = useRouter();
   const { challengeId } = router.query as { challengeId: string };
-  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [challenge, setChallenge] = useState<ChallengeDoc | null>(null);
   const [cover, setCover] = useState<CoverV1 | null>(null);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [ready, setReady] = useState(false);
@@ -99,16 +107,36 @@ const Challenge = (props: Props) => {
     }
   };
 
-  const onGameComplete = async (win: boolean, videoId: string) => {
-    // alert(win ? "You Won the Challenge" : "You Lost!");
-    if (win && userDoc) {
-      // const newChallenge = {...challenge};
-      // if (newChallenge.invites) {
-      //   newChallenge.invites[userDoc.email].result = {}
-      // }
-      // setChallenge({...challenge, invites})
-      // TODO: update challenge
-      setUserDoc({ ...userDoc, xp: userDoc.xp + 500 });
+  const onGameComplete = async (win: boolean, videoUrl: string) => {
+    console.log("onGameComplete", win, videoUrl);
+    phaserRef.current?.game?.destroy(true);
+    stopAndDestroyPlayers();
+    if (userDoc && challenge) {
+      // alert(win ? "You Won the Challenge" : "You Lost!");
+      if (win) {
+        // const newChallenge = {...challenge};
+        // if (newChallenge.invites) {
+        //   newChallenge.invites[userDoc.email].result = {}
+        // }
+        // setChallenge({...challenge, invites})
+        // TODO: update challenge
+        await updateUserProfile(userDoc.uid, { xp: increment(500) });
+      } else {
+        await updateUserProfile(challenge.creatorUid, { xp: increment(500) });
+      }
+      await updateChallengeInvites(
+        {
+          isCompleted: true,
+          email: userDoc.email,
+          result: {
+            winnerId: win ? userDoc.uid : challenge.creatorUid,
+            videoUrl,
+            updatedAt: serverTimestamp(),
+          },
+        },
+        userDoc.email,
+        challengeId
+      );
     }
   };
 
@@ -169,10 +197,10 @@ const Challenge = (props: Props) => {
     if (challengeId) {
       (async () => {
         const challengeDoc = await getChallenge(challengeId, (latestDoc) => {
-          challengeDoc && setChallenge(challengeDoc);
+          latestDoc && setChallenge({ ...latestDoc, id: challengeId });
         });
         if (challengeDoc) {
-          setChallenge(challengeDoc);
+          setChallenge({ ...challengeDoc, id: challengeId });
           const _cover = await getCover(challengeDoc.coverId);
           setCover(_cover);
         }
@@ -254,7 +282,11 @@ const Challenge = (props: Props) => {
                 fontWeight: "bold",
               }}
             >
-              {challenge?.creatorUid === user?.uid
+              {challenge.invites[userDoc?.email || ""]?.isCompleted
+                ? `Challenge ${
+                    challenge.creatorUserObj.email?.split("@")[0]
+                  } Vs ${userDoc?.email.split("@")[0]} is Completed!`
+                : challenge?.creatorUid === user?.uid
                 ? `Your Challenge Has Been Created`
                 : `${
                     challenge?.creatorUserObj.email?.split("@")[0]
@@ -262,7 +294,8 @@ const Challenge = (props: Props) => {
                     challenge?.voices[0].name
                   }`}
             </Typography>
-            {!ready &&
+            {!challenge.invites[userDoc?.email || ""]?.isCompleted &&
+              !ready &&
               (challenge?.creatorUid === user?.uid ? (
                 <Stack alignItems={"center"} gap={1}>
                   <Typography variant="subtitle1">
@@ -401,149 +434,163 @@ const Challenge = (props: Props) => {
               width={"100%"}
               gap={2}
             >
-              <Box
-                width={canvasElemWidth}
-                height={(canvasElemWidth * 16) / 9}
-                sx={{
-                  background: ready
-                    ? "unset"
-                    : challenge
-                    ? `url(${getBackgroundPath(challenge.bgId)})`
-                    : "unset", // TODO
-                  backgroundPosition: "center",
-                  backgroundSize: "contain",
-                  backgroundRepeat: "no-repeat",
-                  // borderRadius: 8,
-                }}
-                display="flex"
-                alignItems={"start"}
-                justifyContent={"center"}
-              >
-                {ready && challenge ? (
-                  //     <PhaserGame
-                  //       ref={phaserRef}
-                  //       voices={selectedVoices}
-                  //       coverDocId={challenge?.coverId}
-                  //       musicStartOffset={30}
-                  //       skinPath={getSkinPath(challenge.skinId)}
-                  //       backgroundPath={getBackgroundPath(challenge.bgId)}
-                  //       selectedTracks={challenge.tracksList.slice(0, 4)}
-                  //       noOfRaceTracks={4}
-                  //       gravityY={0.5}
-                  //       width={canvasElemWidth}
-                  //       enableMotion={false}
-                  //       trailPath={challenge.trailpath}
-                  //       trailsLifeSpace={300}
-                  //       trailEndSize={0.5}
-                  //       trailsOpacity={0.5}
-                  //       recordDuration={60000}
-                  //       isRecord={false} // TODO
-                  //     />
-                  //   );
-                  <AppWithoutSSR
-                    ref={phaserRef}
-                    challenge={challenge}
-                    // musicStartOffset={30}
-                    // skinPath={getSkinPath(challenge.skinId)}
-                    // backgroundPath={getBackgroundPath(challenge.bgId)}
-                    // selectedTracks={challenge.tracksList.slice(0, 4)}
-                    // noOfRaceTracks={4}
-                    // gravityY={0.5}
-                    canvasElemWidth={canvasElemWidth}
-                    onGameComplete={onGameComplete}
-                    // enableMotion={false}
-                    // trailPath={challenge.trailpath}
-                    // trailsLifeSpace={300}
-                    // trailEndSize={0.5}
-                    // trailsOpacity={0.5}
-                    // recordDuration={60000}
-                    // isRecord={false} // TODO
-                  />
-                ) : (
-                  <Stack
-                    alignItems={"center"}
-                    py={8}
-                    width="100%"
-                    gap={4}
-                    sx={{
-                      background: "rgba(0,0,0,0.8)",
-                    }}
-                  >
-                    <Typography
-                      height={"100%"}
-                      width={"100%"}
-                      display="flex"
-                      justifyContent={"center"}
-                      variant="h6"
-                      align="center"
+              {challenge.invites[userDoc?.email || ""]?.isCompleted ? (
+                <video
+                  src={
+                    challenge.invites[userDoc?.email || ""]?.result?.videoUrl
+                  }
+                  controls
+                  width={canvasElemWidth}
+                  height={(canvasElemWidth * 16) / 9}
+                  autoPlay
+                  muted
+                />
+              ) : (
+                <Box
+                  width={canvasElemWidth}
+                  height={(canvasElemWidth * 16) / 9}
+                  sx={{
+                    background: ready
+                      ? "unset"
+                      : challenge
+                      ? `url(${getBackgroundPath(challenge.bgId)})`
+                      : "unset", // TODO
+                    backgroundPosition: "center",
+                    backgroundSize: "contain",
+                    backgroundRepeat: "no-repeat",
+                    // borderRadius: 8,
+                  }}
+                  display="flex"
+                  alignItems={"start"}
+                  justifyContent={"center"}
+                >
+                  {ready && challenge && userDoc ? (
+                    //     <PhaserGame
+                    //       ref={phaserRef}
+                    //       voices={selectedVoices}
+                    //       coverDocId={challenge?.coverId}
+                    //       musicStartOffset={30}
+                    //       skinPath={getSkinPath(challenge.skinId)}
+                    //       backgroundPath={getBackgroundPath(challenge.bgId)}
+                    //       selectedTracks={challenge.tracksList.slice(0, 4)}
+                    //       noOfRaceTracks={4}
+                    //       gravityY={0.5}
+                    //       width={canvasElemWidth}
+                    //       enableMotion={false}
+                    //       trailPath={challenge.trailpath}
+                    //       trailsLifeSpace={300}
+                    //       trailEndSize={0.5}
+                    //       trailsOpacity={0.5}
+                    //       recordDuration={60000}
+                    //       isRecord={false} // TODO
+                    //     />
+                    //   );
+                    <AppWithoutSSR
+                      ref={phaserRef}
+                      challenge={challenge}
+                      // musicStartOffset={30}
+                      // skinPath={getSkinPath(challenge.skinId)}
+                      // backgroundPath={getBackgroundPath(challenge.bgId)}
+                      // selectedTracks={challenge.tracksList.slice(0, 4)}
+                      // noOfRaceTracks={4}
+                      // gravityY={0.5}
+                      canvasElemWidth={canvasElemWidth}
+                      onGameComplete={onGameComplete}
+                      userDoc={userDoc}
+                      // enableMotion={false}
+                      // trailPath={challenge.trailpath}
+                      // trailsLifeSpace={300}
+                      // trailEndSize={0.5}
+                      // trailsOpacity={0.5}
+                      // recordDuration={60000}
+                      // isRecord={false} // TODO
+                    />
+                  ) : (
+                    <Stack
+                      alignItems={"center"}
+                      py={8}
+                      width="100%"
+                      gap={4}
+                      sx={{
+                        background: "rgba(0,0,0,0.8)",
+                      }}
                     >
-                      {challenge?.title}
-                    </Typography>
-                    {challenge && isDownloading ? (
-                      <LinearProgressWithLabel
-                        value={downloadProgress}
-                        sx={{ height: 10, borderRadius: 5 }}
-                      />
-                    ) : (
-                      <Stack gap={2}>
-                        <Stack
-                          direction={"row"}
-                          alignItems="center"
-                          gap={1}
-                          justifyContent="center"
-                        >
-                          <Avatar
-                            src={`https://voxaudio.nusic.fm/${encodeURIComponent(
-                              "voice_models/avatars/thumbs/"
-                            )}${challenge?.voices[0].id}_200x200?alt=media`}
-                            key={challenge?.voices[0].id}
-                            sx={{
-                              width: 50,
-                              height: 50,
-                              borderRadius: "50%",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {}}
-                          />
-                          VS
-                          <Avatar
-                            src={`https://voxaudio.nusic.fm/${encodeURIComponent(
-                              "voice_models/avatars/thumbs/"
-                            )}${challenge?.voices[1]?.id}_200x200?alt=media`}
-                            key={challenge?.voices[1]?.id}
-                            sx={{
-                              width: 50,
-                              height: 50,
-                              borderRadius: "50%",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {}}
-                          />
-                        </Stack>
-                        {user?.uid !== challenge?.creatorUserObj.id && (
-                          <Button
-                            onClick={() => {
-                              if (
-                                challenge &&
-                                challenge.voices.length > 1 &&
-                                user
-                              )
-                                downloadAndPlay();
-                              else if (user)
-                                alert("Choose a Voice to Play the Race");
-                              else alert("Sign In to play the Challenge");
-                            }}
-                            variant="contained"
-                            color="primary"
+                      <Typography
+                        height={"100%"}
+                        width={"100%"}
+                        display="flex"
+                        justifyContent={"center"}
+                        variant="h6"
+                        align="center"
+                      >
+                        {challenge?.title}
+                      </Typography>
+                      {challenge && isDownloading ? (
+                        <LinearProgressWithLabel
+                          value={downloadProgress}
+                          sx={{ height: 10, borderRadius: 5 }}
+                        />
+                      ) : (
+                        <Stack gap={2}>
+                          <Stack
+                            direction={"row"}
+                            alignItems="center"
+                            gap={1}
+                            justifyContent="center"
                           >
-                            Play
-                          </Button>
-                        )}
-                      </Stack>
-                    )}
-                  </Stack>
-                )}
-              </Box>
+                            <Avatar
+                              src={`https://voxaudio.nusic.fm/${encodeURIComponent(
+                                "voice_models/avatars/thumbs/"
+                              )}${challenge?.voices[0].id}_200x200?alt=media`}
+                              key={challenge?.voices[0].id}
+                              sx={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: "50%",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => {}}
+                            />
+                            VS
+                            <Avatar
+                              src={`https://voxaudio.nusic.fm/${encodeURIComponent(
+                                "voice_models/avatars/thumbs/"
+                              )}${challenge?.voices[1]?.id}_200x200?alt=media`}
+                              key={challenge?.voices[1]?.id}
+                              sx={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: "50%",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => {}}
+                            />
+                          </Stack>
+                          {user?.uid !== challenge?.creatorUserObj.id && (
+                            <Button
+                              onClick={() => {
+                                if (
+                                  challenge &&
+                                  challenge.voices.length > 1 &&
+                                  user
+                                )
+                                  downloadAndPlay();
+                                else if (user)
+                                  alert("Choose a Voice to Play the Race");
+                                else alert("Sign In to play the Challenge");
+                              }}
+                              variant="contained"
+                              color="primary"
+                            >
+                              Play
+                            </Button>
+                          )}
+                        </Stack>
+                      )}
+                    </Stack>
+                  )}
+                </Box>
+              )}
               {challenge.creatorUid === userDoc?.uid && (
                 <Stack
                   alignItems={"center"}
@@ -576,7 +623,7 @@ const Challenge = (props: Props) => {
                                     ? result?.winnerId === challenge.creatorUid
                                       ? "+500 XP"
                                       : "+0 XP"
-                                    : "Pending"
+                                    : "Waiting"
                                 }
                                 color={
                                   isCompleted

@@ -1,4 +1,5 @@
 import { GameVoiceInfo } from "../game/scenes/Preloader";
+import { UserDoc } from "./User";
 
 export interface IRefPhaserGame {
   game: Phaser.Game | null;
@@ -22,4 +23,6 @@ export interface IGameDataParams {
   trailEndSize: number;
   recordDuration: number;
   isRecord: boolean;
+  challengeId: string;
+  userDoc: UserDoc;
 }

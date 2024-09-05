@@ -1,19 +1,28 @@
-import { forwardRef, useLayoutEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import StartGame from "./main";
 import * as Tone from "tone";
 import { IGameDataParams, IRefPhaserGame } from "../models/Phaser";
+import { uploadChallengeVideo } from "../services/storage/challengeVideo";
+import { EventBus } from "./EventBus";
 
 interface IProps extends IGameDataParams {
   currentActiveScene?: (scene_instance: Phaser.Scene) => void;
+  onGameComplete: (win: boolean, videoId: string) => Promise<void>;
 }
-const downloadVideo = (videoUrl: string, name: string) => {
-  const link = document.createElement("a");
-  link.href = videoUrl;
-  link.download = `${name}.webm`; // Set the file name for download
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+// const downloadVideo = (videoUrl: string, name: string) => {
+//   const link = document.createElement("a");
+//   link.href = videoUrl;
+//   link.download = `${name}.webm`; // Set the file name for download
+//   document.body.appendChild(link);
+//   link.click();
+//   document.body.removeChild(link);
+// };
 
 const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
   {
@@ -33,6 +42,9 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
     trailEndSize,
     recordDuration,
     isRecord,
+    challengeId,
+    userDoc,
+    onGameComplete,
   },
   ref
 ) {
@@ -42,6 +54,23 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
     null
   );
   const [isRecording, setIsRecording] = useState(false);
+  const isCurrentUserWin = useRef<boolean>(false);
+
+  const stopRecording = (win: boolean) => {
+    isCurrentUserWin.current = win;
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
+  };
+
+  useEffect(() => {
+    EventBus.on("game-over", stopRecording);
+
+    return () => {
+      EventBus.removeListener("game-over", stopRecording);
+    };
+  }, [mediaRecorder]);
 
   const startRecording = (canvas: HTMLCanvasElement) => {
     // const canvas = canvasRef.current;
@@ -66,23 +95,25 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
 
     const chunks: Blob[] = [];
     recorder.ondataavailable = (e) => chunks.push(e.data);
-    recorder.onstop = () => {
+    recorder.onstop = async () => {
       const blob = new Blob(chunks, { type: "video/webm" });
-      downloadVideo(URL.createObjectURL(blob), coverDocId);
+      // downloadVideo(URL.createObjectURL(blob), coverDocId);
+      // Store the video in Firebase Storage
+      const videoUrl = await uploadChallengeVideo(
+        blob,
+        coverDocId,
+        userDoc.uid
+      );
+      onGameComplete(isCurrentUserWin.current, videoUrl);
     };
 
     recorder.start();
     setMediaRecorder(recorder);
     setIsRecording(true);
 
-    setTimeout(() => {
-      stopRecording(recorder);
-    }, recordDuration * 1000);
-  };
-
-  const stopRecording = (recorder: MediaRecorder) => {
-    recorder.stop();
-    setIsRecording(false);
+    // setTimeout(() => {
+    //   stopRecording(recorder);
+    // }, recordDuration * 1000);
   };
 
   useLayoutEffect(() => {
@@ -103,6 +134,8 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
       trailEndSize,
       recordDuration,
       isRecord,
+      challengeId,
+      userDoc,
     });
     if (typeof ref === "function") {
       ref({ game: game.current, scene: null });

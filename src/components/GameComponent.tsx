@@ -1,5 +1,4 @@
 import { forwardRef, useEffect } from "react";
-import { EventBus } from "../game/EventBus";
 import PhaserGame from "../game/PhaserGame";
 import {
   getSkinPath,
@@ -7,29 +6,23 @@ import {
   getTrailPath,
   getVoiceAvatarPath,
 } from "../helpers";
-import { Challenge } from "../models/Challenge";
+import { ChallengeDoc } from "../models/Challenge";
 import { IRefPhaserGame } from "../models/Phaser";
+import { UserDoc } from "../models/User";
 // import { PhaserGame } from "../game/PhaserGame";
 // import { getBackgroundPath, getSkinPath } from "../helpers";
 
 type Props = {
-  challenge: Challenge;
+  challenge: ChallengeDoc;
   canvasElemWidth: number;
   onGameComplete: (win: boolean, videoId: string) => Promise<void>;
+  userDoc: UserDoc;
 };
 
 const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
-  { challenge, canvasElemWidth, onGameComplete },
+  { challenge, canvasElemWidth, onGameComplete, userDoc },
   ref
 ) {
-  useEffect(() => {
-    EventBus.on("game-over", onGameComplete);
-
-    return () => {
-      EventBus.removeListener("game-over", onGameComplete);
-    };
-  }, []);
-
   return (
     <PhaserGame
       ref={ref}
@@ -51,7 +44,10 @@ const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
       trailEndSize={0.5}
       trailsOpacity={0.5}
       recordDuration={60000}
-      isRecord={false} // TODO
+      isRecord={true}
+      challengeId={challenge.id}
+      userDoc={userDoc}
+      onGameComplete={onGameComplete}
     />
   );
 });

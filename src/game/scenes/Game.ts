@@ -994,7 +994,7 @@ export default class Game extends Phaser.Scene {
     );
     labelXp.setDepth(1);
     labelXp.setPosition(labelXp.x - labelXp.width / 2, labelXp.y);
-    EventBus.emit("game-over", { win: this.winnerIdx === 1, videoId: "test" });
+    EventBus.emit("game-over", this.winnerIdx === 1);
     this.isResultShown = true;
   }
   update(time: number, delta: number): void {
