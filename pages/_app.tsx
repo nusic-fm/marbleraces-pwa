@@ -52,20 +52,20 @@ export default function MyApp(props: MyAppProps) {
   //     setValue(4);
   //   }
   // }, [router.isReady, router.pathname]);
-  useEffect(() => {
-    // Ensure this runs only on the client side
-    if (typeof window !== "undefined") {
-      (function () {
-        var mf = document.createElement("script");
-        mf.id = "mouseflow";
-        mf.type = "text/javascript";
-        mf.defer = true;
-        mf.src =
-          "//cdn.mouseflow.com/projects/03a8d0b1-82bd-45d2-aa59-0f70b2ce4b6d.js";
-        document.getElementsByTagName("head")[0].appendChild(mf);
-      })();
-    }
-  }, []);
+  // useEffect(() => {
+  //   // Ensure this runs only on the client side
+  //   if (typeof window !== "undefined") {
+  //     (function () {
+  //       var mf = document.createElement("script");
+  //       mf.id = "mouseflow";
+  //       mf.type = "text/javascript";
+  //       mf.defer = true;
+  //       mf.src =
+  //         "//cdn.mouseflow.com/projects/03a8d0b1-82bd-45d2-aa59-0f70b2ce4b6d.js";
+  //       document.getElementsByTagName("head")[0].appendChild(mf);
+  //     })();
+  //   }
+  // }, []);
 
   return (
     <CacheProvider value={emotionCache}>

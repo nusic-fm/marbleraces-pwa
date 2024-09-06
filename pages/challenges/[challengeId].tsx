@@ -298,7 +298,7 @@ const Challenge = (props: Props) => {
               !ready &&
               (challenge?.creatorUid === user?.uid ? (
                 <Stack alignItems={"center"} gap={1}>
-                  <Typography variant="subtitle1">
+                  <Typography variant="subtitle1" align="center">
                     Invite a Friend to join this Challenge
                   </Typography>
                   <Stack direction={"row"} gap={1}>
@@ -430,9 +430,10 @@ const Challenge = (props: Props) => {
             <Box
               display={"flex"}
               justifyContent="center"
-              alignItems={"center"}
+              alignItems={"start"}
               width={"100%"}
               gap={2}
+              flexWrap={"wrap-reverse"}
             >
               {challenge.invites[userDoc?.email || ""]?.isCompleted ? (
                 <video
@@ -592,11 +593,7 @@ const Challenge = (props: Props) => {
                 </Box>
               )}
               {challenge.creatorUid === userDoc?.uid && (
-                <Stack
-                  alignItems={"center"}
-                  justifyContent={"start"}
-                  height={"100%"}
-                >
+                <Stack alignItems={"center"} justifyContent={"start"}>
                   <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
                     Invites
                   </Typography>

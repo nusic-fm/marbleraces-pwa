@@ -10,6 +10,8 @@ import {
   IconButton,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import {
@@ -127,6 +129,8 @@ const Index = () => {
   const { coverId, qBgNo } = router.query;
   const [isCreateChallengeLoading, setIsCreateChallengeLoading] =
     useState(false);
+  const theme = useTheme();
+  const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     if (coversCollectionSnapshot?.size) {
@@ -209,11 +213,11 @@ const Index = () => {
         <title>Marble Race</title>
       </Head>
       <Stack
-        height={"100vh"}
+        minHeight={"100vh"}
         sx={{
           backgroundImage: `url(/bg_pattern.png)`,
           backgroundSize: "120% 120%",
-          backgroundRepeat: "no-repeat",
+          backgroundRepeat: "repeat",
           backgroundPosition: "center",
           // transform: "scale(1.1)",
         }}
@@ -242,7 +246,7 @@ const Index = () => {
             >
               {coversSnapshot?.docs.length ? (
                 <Box
-                  width={500}
+                  width={window.innerWidth > 500 ? 500 : "100%"} // Responsive
                   sx={{ overflowY: "auto" }}
                   pt={3}
                   mb={"-120px"}
@@ -266,7 +270,7 @@ const Index = () => {
                         }}
                         initial="offscreen"
                         whileInView="onscreen"
-                        viewport={{ once: true, amount: 0.8 }}
+                        viewport={{ once: true, amount: 0.6 }}
                       >
                         <Box
                           position={"absolute"}
@@ -283,7 +287,7 @@ const Index = () => {
                         <motion.div
                           style={{
                             fontSize: 164,
-                            width: 300,
+                            width: window.innerWidth > 500 ? 300 : 260,
                             height: 430,
                             display: "flex",
                             alignItems: "start",
@@ -313,6 +317,7 @@ const Index = () => {
                               }}
                               mt={2}
                               height="4.2rem"
+                              width={"100%"}
                             >
                               {coverDoc.title}
                             </Typography>
@@ -322,8 +327,8 @@ const Index = () => {
                                 mt: 2,
                                 ".MuiAvatar-colorDefault": {
                                   backgroundColor: "transparent",
-                                  width: 50,
-                                  height: 50,
+                                  width: isMobileView ? 45 : 50,
+                                  height: isMobileView ? 45 : 50,
                                   border: "1px solid white",
                                   color: "white",
                                 },
@@ -336,8 +341,8 @@ const Index = () => {
                                     "voice_models/avatars/thumbs/"
                                   )}${voice.id}_200x200?alt=media`}
                                   sx={{
-                                    width: 50,
-                                    height: 50,
+                                    width: isMobileView ? 45 : 50,
+                                    height: isMobileView ? 45 : 50,
                                     borderRadius: "50%",
                                     cursor: "pointer",
                                   }}
@@ -410,10 +415,11 @@ const Index = () => {
           {activeStep === 1 && selectedCoverDoc && (
             <Stack
               direction={"row"}
-              // justifyContent="space-between"
+              justifyContent={isMobileView ? "center" : "unset"}
               alignItems={"center"}
-              width={800}
+              width={isMobileView ? "100%" : 800}
               height={700}
+              flexWrap={"wrap"}
             >
               <motion.div
                 style={{
@@ -451,7 +457,12 @@ const Index = () => {
                   </Typography>
                 </Stack>
               </motion.div>
-              <Stack direction={"row"} alignItems={"center"} gap={2} mx="auto">
+              <Stack
+                direction={"row"}
+                alignItems={"center"}
+                gap={2}
+                mx={isMobileView ? 0 : "auto"}
+              >
                 <Stack gap={2} alignItems="center">
                   <Stack gap={2}>
                     <Typography align="center" variant="h5">
@@ -462,7 +473,7 @@ const Index = () => {
                       gap={1}
                       alignItems="center"
                       sx={{ overflowX: "auto" }}
-                      width={400}
+                      width={isMobileView ? "100%" : 400}
                       py={1}
                     >
                       {selectedCoverDoc.voices.map((voice) => (
@@ -470,14 +481,15 @@ const Index = () => {
                           key={voice.id}
                           src={getVoiceAvatarPath(voice.id)}
                           sx={{
-                            width: 70,
-                            height: 70,
+                            width: isMobileView ? 50 : 70,
+                            height: isMobileView ? 50 : 70,
                             borderRadius: "50%",
                             cursor: "pointer",
                             outline:
                               voice.id === selectedVoiceObj?.id
                                 ? "3px solid white"
                                 : "unset",
+                            userSelect: "none",
                           }}
                           onClick={() =>
                             setSelectedVoiceObj({
@@ -490,7 +502,7 @@ const Index = () => {
                     </Stack>
                   </Stack>
                   <Divider />
-                  <Box maxWidth={380}>
+                  <Box maxWidth={isMobileView ? "100%" : 380}>
                     <SelectRacetracks
                       selectedTracksList={selectedTracksList}
                       setSelectedTracksList={setSelectedTracksList}
