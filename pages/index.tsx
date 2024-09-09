@@ -202,8 +202,8 @@ const Index = () => {
           if (latestDoc) setUserDoc(latestDoc);
         });
         if (doc) setUserDoc(doc);
-        logFirebaseEvent("login", {
-          email: user.email,
+        logFirebaseEvent("user_login", {
+          email: user.email?.split("@")[0],
         });
       })();
     }
