@@ -16,6 +16,7 @@ const firebaseConfig = {
   projectId: process.env.NEXT_PUBLIC_FB_PROJECT_ID,
   appId: process.env.NEXT_PUBLIC_FB_APP_ID,
   storageBucket: process.env.NEXT_PUBLIC_FB_STORAGE,
+  measurementId: process.env.NEXT_PUBLIC_FB_MEASUREMENT_ID,
 };
 let app;
 if (!getApps().length) {
@@ -27,12 +28,14 @@ if (!getApps().length) {
 // // Initialize Firebase
 // const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-// const analytics = getAnalytics(app);
+const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
 const db = getFirestore(app);
 const storage = getStorage(app);
 
 const logFirebaseEvent = (type: any, additionalParams: any) => {
-  // logEvent(analytics, type, additionalParams);
+  if (analytics) {
+    logEvent(analytics, type, additionalParams);
+  }
 };
 
 export { app, auth, logFirebaseEvent, db, storage };

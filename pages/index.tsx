@@ -25,7 +25,7 @@ import {
   documentId,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { auth, db } from "../src/services/firebase.service";
+import { auth, db, logFirebaseEvent } from "../src/services/firebase.service";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { CoverV1, CoverV1Doc } from "../src/models/Cover";
 import { motion, Variants } from "framer-motion";
@@ -202,6 +202,9 @@ const Index = () => {
           if (latestDoc) setUserDoc(latestDoc);
         });
         if (doc) setUserDoc(doc);
+        logFirebaseEvent("login", {
+          email: user.email,
+        });
       })();
     }
   }, [user]);
@@ -358,6 +361,10 @@ const Index = () => {
                                 }}
                                 size="large"
                                 onClick={() => {
+                                  logFirebaseEvent("cover_selected", {
+                                    coverId: id,
+                                    coverTitle: coverDoc.title,
+                                  });
                                   setSelectedCoverDoc({ ...coverDoc, id });
                                   setSelectedVoiceObj({
                                     id: coverDoc.voices[0].id,
@@ -567,12 +574,23 @@ const Index = () => {
                             skinId: selectedSkin,
                             title: selectedCoverDoc.title,
                             coverId: selectedCoverDoc.id,
-                            trailpath: "stars_01.png", // TODO
+                            trailpath: selectedTrail,
                             creatorUserObj: { id: user.uid, email: user.email },
                             voices: [{ ...selectedVoiceObj }],
                             tracksList: selectedTracksList,
                             creatorUid: user.uid,
                             invites: {},
+                          });
+                          logFirebaseEvent("challenge_created", {
+                            coverId: selectedCoverDoc.id,
+                            coverTitle: selectedCoverDoc.title,
+                            voiceId: selectedVoiceObj.id,
+                            voiceName: selectedVoiceObj.name,
+                            bgNo: bgNo,
+                            skinId: selectedSkin,
+                            trailpath: selectedTrail,
+                            challengeId,
+                            email: user.email,
                           });
                           // setNewChallengeId(challengeId);
                           // TODO: Route

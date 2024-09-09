@@ -32,7 +32,7 @@ import { IRefPhaserGame } from "../../src/models/Phaser";
 import { getCover } from "../../src/services/db/cover.service";
 import { CoverV1 } from "../../src/models/Cover";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../src/services/firebase.service";
+import { auth, logFirebaseEvent } from "../../src/services/firebase.service";
 import EmailLink from "../../src/components/AuthUI/EmailLink";
 import {
   getAdditionalUserInfo,
@@ -103,6 +103,15 @@ const Challenge = (props: Props) => {
         }
       );
       setIsDownloading(false);
+      logFirebaseEvent("challenge_play_started", {
+        challengeId,
+        coverId: challenge?.coverId,
+        voiceId: challenge?.voices[0].id,
+        voiceName: challenge?.voices[0].name,
+        email: user?.email,
+        chosenVoiceId: challenge?.voices[0].id,
+        chosenVoiceName: challenge?.voices[0].name,
+      });
       setReady(true);
     }
   };
@@ -137,6 +146,16 @@ const Challenge = (props: Props) => {
         userDoc.email,
         challengeId
       );
+      logFirebaseEvent("challenge_completed", {
+        challengeId,
+        coverId: challenge?.coverId,
+        voiceId: challenge?.voices[0].id,
+        voiceName: challenge?.voices[0].name,
+        email: user?.email,
+        chosenVoiceId: challenge?.voices[0].id,
+        chosenVoiceName: challenge?.voices[0].name,
+        win,
+      });
     }
   };
 
@@ -203,6 +222,14 @@ const Challenge = (props: Props) => {
           setChallenge({ ...challengeDoc, id: challengeId });
           const _cover = await getCover(challengeDoc.coverId);
           setCover(_cover);
+          logFirebaseEvent("challenge_viewed", {
+            challengeId,
+            coverId: challengeDoc?.coverId,
+            coverTitle: _cover?.title,
+            voiceId: challengeDoc?.voices[0].id,
+            voiceName: challengeDoc?.voices[0].name,
+            email: user?.email,
+          });
         }
         // else {
         //   alert("Challenge doesn't exists");
@@ -356,6 +383,14 @@ const Challenge = (props: Props) => {
                               enteredEmail,
                               challengeId
                             );
+                            logFirebaseEvent("challenge_invite_sent", {
+                              challengeId,
+                              coverId: challenge?.coverId,
+                              voiceId: challenge?.voices[0].id,
+                              voiceName: challenge?.voices[0].name,
+                              email: user?.email,
+                              invitedEmail: enteredEmail,
+                            });
                             setSendingEmail(false);
 
                             alert(
@@ -576,9 +611,26 @@ const Challenge = (props: Props) => {
                                   user
                                 )
                                   downloadAndPlay();
-                                else if (user)
+                                else if (user) {
+                                  logFirebaseEvent("challenge_play_clicked", {
+                                    challengeId,
+                                    coverId: challenge?.coverId,
+                                    voiceId: challenge?.voices[0].id,
+                                    voiceName: challenge?.voices[0].name,
+                                    email: user?.email,
+                                    error: "Choose a Voice to Play the Race",
+                                  });
                                   alert("Choose a Voice to Play the Race");
-                                else alert("Sign In to play the Challenge");
+                                } else {
+                                  logFirebaseEvent("challenge_play_clicked", {
+                                    challengeId,
+                                    coverId: challenge?.coverId,
+                                    voiceId: challenge?.voices[0].id,
+                                    voiceName: challenge?.voices[0].name,
+                                    error: "Sign In to play the Challenge",
+                                  });
+                                  alert("Sign In to play the Challenge");
+                                }
                               }}
                               variant="contained"
                               color="primary"
