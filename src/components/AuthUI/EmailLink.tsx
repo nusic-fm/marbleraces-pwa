@@ -10,9 +10,15 @@ type Props = {
   url: string;
   successCallback?: () => void;
   isWaitingList?: boolean;
+  showSignIn?: boolean;
 };
 
-const EmailLink = ({ url, successCallback, isWaitingList }: Props) => {
+const EmailLink = ({
+  url,
+  successCallback,
+  isWaitingList,
+  showSignIn,
+}: Props) => {
   const [email, setEmail] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   // const [password, setPassword] = useState<string>("");
@@ -32,7 +38,7 @@ const EmailLink = ({ url, successCallback, isWaitingList }: Props) => {
       //   handleCodeInApp: true,
       // });
       await axios.post(
-        `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-signin-link`,
+        `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/request-invitation-link`,
         {
           redirectUrl: url,
           email: email,
@@ -65,13 +71,65 @@ const EmailLink = ({ url, successCallback, isWaitingList }: Props) => {
   //   }
   // };
 
-  if (isWaitingList)
+  const onEmailTextboxChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setEmail(e.target.value);
+  };
+
+  if (showSignIn) {
     return (
       <Stack gap={2} alignContent="center" justifyContent={"center"} py={1}>
         <TextField
           // placeholder="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={onEmailTextboxChange}
+          type="email"
+          // error={!!emailLinkError}
+          autoComplete="off"
+          label="email"
+          color="info"
+        ></TextField>
+        <Box display={"flex"} justifyContent="center" gap={1}>
+          <LoadingButton
+            loading={isLoading}
+            variant="contained"
+            onClick={async () => {
+              if (validateEmail(email)) {
+                setIsLoading(true);
+                try {
+                  await axios.post(
+                    `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-login-link`,
+                    {
+                      redirectUrl: url,
+                      email: email,
+                    }
+                  );
+                  alert(`Login link sent to ${email}`);
+                } catch (e: any) {
+                  console.log(e);
+                  if (e.response.data === "User not found") {
+                    alert("Email not found, please request an Invitation");
+                  } else alert("Errer occurred, try again");
+                } finally {
+                  setIsLoading(false);
+                }
+              }
+            }}
+            size="medium"
+          >
+            Login
+          </LoadingButton>
+        </Box>
+      </Stack>
+    );
+  } else if (isWaitingList)
+    return (
+      <Stack gap={2} alignContent="center" justifyContent={"center"} py={1}>
+        <TextField
+          // placeholder="email"
+          value={email}
+          onChange={onEmailTextboxChange}
           type="email"
           // error={!!emailLinkError}
           autoComplete="off"
@@ -86,7 +144,9 @@ const EmailLink = ({ url, successCallback, isWaitingList }: Props) => {
               if (validateEmail(email)) {
                 setIsLoading(true);
                 await createWaitlist(email);
-                alert("Joined! You will be notified with an Invitation soon.");
+                alert(
+                  "Joined the waitlist! You will be notified with an Invitation soon."
+                );
                 setEmail("");
                 setIsLoading(false);
               }
@@ -105,7 +165,7 @@ const EmailLink = ({ url, successCallback, isWaitingList }: Props) => {
       <TextField
         // placeholder="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={onEmailTextboxChange}
         type="email"
         // error={!!emailLinkError}
         autoComplete="off"

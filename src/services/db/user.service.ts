@@ -1,4 +1,14 @@
-import { doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { UserDoc } from "../../models/User";
 import { db } from "../firebase.service";
 
@@ -37,4 +47,10 @@ const updateUserProfile = async (id: string, profileObj: any) => {
   await updateDoc(d, profileObj);
 };
 
-export { getUserDoc, updateUserProfile, createUser };
+const getUserDocByEmail = async (email: string) => {
+  const d = query(collection(db, DB_NAME), where("email", "==", email));
+  const ss = await getDocs(d);
+  return ss.docs.map((doc) => doc.data() as UserDoc);
+};
+
+export { getUserDoc, updateUserProfile, createUser, getUserDocByEmail };
