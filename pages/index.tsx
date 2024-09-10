@@ -427,6 +427,7 @@ const Index = () => {
               width={isMobileView ? "100%" : 800}
               height={700}
               flexWrap={"wrap"}
+              gap={2}
             >
               <motion.div
                 style={{
@@ -480,8 +481,10 @@ const Index = () => {
                       gap={1}
                       alignItems="center"
                       sx={{ overflowX: "auto" }}
-                      width={isMobileView ? "100%" : 400}
+                      width={isMobileView ? "100vw" : 400}
                       py={1}
+                      justifyContent={"flex-start"}
+                      px={isMobileView ? 2 : 0}
                     >
                       {selectedCoverDoc.voices.map((voice) => (
                         <Avatar
