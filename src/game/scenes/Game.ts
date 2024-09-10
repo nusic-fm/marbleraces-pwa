@@ -970,7 +970,7 @@ export default class Game extends Phaser.Scene {
     console.log(labelContent);
     const label = this.add.text(
       this.centerX,
-      this.finishLineOffset - 400,
+      this.finishLineOffset - 230,
       labelContent,
       {
         fontSize: "64px",
@@ -983,7 +983,7 @@ export default class Game extends Phaser.Scene {
     label.setPosition(label.x - label.width / 2, label.y);
     const labelXp = this.add.text(
       this.centerX,
-      this.finishLineOffset - 300,
+      this.finishLineOffset - 75,
       xpContent,
       {
         fontSize: "52px",
