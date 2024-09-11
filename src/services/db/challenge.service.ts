@@ -4,6 +4,7 @@ import {
   doc,
   getDoc,
   onSnapshot,
+  serverTimestamp,
   setDoc,
 } from "firebase/firestore";
 import { Challenge, ChallengeInvite } from "../../models/Challenge";
@@ -11,7 +12,10 @@ import { db } from "../firebase.service";
 
 const createChallenge = async (challengeObj: Challenge) => {
   const colRef = collection(db, "challenges");
-  const d = await addDoc(colRef, challengeObj);
+  const d = await addDoc(colRef, {
+    ...challengeObj,
+    createdAt: serverTimestamp(),
+  });
 
   return d.id;
 };
@@ -39,7 +43,7 @@ const updateChallengeInvites = async (
   await setDoc(
     docRef,
     {
-      invites: { [email]: inviteObj },
+      invites: { [email]: { ...inviteObj, invitedAt: serverTimestamp() } },
     },
     { merge: true }
   );
