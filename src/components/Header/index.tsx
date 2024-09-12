@@ -15,12 +15,13 @@
 // import useAuth from "../../hooks/useAuth";
 // import { getEnsName } from "../../helpers";
 
-import { Stack, Typography, Chip, Box } from "@mui/material";
+import { Stack, Typography, Chip, Box, useMediaQuery } from "@mui/material";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/router";
 import { UserDoc } from "../../models/User";
 import { auth } from "../../services/firebase.service";
 import Xp from "../Xp";
+import theme from "../../theme";
 
 // type Props = {};
 
@@ -188,9 +189,51 @@ import Xp from "../Xp";
 
 const Header = ({ user }: { user: UserDoc | null }) => {
   const router = useRouter();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  if (isMobile)
+    return (
+      <Stack width={"100%"} p={1} borderBottom={"1px solid #292929"} gap={2}>
+        <Stack
+          direction={"row"}
+          gap={2}
+          alignItems="center"
+          justifyContent={"center"}
+        >
+          <img src="/favicon.ico" alt="" style={{ width: 40 }} />
+          <Typography
+            variant="h5"
+            textTransform={"uppercase"}
+            sx={{ cursor: "pointer" }}
+            onClick={() => router.push("/")}
+          >
+            AI Marble Race
+          </Typography>
+        </Stack>
+        {/* {user && ( */}
+        <Stack direction={"row"} gap={1}>
+          <Xp currentXp={1000} />
+          <Chip
+            label={"logesh"}
+            sx={{ ml: "auto" }}
+            clickable
+            // onClick={() => signOut(auth)}
+          />
+        </Stack>
+        {/* )} */}
+      </Stack>
+    );
 
   return (
-    <Box display={"flex"} alignItems={"center"} width={"100%"} pt={2} px={2}>
+    <Box
+      display={"flex"}
+      alignItems={"center"}
+      width={"100%"}
+      py={2}
+      px={2}
+      flexWrap={"wrap"}
+      borderBottom={"1px solid #292929"}
+    >
       <Stack direction={"row"} gap={2} alignItems="center">
         <img src="/favicon.ico" alt="" style={{ width: 40 }} />
         <Typography
@@ -199,7 +242,7 @@ const Header = ({ user }: { user: UserDoc | null }) => {
           sx={{ cursor: "pointer" }}
           onClick={() => router.push("/")}
         >
-          Marble Races
+          AI Marble Race
         </Typography>
       </Stack>
       {user && (
@@ -214,15 +257,6 @@ const Header = ({ user }: { user: UserDoc | null }) => {
         </Stack>
       )}
     </Box>
-    // <Box display={"flex"} alignItems={"center"} width={"100%"} p={2}>
-    //   <Stack direction={"row"} gap={2} alignItems="center">
-    //     <img src="favicon.ico" alt="" style={{ width: 40 }} />
-    //     <Typography variant="h5" textTransform={"uppercase"}>
-    //       Marble Races
-    //     </Typography>
-    //   </Stack>
-    //   {user && <Chip label={user.email} sx={{ ml: "auto" }} />}
-    // </Box>
   );
 };
 export default Header;

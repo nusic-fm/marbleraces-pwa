@@ -258,7 +258,7 @@ const Index = () => {
                   sx={{ overflowY: "auto" }}
                   pt={3}
                   mb={"-120px"}
-                  height={600}
+                  height={isMobileView ? 500 : 600}
                   position="relative"
                 >
                   {coversSnapshot.docs.map((doc, i) => {
@@ -553,7 +553,7 @@ const Index = () => {
                       ))}
                     </Stack>
                   </Stack>
-                  <Box mt={4} position="relative">
+                  <Box my={4} position="relative">
                     <Box position={"absolute"} top={0} left={-45}>
                       <IconButton
                         onClick={() => {
