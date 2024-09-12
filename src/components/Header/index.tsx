@@ -209,7 +209,7 @@ const Header = ({ user }: { user: UserDoc | null }) => {
             label={user.email?.split("@")[0]}
             sx={{ ml: "auto" }}
             clickable
-            onClick={() => signOut(auth)}
+            // onClick={() => signOut(auth)}
           />
         </Stack>
       )}

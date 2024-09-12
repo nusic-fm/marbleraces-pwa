@@ -71,7 +71,7 @@ const Challenge = (props: Props) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [user, authLoading, authError] = useAuthState(auth);
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(false);
   const [enteredEmail, setEnteredEmail] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
