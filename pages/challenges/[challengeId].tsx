@@ -748,15 +748,6 @@ const Challenge = (props: Props) => {
               : `https://marblerace.ai/challenges/${challengeId}`
           }
         />
-        {/* <Dialog open={!user}>
-          <DialogTitle>Request a Free Invitation</DialogTitle>
-          <DialogContent>
-            {authLoading ? (
-              <Skeleton variant="rectangular" animation="wave" />
-            ) : (
-            )}
-          </DialogContent>
-        </Dialog> */}
       </Stack>
     </>
   );

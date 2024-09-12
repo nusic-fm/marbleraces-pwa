@@ -45,7 +45,7 @@ function RequestInvitation({ show, redirectUrl }: Props) {
         <EmailLink
           url={redirectUrl}
           successCallback={() => {
-            updateRemainingInvites();
+            // updateRemainingInvites();
           }}
           isWaitingList={
             !(docData?.remainingInvites && docData?.remainingInvites > 0)
