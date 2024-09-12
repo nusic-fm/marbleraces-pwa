@@ -97,6 +97,7 @@ const cardVariants: Variants = {
 };
 const Index = () => {
   const [user, authLoading, authError] = useAuthState(auth);
+  const [checkingAuth, setCheckingAuth] = useState(false);
   const [userDoc, setUserDoc] = useState<UserDoc | null>(null);
   const [recordsLimit, setRecordsLimit] = useState(5);
   const [isLatest, setIsLatest] = useState(false);
@@ -141,6 +142,7 @@ const Index = () => {
 
   useEffect(() => {
     if (isSignInWithEmailLink(auth, window.location.href)) {
+      setCheckingAuth(true);
       // Additional state parameters can also be passed via URL.
       // This can be used to continue the user's intended action before triggering
       // the sign-in operation.
@@ -152,7 +154,7 @@ const Index = () => {
         // attacks, ask the user to provide the associated email again. For example:
         email = window.prompt("Please provide your email for confirmation");
       }
-      if (email)
+      if (email) {
         (async () => {
           try {
             // The client SDK will parse the code from the link for you.
@@ -175,8 +177,11 @@ const Index = () => {
             console.log({ e });
             // alert("Invalid Login, Please try again.");
             router.push("/", undefined, { shallow: true });
+          } finally {
+            setCheckingAuth(false);
           }
         })();
+      } else setCheckingAuth(false);
     }
   }, []);
 
@@ -694,7 +699,7 @@ const Index = () => {
         )} */}
         </Stack>
         <RequestInvitation
-          show={activeStep === 1 && !user && !authLoading}
+          show={activeStep === 1 && !user && !authLoading && !checkingAuth}
           redirectUrl={
             typeof window !== "undefined"
               ? window.location.origin +

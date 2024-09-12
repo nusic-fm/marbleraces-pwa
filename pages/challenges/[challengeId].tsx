@@ -71,6 +71,7 @@ const Challenge = (props: Props) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [user, authLoading, authError] = useAuthState(auth);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [enteredEmail, setEnteredEmail] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
@@ -161,6 +162,7 @@ const Challenge = (props: Props) => {
 
   useEffect(() => {
     if (isSignInWithEmailLink(auth, window.location.href)) {
+      setCheckingAuth(true);
       // Additional state parameters can also be passed via URL.
       // This can be used to continue the user's intended action before triggering
       // the sign-in operation.
@@ -173,7 +175,7 @@ const Challenge = (props: Props) => {
       const email =
         loginEnteredEmail ||
         window.prompt("Please provide your email for confirmation");
-      if (email)
+      if (email) {
         (async () => {
           try {
             // The client SDK will parse the code from the link for you.
@@ -207,8 +209,11 @@ const Challenge = (props: Props) => {
                 shallow: true,
               }
             );
+          } finally {
+            setCheckingAuth(false);
           }
         })();
+      } else setCheckingAuth(false);
     }
   }, []);
 
@@ -741,7 +746,7 @@ const Challenge = (props: Props) => {
           </Stack>
         )}
         <RequestInvitation
-          show={!user && !authLoading}
+          show={!user && !authLoading && !checkingAuth}
           redirectUrl={
             typeof window !== "undefined"
               ? window.location.origin + `/challenges/${challengeId}`
