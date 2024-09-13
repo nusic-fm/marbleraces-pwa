@@ -49,9 +49,9 @@ const EmailLink = ({
       alert(`Invitation Code Sent to ${email}`);
       if (successCallback) successCallback();
       // }
-    } catch (e) {
+    } catch (e: any) {
       console.log(e);
-      alert("Errer occurred, try again");
+      alert(e?.response?.data || "Error occurred, try again");
     } finally {
       setIsLoading(false);
     }
