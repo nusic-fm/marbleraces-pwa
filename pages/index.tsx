@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  Drawer,
   IconButton,
   Stack,
   Typography,
@@ -51,6 +52,7 @@ import RequestInvitation from "../src/components/ Modals/RequestInvitation";
 import { LoadingButton } from "@mui/lab";
 import { createUser, getUserDoc } from "../src/services/db/user.service";
 import { UserDoc } from "../src/models/User";
+import ResourcesModal from "../src/components/ResourcesModal";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -132,6 +134,7 @@ const Index = () => {
     useState(false);
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
+  const [showResourcesModal, setShowResourcesModal] = useState(false);
 
   useEffect(() => {
     if (coversCollectionSnapshot?.size) {
@@ -434,42 +437,74 @@ const Index = () => {
               flexWrap={"wrap"}
               gap={2}
             >
-              <motion.div
-                style={{
-                  fontSize: 164,
-                  width: 300,
-                  height: 430,
-                  display: "flex",
-                  alignItems: "start",
-                  justifyContent: "center",
-                  // background:
-                  //   "linear-gradient(306deg, rgb(107, 46, 66), rgb(46, 87, 107))",
-                  backgroundImage: `url(${getBackgroundPath(bgNo.toString())}`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  borderRadius: 20,
-                  boxShadow: `0 0 1px hsl(0deg 0% 0% / 0.075), 0 0 2px hsl(0deg 0% 0% / 0.075),
+              <Stack
+                gap={2}
+                alignItems={"space-between"}
+                justifyContent={"center"}
+              >
+                <motion.div
+                  style={{
+                    fontSize: 164,
+                    width: 300,
+                    height: 430,
+                    display: "flex",
+                    alignItems: "start",
+                    justifyContent: "center",
+                    // background:
+                    //   "linear-gradient(306deg, rgb(107, 46, 66), rgb(46, 87, 107))",
+                    backgroundImage: `url(${getBackgroundPath(
+                      bgNo.toString()
+                    )}`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    borderRadius: 20,
+                    boxShadow: `0 0 1px hsl(0deg 0% 0% / 0.075), 0 0 2px hsl(0deg 0% 0% / 0.075),
                       0 0 4px hsl(0deg 0% 0% / 0.075), 0 0 8px hsl(0deg 0% 0% / 0.075),
                       0 0 16px hsl(0deg 0% 0% / 0.075)`,
-                  // transformOrigin: "10% 60%",
-                }}
-                variants={cardVariants}
-              >
-                <Stack alignItems={"center"}>
-                  <Typography
-                    variant="h6"
-                    align="center"
-                    sx={{
-                      background: "rgba(0,0,0,0.8)",
-                      overflow: "hidden",
-                    }}
-                    mt={2}
-                    height="4.2rem"
+                    // transformOrigin: "10% 60%",
+                  }}
+                  variants={cardVariants}
+                >
+                  <Stack alignItems={"center"}>
+                    <Typography
+                      variant="h6"
+                      align="center"
+                      sx={{
+                        background: "rgba(0,0,0,0.8)",
+                        overflow: "hidden",
+                      }}
+                      mt={2}
+                      height="4.2rem"
+                    >
+                      {selectedCoverDoc.title}
+                    </Typography>
+                  </Stack>
+                </motion.div>
+                {/* <Typography>Unlock Resources</Typography> */}
+                <Box
+                  display={"flex"}
+                  justifyContent={"center"}
+                  alignItems={"center"}
+                  onClick={() => {
+                    setShowResourcesModal(true);
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="small"
+                    endIcon={
+                      <img
+                        src="/xp.png"
+                        width={40}
+                        style={{ cursor: "pointer" }}
+                      />
+                    }
                   >
-                    {selectedCoverDoc.title}
-                  </Typography>
-                </Stack>
-              </motion.div>
+                    Unlock Trails & Skins
+                  </Button>
+                </Box>
+              </Stack>
               <Stack
                 direction={"row"}
                 alignItems={"center"}
@@ -707,6 +742,13 @@ const Index = () => {
               : `https://marblerace.ai?coverId=${selectedCoverDoc?.id}&qBgNo=${bgNo}`
           }
         />
+        <Drawer
+          open={showResourcesModal}
+          anchor="bottom"
+          onClose={() => setShowResourcesModal(false)}
+        >
+          <ResourcesModal />
+        </Drawer>
       </Stack>
     </>
   );
