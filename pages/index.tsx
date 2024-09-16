@@ -51,6 +51,7 @@ import RequestInvitation from "../src/components/ Modals/RequestInvitation";
 import { LoadingButton } from "@mui/lab";
 import { createUser, getUserDoc } from "../src/services/db/user.service";
 import { UserDoc } from "../src/models/User";
+import OpenChallenges from "../src/components/OpenChallenges";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -232,176 +233,182 @@ const Index = () => {
         }}
       >
         <Header user={userDoc} />
-        <Stack
-          width={"100%"}
-          alignItems={"center"}
-          justifyContent="center"
-          gap={1}
-          height="100%"
-        >
-          <Typography
-            align="center"
-            variant="h4"
-            lineHeight={1.8}
-            // sx={{ background: "black" }}
-            // px={2}
+        <Stack direction={"row"}>
+          {!isMobileView && (
+            <Stack direction={"row"} width={"25%"}>
+              {/* <Leaderboard /> */}
+            </Stack>
+          )}
+          <Stack
+            width={isMobileView ? "100%" : "50%"}
+            alignItems={"center"}
+            justifyContent="center"
+            gap={1}
+            height="100%"
           >
-            Challenge Friend <br /> To A Marble Race
-          </Typography>
-          {activeStep === 0 && (
-            <Box
-              // width="100%"
-              height={700}
+            <Typography
+              align="center"
+              variant="h4"
+              lineHeight={1.8}
+              // sx={{ background: "black" }}
+              // px={2}
             >
-              {coversSnapshot?.docs.length ? (
-                <Box
-                  width={window.innerWidth > 500 ? 500 : "100%"} // Responsive
-                  sx={{ overflowY: "auto" }}
-                  pt={3}
-                  mb={"-120px"}
-                  height={isMobileView ? 500 : 600}
-                  position="relative"
-                >
-                  {coversSnapshot.docs.map((doc, i) => {
-                    const id = doc.id;
-                    const coverDoc = doc.data() as CoverV1;
-                    return (
-                      <motion.div
-                        key={id}
-                        style={{
-                          overflow: "hidden",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          position: "relative",
-                          paddingTop: 20,
-                          marginBottom: -40,
-                        }}
-                        initial="offscreen"
-                        whileInView="onscreen"
-                        viewport={{ once: true, amount: 0.6 }}
-                      >
-                        <Box
-                          position={"absolute"}
-                          bottom={0}
-                          left={0}
-                          right={0}
-                          top={0}
-                          style={{
-                            backgroundImage: `url(${coverDoc.metadata.videoThumbnail})`,
-                            clipPath:
-                              'path("M 0 303.5 C 0 292.454 8.995 285.101 20 283.5 L 460 219.5 C 470.085 218.033 480 228.454 480 239.5 L 500 430 C 500 441.046 491.046 450 480 450 L 20 450 C 8.954 450 0 441.046 0 430 Z")',
-                          }}
-                        />
+              Challenge Friend <br /> To A Marble Race
+            </Typography>
+            {activeStep === 0 && (
+              <Box
+                // width="100%"
+                height={700}
+              >
+                {coversSnapshot?.docs.length ? (
+                  <Box
+                    width={window.innerWidth > 500 ? 500 : "100%"} // Responsive
+                    sx={{ overflowY: "auto" }}
+                    pt={3}
+                    mb={"-120px"}
+                    height={isMobileView ? 500 : 600}
+                    position="relative"
+                  >
+                    {coversSnapshot.docs.map((doc, i) => {
+                      const id = doc.id;
+                      const coverDoc = doc.data() as CoverV1;
+                      return (
                         <motion.div
+                          key={id}
                           style={{
-                            fontSize: 164,
-                            width: window.innerWidth > 500 ? 300 : 260,
-                            height: 430,
+                            overflow: "hidden",
                             display: "flex",
-                            alignItems: "start",
+                            alignItems: "center",
                             justifyContent: "center",
-                            // background:
-                            //   "linear-gradient(306deg, rgb(107, 46, 66), rgb(46, 87, 107))",
-                            backgroundImage: `url(https://voxaudio.nusic.fm/marble_race%2Fbackgrounds%2FBG${
-                              i + 11
-                            }.png?alt=media)`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                            borderRadius: 20,
-                            boxShadow: `0 0 1px hsl(0deg 0% 0% / 0.075), 0 0 2px hsl(0deg 0% 0% / 0.075),
+                            position: "relative",
+                            paddingTop: 20,
+                            marginBottom: -40,
+                          }}
+                          initial="offscreen"
+                          whileInView="onscreen"
+                          viewport={{ once: true, amount: 0.6 }}
+                        >
+                          <Box
+                            position={"absolute"}
+                            bottom={0}
+                            left={0}
+                            right={0}
+                            top={0}
+                            style={{
+                              backgroundImage: `url(${coverDoc.metadata.videoThumbnail})`,
+                              clipPath:
+                                'path("M 0 303.5 C 0 292.454 8.995 285.101 20 283.5 L 460 219.5 C 470.085 218.033 480 228.454 480 239.5 L 500 430 C 500 441.046 491.046 450 480 450 L 20 450 C 8.954 450 0 441.046 0 430 Z")',
+                            }}
+                          />
+                          <motion.div
+                            style={{
+                              fontSize: 164,
+                              width: window.innerWidth > 500 ? 300 : 260,
+                              height: 430,
+                              display: "flex",
+                              alignItems: "start",
+                              justifyContent: "center",
+                              // background:
+                              //   "linear-gradient(306deg, rgb(107, 46, 66), rgb(46, 87, 107))",
+                              backgroundImage: `url(https://voxaudio.nusic.fm/marble_race%2Fbackgrounds%2FBG${
+                                i + 11
+                              }.png?alt=media)`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                              borderRadius: 20,
+                              boxShadow: `0 0 1px hsl(0deg 0% 0% / 0.075), 0 0 2px hsl(0deg 0% 0% / 0.075),
                       0 0 4px hsl(0deg 0% 0% / 0.075), 0 0 8px hsl(0deg 0% 0% / 0.075),
                       0 0 16px hsl(0deg 0% 0% / 0.075)`,
-                            transformOrigin: "10% 60%",
-                          }}
-                          variants={cardVariants}
-                        >
-                          <Stack alignItems={"center"}>
-                            <Typography
-                              variant="h6"
-                              align="center"
-                              sx={{
-                                background: "rgba(0,0,0,0.8)",
-                                overflow: "hidden",
-                              }}
-                              mt={2}
-                              height="4.2rem"
-                              width={"100%"}
-                            >
-                              {coverDoc.title}
-                            </Typography>
-                            <AvatarGroup
-                              max={6}
-                              sx={{
-                                mt: 2,
-                                ".MuiAvatar-colorDefault": {
-                                  backgroundColor: "transparent",
-                                  width: isMobileView ? 45 : 50,
-                                  height: isMobileView ? 45 : 50,
-                                  border: "1px solid white",
-                                  color: "white",
-                                },
-                              }}
-                            >
-                              {coverDoc.voices.map((voice) => (
-                                <Avatar
-                                  key={voice.id}
-                                  src={`https://voxaudio.nusic.fm/${encodeURIComponent(
-                                    "voice_models/avatars/thumbs/"
-                                  )}${voice.id}_200x200?alt=media`}
-                                  sx={{
+                              transformOrigin: "10% 60%",
+                            }}
+                            variants={cardVariants}
+                          >
+                            <Stack alignItems={"center"}>
+                              <Typography
+                                variant="h6"
+                                align="center"
+                                sx={{
+                                  background: "rgba(0,0,0,0.8)",
+                                  overflow: "hidden",
+                                }}
+                                mt={2}
+                                height="4.2rem"
+                                width={"100%"}
+                              >
+                                {coverDoc.title}
+                              </Typography>
+                              <AvatarGroup
+                                max={6}
+                                sx={{
+                                  mt: 2,
+                                  ".MuiAvatar-colorDefault": {
+                                    backgroundColor: "transparent",
                                     width: isMobileView ? 45 : 50,
                                     height: isMobileView ? 45 : 50,
-                                    borderRadius: "50%",
-                                    cursor: "pointer",
-                                  }}
-                                />
-                              ))}
-                            </AvatarGroup>
-                            <Box mt={4}>
-                              <Button
-                                variant="contained"
-                                sx={{
-                                  background:
-                                    "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
-                                }}
-                                size="large"
-                                onClick={() => {
-                                  logFirebaseEvent("cover_selected", {
-                                    coverId: id,
-                                    coverTitle: coverDoc.title,
-                                  });
-                                  setSelectedCoverDoc({ ...coverDoc, id });
-                                  setSelectedVoiceObj({
-                                    id: coverDoc.voices[0].id,
-                                    name: coverDoc.voices[0].name,
-                                  });
-                                  setBgNo(i + 11);
-                                  setActiveStep(1);
-                                  router.push(`?coverId=${id}`, undefined, {
-                                    shallow: true,
-                                  });
+                                    border: "1px solid white",
+                                    color: "white",
+                                  },
                                 }}
                               >
-                                Play
-                              </Button>
-                            </Box>
-                          </Stack>
+                                {coverDoc.voices.map((voice) => (
+                                  <Avatar
+                                    key={voice.id}
+                                    src={`https://voxaudio.nusic.fm/${encodeURIComponent(
+                                      "voice_models/avatars/thumbs/"
+                                    )}${voice.id}_200x200?alt=media`}
+                                    sx={{
+                                      width: isMobileView ? 45 : 50,
+                                      height: isMobileView ? 45 : 50,
+                                      borderRadius: "50%",
+                                      cursor: "pointer",
+                                    }}
+                                  />
+                                ))}
+                              </AvatarGroup>
+                              <Box mt={4}>
+                                <Button
+                                  variant="contained"
+                                  sx={{
+                                    background:
+                                      "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
+                                  }}
+                                  size="large"
+                                  onClick={() => {
+                                    logFirebaseEvent("cover_selected", {
+                                      coverId: id,
+                                      coverTitle: coverDoc.title,
+                                    });
+                                    setSelectedCoverDoc({ ...coverDoc, id });
+                                    setSelectedVoiceObj({
+                                      id: coverDoc.voices[0].id,
+                                      name: coverDoc.voices[0].name,
+                                    });
+                                    setBgNo(i + 11);
+                                    setActiveStep(1);
+                                    router.push(`?coverId=${id}`, undefined, {
+                                      shallow: true,
+                                    });
+                                  }}
+                                >
+                                  Play
+                                </Button>
+                              </Box>
+                            </Stack>
+                          </motion.div>
                         </motion.div>
-                      </motion.div>
-                    );
-                  })}
-                </Box>
-              ) : (
-                <Box
-                  display={"flex"}
-                  gap={5}
-                  flexDirection="column"
-                  alignItems={"center"}
-                  justifyContent="center"
-                  p={4}
-                >
-                  {/* <Skeleton variant="rounded" width={230} height={230} />
+                      );
+                    })}
+                  </Box>
+                ) : (
+                  <Box
+                    display={"flex"}
+                    gap={5}
+                    flexDirection="column"
+                    alignItems={"center"}
+                    justifyContent="center"
+                    p={4}
+                  >
+                    {/* <Skeleton variant="rounded" width={230} height={230} />
               <Skeleton variant="rounded" width="100%" height={30} />
               <Skeleton variant="rounded" width="100%" height={80} />
               <Skeleton variant="circular" width={80} height={80} />
@@ -412,210 +419,215 @@ const Index = () => {
                 height={60}
                 sx={{ mt: 4 }}
               /> */}
-                </Box>
-              )}
+                  </Box>
+                )}
 
-              <Typography
-                align="center"
-                variant="h4"
-                lineHeight={1.8}
-                mt={"150px"}
-              >
-                Winner Takes All!
-              </Typography>
-            </Box>
-          )}
-          {activeStep === 1 && selectedCoverDoc && (
-            <Stack
-              direction={"row"}
-              justifyContent={isMobileView ? "center" : "unset"}
-              alignItems={"center"}
-              width={isMobileView ? "100%" : 800}
-              height={700}
-              flexWrap={"wrap"}
-              gap={2}
-            >
-              <motion.div
-                style={{
-                  fontSize: 164,
-                  width: 300,
-                  height: 430,
-                  display: "flex",
-                  alignItems: "start",
-                  justifyContent: "center",
-                  // background:
-                  //   "linear-gradient(306deg, rgb(107, 46, 66), rgb(46, 87, 107))",
-                  backgroundImage: `url(${getBackgroundPath(bgNo.toString())}`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  borderRadius: 20,
-                  boxShadow: `0 0 1px hsl(0deg 0% 0% / 0.075), 0 0 2px hsl(0deg 0% 0% / 0.075),
-                      0 0 4px hsl(0deg 0% 0% / 0.075), 0 0 8px hsl(0deg 0% 0% / 0.075),
-                      0 0 16px hsl(0deg 0% 0% / 0.075)`,
-                  // transformOrigin: "10% 60%",
-                }}
-                variants={cardVariants}
-              >
-                <Stack alignItems={"center"}>
-                  <Typography
-                    variant="h6"
-                    align="center"
-                    sx={{
-                      background: "rgba(0,0,0,0.8)",
-                      overflow: "hidden",
-                    }}
-                    mt={2}
-                    height="4.2rem"
-                  >
-                    {selectedCoverDoc.title}
-                  </Typography>
-                </Stack>
-              </motion.div>
+                <Typography
+                  align="center"
+                  variant="h4"
+                  lineHeight={1.8}
+                  mt={"150px"}
+                >
+                  Winner Takes All!
+                </Typography>
+              </Box>
+            )}
+            {activeStep === 1 && selectedCoverDoc && (
               <Stack
                 direction={"row"}
+                justifyContent={isMobileView ? "center" : "unset"}
                 alignItems={"center"}
+                width={isMobileView ? "100%" : 800}
+                height={700}
+                flexWrap={"wrap"}
                 gap={2}
-                mx={isMobileView ? 0 : "auto"}
               >
-                <Stack gap={2} alignItems="center">
-                  <Stack gap={2}>
-                    <Typography align="center" variant="h5">
-                      Choose your Voice
-                    </Typography>
-                    <Stack
-                      direction={"row"}
-                      gap={1}
-                      alignItems="center"
-                      sx={{ overflowX: "auto" }}
-                      width={isMobileView ? "100vw" : 400}
-                      py={1}
-                      justifyContent={"flex-start"}
-                      px={isMobileView ? 2 : 0}
+                <motion.div
+                  style={{
+                    fontSize: 164,
+                    width: 300,
+                    height: 430,
+                    display: "flex",
+                    alignItems: "start",
+                    justifyContent: "center",
+                    // background:
+                    //   "linear-gradient(306deg, rgb(107, 46, 66), rgb(46, 87, 107))",
+                    backgroundImage: `url(${getBackgroundPath(
+                      bgNo.toString()
+                    )}`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    borderRadius: 20,
+                    boxShadow: `0 0 1px hsl(0deg 0% 0% / 0.075), 0 0 2px hsl(0deg 0% 0% / 0.075),
+                      0 0 4px hsl(0deg 0% 0% / 0.075), 0 0 8px hsl(0deg 0% 0% / 0.075),
+                      0 0 16px hsl(0deg 0% 0% / 0.075)`,
+                    // transformOrigin: "10% 60%",
+                  }}
+                  variants={cardVariants}
+                >
+                  <Stack alignItems={"center"}>
+                    <Typography
+                      variant="h6"
+                      align="center"
+                      sx={{
+                        background: "rgba(0,0,0,0.8)",
+                        overflow: "hidden",
+                      }}
+                      mt={2}
+                      height="4.2rem"
                     >
-                      {selectedCoverDoc.voices.map((voice) => (
-                        <Avatar
-                          key={voice.id}
-                          src={getVoiceAvatarPath(voice.id)}
-                          sx={{
-                            width: isMobileView ? 50 : 70,
-                            height: isMobileView ? 50 : 70,
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            outline:
-                              voice.id === selectedVoiceObj?.id
-                                ? "3px solid white"
-                                : "unset",
-                            userSelect: "none",
-                          }}
-                          onClick={() =>
-                            setSelectedVoiceObj({
-                              id: voice.id,
-                              name: voice.name,
-                            })
-                          }
-                        />
-                      ))}
-                    </Stack>
-                  </Stack>
-                  <Divider />
-                  <Box maxWidth={isMobileView ? "100%" : 380}>
-                    <SelectRacetracks
-                      selectedTracksList={selectedTracksList}
-                      setSelectedTracksList={setSelectedTracksList}
-                    />
-                  </Box>
-                  <Stack gap={2}>
-                    <Typography align="center" variant="h6">
-                      Choose your Trail
+                      {selectedCoverDoc.title}
                     </Typography>
-                    <Stack
-                      direction={"row"}
-                      gap={1}
-                      alignItems="center"
-                      justifyContent={"center"}
-                    >
-                      {["stars_01.png", "snow.png"].map((name) => (
-                        <Avatar
-                          key={name}
-                          src={getTrailPath(name)}
-                          sx={{
-                            // width: 50,
-                            // height: 50,
-                            // borderRadius: "50%",
-                            objectFit: "cover",
-                            cursor: "pointer",
-                            outline:
-                              name === selectedTrail
-                                ? "1px solid white"
-                                : "unset",
-                          }}
-                          onClick={() => setSelectedTrail(name)}
-                        />
-                      ))}
-                    </Stack>
                   </Stack>
-                  <Box my={4} position="relative">
-                    <Box position={"absolute"} top={0} left={-45}>
-                      <IconButton
-                        onClick={() => {
-                          router.push("/", undefined, { shallow: true });
-                          setActiveStep(0);
-                          setSelectedCoverDoc(null);
-                          setSelectedVoiceObj(null);
+                </motion.div>
+                <Stack
+                  direction={"row"}
+                  alignItems={"center"}
+                  gap={2}
+                  mx={isMobileView ? 0 : "auto"}
+                >
+                  <Stack gap={2} alignItems="center">
+                    <Stack gap={2}>
+                      <Typography align="center" variant="h5">
+                        Choose your Voice
+                      </Typography>
+                      <Stack
+                        direction={"row"}
+                        gap={1}
+                        alignItems="center"
+                        sx={{ overflowX: "auto" }}
+                        width={isMobileView ? "100vw" : 400}
+                        py={1}
+                        justifyContent={"flex-start"}
+                        px={isMobileView ? 2 : 0}
+                      >
+                        {selectedCoverDoc.voices.map((voice) => (
+                          <Avatar
+                            key={voice.id}
+                            src={getVoiceAvatarPath(voice.id)}
+                            sx={{
+                              width: isMobileView ? 50 : 70,
+                              height: isMobileView ? 50 : 70,
+                              borderRadius: "50%",
+                              cursor: "pointer",
+                              outline:
+                                voice.id === selectedVoiceObj?.id
+                                  ? "3px solid white"
+                                  : "unset",
+                              userSelect: "none",
+                            }}
+                            onClick={() =>
+                              setSelectedVoiceObj({
+                                id: voice.id,
+                                name: voice.name,
+                              })
+                            }
+                          />
+                        ))}
+                      </Stack>
+                    </Stack>
+                    <Divider />
+                    <Box maxWidth={isMobileView ? "100%" : 380}>
+                      <SelectRacetracks
+                        selectedTracksList={selectedTracksList}
+                        setSelectedTracksList={setSelectedTracksList}
+                      />
+                    </Box>
+                    <Stack gap={2}>
+                      <Typography align="center" variant="h6">
+                        Choose your Trail
+                      </Typography>
+                      <Stack
+                        direction={"row"}
+                        gap={1}
+                        alignItems="center"
+                        justifyContent={"center"}
+                      >
+                        {["stars_01.png", "snow.png"].map((name) => (
+                          <Avatar
+                            key={name}
+                            src={getTrailPath(name)}
+                            sx={{
+                              // width: 50,
+                              // height: 50,
+                              // borderRadius: "50%",
+                              objectFit: "cover",
+                              cursor: "pointer",
+                              outline:
+                                name === selectedTrail
+                                  ? "1px solid white"
+                                  : "unset",
+                            }}
+                            onClick={() => setSelectedTrail(name)}
+                          />
+                        ))}
+                      </Stack>
+                    </Stack>
+                    <Box my={4} position="relative">
+                      <Box position={"absolute"} top={0} left={-45}>
+                        <IconButton
+                          onClick={() => {
+                            router.push("/", undefined, { shallow: true });
+                            setActiveStep(0);
+                            setSelectedCoverDoc(null);
+                            setSelectedVoiceObj(null);
+                          }}
+                        >
+                          <ArrowBackRoundedIcon />
+                        </IconButton>
+                      </Box>
+                      <LoadingButton
+                        loading={isCreateChallengeLoading}
+                        variant="contained"
+                        sx={{
+                          background:
+                            "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
+                        }}
+                        size="large"
+                        onClick={async () => {
+                          if (selectedVoiceObj && user) {
+                            setIsCreateChallengeLoading(true);
+                            const challengeId = await createChallenge({
+                              bgId: bgNo.toString(),
+                              skinId: selectedSkin,
+                              title: selectedCoverDoc.title,
+                              coverId: selectedCoverDoc.id,
+                              trailpath: selectedTrail,
+                              creatorUserObj: {
+                                id: user.uid,
+                                email: user.email,
+                              },
+                              voices: [{ ...selectedVoiceObj }],
+                              tracksList: selectedTracksList,
+                              creatorUid: user.uid,
+                              invites: {},
+                            });
+                            logFirebaseEvent("challenge_created", {
+                              coverId: selectedCoverDoc.id,
+                              coverTitle: selectedCoverDoc.title,
+                              voiceId: selectedVoiceObj.id,
+                              voiceName: selectedVoiceObj.name,
+                              bgNo: bgNo,
+                              skinId: selectedSkin,
+                              trailpath: selectedTrail,
+                              challengeId,
+                              email: user.email,
+                            });
+                            // setNewChallengeId(challengeId);
+                            // TODO: Route
+                            // setActiveStep(2);
+                            router.push(`/challenges/${challengeId}`);
+                          } else alert("Signin and try again");
                         }}
                       >
-                        <ArrowBackRoundedIcon />
-                      </IconButton>
+                        Create Challenge
+                      </LoadingButton>
                     </Box>
-                    <LoadingButton
-                      loading={isCreateChallengeLoading}
-                      variant="contained"
-                      sx={{
-                        background:
-                          "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
-                      }}
-                      size="large"
-                      onClick={async () => {
-                        if (selectedVoiceObj && user) {
-                          setIsCreateChallengeLoading(true);
-                          const challengeId = await createChallenge({
-                            bgId: bgNo.toString(),
-                            skinId: selectedSkin,
-                            title: selectedCoverDoc.title,
-                            coverId: selectedCoverDoc.id,
-                            trailpath: selectedTrail,
-                            creatorUserObj: { id: user.uid, email: user.email },
-                            voices: [{ ...selectedVoiceObj }],
-                            tracksList: selectedTracksList,
-                            creatorUid: user.uid,
-                            invites: {},
-                          });
-                          logFirebaseEvent("challenge_created", {
-                            coverId: selectedCoverDoc.id,
-                            coverTitle: selectedCoverDoc.title,
-                            voiceId: selectedVoiceObj.id,
-                            voiceName: selectedVoiceObj.name,
-                            bgNo: bgNo,
-                            skinId: selectedSkin,
-                            trailpath: selectedTrail,
-                            challengeId,
-                            email: user.email,
-                          });
-                          // setNewChallengeId(challengeId);
-                          // TODO: Route
-                          // setActiveStep(2);
-                          router.push(`/challenges/${challengeId}`);
-                        } else alert("Signin and try again");
-                      }}
-                    >
-                      Create Challenge
-                    </LoadingButton>
-                  </Box>
+                  </Stack>
                 </Stack>
               </Stack>
-            </Stack>
-          )}
-          {/* {activeStep === 2 && selectedCoverDoc && selectedVoiceObj && (
+            )}
+            {/* {activeStep === 2 && selectedCoverDoc && selectedVoiceObj && (
           <Stack
             direction={"row"}
             justifyContent="center"
@@ -698,6 +710,24 @@ const Index = () => {
             </motion.div>
           </Stack>
         )} */}
+          </Stack>
+          {!isMobileView && (
+            <Stack
+              width={"25%"}
+              alignItems={"center"}
+              pt={10}
+              px={2}
+              minHeight={"100%"}
+              sx={{
+                boxShadow: "0 0 10px 0 rgba(0,0,0,1)",
+                borderRadius: 10,
+              }}
+            >
+              {activeStep === 0 && (
+                <OpenChallenges userUid={user?.uid} email={userDoc?.email} />
+              )}
+            </Stack>
+          )}
         </Stack>
         <RequestInvitation
           show={activeStep === 1 && !user && !authLoading && !checkingAuth}
