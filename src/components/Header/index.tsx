@@ -214,7 +214,7 @@ const Header = ({ user }: { user: UserDoc | null }) => {
         <Stack direction={"row"} gap={1}>
           <Xp currentXp={1000} />
           <Chip
-            label={"logesh"}
+            label={user?.email?.split("@")[0]}
             sx={{ ml: "auto" }}
             clickable
             // onClick={() => signOut(auth)}
