@@ -6,6 +6,8 @@ export type ChallengeInvite = {
   uid?: string;
   result?: { videoUrl: string; winnerId: string; updatedAt: FieldValue };
   xpClaimed?: boolean;
+  voiceId?: string;
+  voiceName?: string;
 };
 export type Challenge = {
   coverId: string;

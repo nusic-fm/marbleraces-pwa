@@ -15,7 +15,11 @@ import { UserDoc } from "../models/User";
 type Props = {
   challenge: ChallengeDoc;
   canvasElemWidth: number;
-  onGameComplete: (win: boolean, videoId: string) => Promise<void>;
+  onGameComplete: (
+    win: boolean,
+    coverDocId: string,
+    videoBlob: Blob
+  ) => Promise<void>;
   userDoc: UserDoc;
 };
 

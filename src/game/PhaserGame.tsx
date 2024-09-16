@@ -13,7 +13,11 @@ import { EventBus } from "./EventBus";
 
 interface IProps extends IGameDataParams {
   currentActiveScene?: (scene_instance: Phaser.Scene) => void;
-  onGameComplete: (win: boolean, videoId: string) => Promise<void>;
+  onGameComplete: (
+    win: boolean,
+    coverDocId: string,
+    videoBlob: Blob
+  ) => Promise<void>;
 }
 // const downloadVideo = (videoUrl: string, name: string) => {
 //   const link = document.createElement("a");
@@ -99,12 +103,8 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
       const blob = new Blob(chunks, { type: "video/webm" });
       // downloadVideo(URL.createObjectURL(blob), coverDocId);
       // Store the video in Firebase Storage
-      const videoUrl = await uploadChallengeVideo(
-        blob,
-        coverDocId,
-        userDoc.uid
-      );
-      onGameComplete(isCurrentUserWin.current, videoUrl);
+
+      onGameComplete(isCurrentUserWin.current, coverDocId, blob);
     };
 
     recorder.start();

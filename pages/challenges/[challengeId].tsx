@@ -1,11 +1,13 @@
 import {
   Avatar,
+  Backdrop,
   Box,
   Button,
   Chip,
   CircularProgress,
   Divider,
   IconButton,
+  LinearProgress,
   Skeleton,
   Stack,
   TextField,
@@ -55,6 +57,7 @@ import { UserDoc } from "../../src/models/User";
 import RequestInvitation from "../../src/components/ Modals/RequestInvitation";
 import { increment, serverTimestamp } from "firebase/firestore";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import { uploadChallengeVideo } from "../../src/services/storage/challengeVideo";
 
 type Props = {};
 
@@ -80,6 +83,7 @@ const Challenge = (props: Props) => {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [userDoc, setUserDoc] = useState<UserDoc | null>(null);
+  const [resultLoading, setResultLoading] = useState(false);
 
   const canvasElemWidth = 414;
 
@@ -114,18 +118,27 @@ const Challenge = (props: Props) => {
         voiceId: challenge?.voices[0].id,
         voiceName: challenge?.voices[0].name,
         email: user?.email,
-        chosenVoiceId: challenge?.voices[0].id,
-        chosenVoiceName: challenge?.voices[0].name,
+        chosenVoiceId: challenge?.voices[1].id,
+        chosenVoiceName: challenge?.voices[1].name,
       });
       setReady(true);
     }
   };
 
-  const onGameComplete = async (win: boolean, videoUrl: string) => {
-    console.log("onGameComplete", win, videoUrl);
+  const onGameComplete = async (
+    win: boolean,
+    coverDocId: string,
+    videoBlob: Blob
+  ) => {
     phaserRef.current?.game?.destroy(true);
     stopAndDestroyPlayers();
     if (userDoc && challenge) {
+      setResultLoading(true);
+      const videoUrl = await uploadChallengeVideo(
+        videoBlob,
+        coverDocId,
+        userDoc.uid
+      );
       // alert(win ? "You Won the Challenge" : "You Lost!");
       if (win) {
         // const newChallenge = {...challenge};
@@ -142,6 +155,8 @@ const Challenge = (props: Props) => {
         {
           isCompleted: true,
           email: userDoc.email,
+          voiceId: challenge.voices[1].id,
+          voiceName: challenge.voices[1].name,
           result: {
             winnerId: win ? userDoc.uid : challenge.creatorUid,
             videoUrl,
@@ -153,14 +168,15 @@ const Challenge = (props: Props) => {
       );
       logFirebaseEvent("challenge_completed", {
         challengeId,
-        coverId: challenge?.coverId,
-        voiceId: challenge?.voices[0].id,
-        voiceName: challenge?.voices[0].name,
+        coverId: challenge.coverId,
+        voiceId: challenge.voices[0].id,
+        voiceName: challenge.voices[0].name,
         email: user?.email,
-        chosenVoiceId: challenge?.voices[0].id,
-        chosenVoiceName: challenge?.voices[0].name,
+        chosenVoiceId: challenge.voices[1].id,
+        chosenVoiceName: challenge.voices[1].name,
         win,
       });
+      setResultLoading(false);
     }
   };
 
@@ -321,7 +337,9 @@ const Challenge = (props: Props) => {
               {challenge.invites[userDoc?.email || ""]?.isCompleted
                 ? `${challenge.creatorUserObj.email?.split("@")[0]} (${
                     challenge.voices[0]?.name
-                  }) Vs ${userDoc?.email.split("@")[0]} is Completed!`
+                  }) Vs ${userDoc?.email.split("@")[0]} (${
+                    challenge.invites[userDoc?.email || ""].voiceName
+                  }) is Completed!`
                 : challenge?.creatorUid === user?.uid
                 ? `Your Challenge Has Been Created`
                 : `${
@@ -330,7 +348,8 @@ const Challenge = (props: Props) => {
                     challenge?.voices[0].name
                   }`}
             </Typography>
-            {!challenge.invites[userDoc?.email || ""]?.isCompleted &&
+            {!resultLoading &&
+              !challenge.invites[userDoc?.email || ""]?.isCompleted &&
               !ready &&
               (challenge?.creatorUid === user?.uid ? (
                 <Stack alignItems={"center"} gap={1}>
@@ -581,6 +600,23 @@ const Challenge = (props: Props) => {
                   </Stack>
                 </Stack>
               ))}
+
+            <Backdrop
+              sx={(theme) => ({
+                color: "#fff",
+                zIndex: 9,
+                width: "100vw",
+                height: "100vh",
+              })}
+              open={resultLoading}
+            >
+              <Stack justifyContent={"center"}>
+                <Typography variant="h6" fontWeight={900}>
+                  Loading Results
+                </Typography>
+                <LinearProgress color="inherit" />
+              </Stack>
+            </Backdrop>
             <Box
               display={"flex"}
               justifyContent="center"
