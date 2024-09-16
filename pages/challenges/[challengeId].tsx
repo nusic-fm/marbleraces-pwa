@@ -329,7 +329,7 @@ const Challenge = (props: Props) => {
               align="center"
               sx={{
                 background:
-                  "linear-gradient(45deg, #8BFBFF 0%, #C8A4FF 50%, #FFB3D9 100%) text",
+                  "linear-gradient(270deg, #FA8BFF 0%, #2BD2FF 52%, #2BFF88 90%) text",
                 WebkitTextFillColor: "transparent",
                 fontWeight: "bold",
               }}
