@@ -210,17 +210,24 @@ const Header = ({ user }: { user: UserDoc | null }) => {
             AI Marble Race
           </Typography>
         </Stack>
-        {/* {user && ( */}
-        <Stack direction={"row"} gap={1}>
-          <Xp currentXp={1000} />
-          <Chip
-            label={user?.email?.split("@")[0]}
-            sx={{ ml: "auto" }}
-            clickable
-            // onClick={() => signOut(auth)}
-          />
-        </Stack>
-        {/* )} */}
+        {user && (
+          <Stack direction={"row"} gap={1}>
+            <Xp currentXp={user.xp} />
+            <Chip
+              label={user?.email?.split("@")[0]}
+              sx={{ ml: "auto" }}
+              clickable
+              onClick={() => {
+                const confirmLogout = window.confirm(
+                  "Are you sure you want to logout?"
+                );
+                if (confirmLogout) {
+                  signOut(auth);
+                }
+              }}
+            />
+          </Stack>
+        )}
       </Stack>
     );
 
@@ -252,7 +259,14 @@ const Header = ({ user }: { user: UserDoc | null }) => {
             label={user.email?.split("@")[0]}
             sx={{ ml: "auto" }}
             clickable
-            // onClick={() => signOut(auth)}
+            onClick={() => {
+              const confirmLogout = window.confirm(
+                "Are you sure you want to logout?"
+              );
+              if (confirmLogout) {
+                signOut(auth);
+              }
+            }}
           />
         </Stack>
       )}
