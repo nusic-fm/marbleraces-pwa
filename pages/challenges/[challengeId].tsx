@@ -3,6 +3,9 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
+  Divider,
+  IconButton,
   Skeleton,
   Stack,
   TextField,
@@ -51,6 +54,7 @@ import {
 import { UserDoc } from "../../src/models/User";
 import RequestInvitation from "../../src/components/ Modals/RequestInvitation";
 import { increment, serverTimestamp } from "firebase/firestore";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
 
 type Props = {};
 
@@ -258,10 +262,10 @@ const Challenge = (props: Props) => {
   return (
     <>
       <Head>
-        <title>Challenge | Marble Race</title>
+        <title>Challenge | AI Marble Race</title>
         <meta
           property="og:title"
-          content={"You have been Challenged"}
+          content={"You have been Challenged to AI Marble Race"}
           key="title"
         />
       </Head>
@@ -333,81 +337,185 @@ const Challenge = (props: Props) => {
                   <Typography variant="subtitle1" align="center">
                     Invite a Friend to join this Challenge
                   </Typography>
-                  <Stack direction={"row"} gap={1}>
+                  <Stack
+                    direction={"row"}
+                    gap={1}
+                    justifyContent={"center"}
+                    flexWrap={"wrap"}
+                  >
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => {
+                        const shareData = {
+                          title: "AI Marble Race",
+                          text: "I challenge you to a Marble Race on AI Marble Race! Check it out here: ",
+                          url: `https://marblerace.ai/challenges/${challengeId}`,
+                        };
+                        if (navigator.share && navigator.canShare(shareData)) {
+                          navigator.share(shareData);
+                        } else {
+                          window.open(
+                            `https://wa.me/?text=${encodeURIComponent(
+                              `I challenge you to a Marble Race on AI Marble Race! Check it out here: https://marblerace.ai/challenges/${challengeId}`
+                            )}`,
+                            "_blank"
+                          );
+                        }
+                      }}
+                    >
+                      Share Challenge 🔗
+                    </Button>
+                    <Divider orientation="vertical" flexItem />
                     <TextField
-                      label="email"
+                      // label="email"
                       size="small"
                       type={"email"}
                       color="info"
                       value={enteredEmail}
+                      placeholder="enter email here"
+                      focused
                       onChange={(e) => setEnteredEmail(e.target.value)}
-                    />
-                    <LoadingButton
-                      loading={sendingEmail}
-                      variant="contained"
-                      size="small"
-                      onClick={() => {
-                        if (sendingEmail) return;
-                        if (enteredEmail) {
-                          if (!validateEmail(enteredEmail))
-                            return alert("Enter valid Email");
-                          else if (enteredEmail === user.email)
-                            return alert("You cannot enter your email");
-                          else if (challenge.invites[enteredEmail]) {
-                            return alert(
-                              `You have already invited ${enteredEmail}`
-                            );
-                          }
-                          (async () => {
-                            setSendingEmail(true);
-                            // continueUrl=http://localhost:3000/challenges/m9lhvxube2QBPriHgBPk?loginEnteredEmail%3Dlogesh.r24@gmail.com&lang=en
-                            // await sendSignInLinkToEmail(auth, enteredEmail, {
-                            //   url:
-                            //     typeof window !== "undefined"
-                            //       ? window.location.origin +
-                            //         `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
-                            //       : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
-                            //   handleCodeInApp: true,
-                            // });
-                            await axios.post(
-                              `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-challenge-invitation`,
-                              {
-                                email: enteredEmail,
-                                redirectUrl:
-                                  typeof window !== "undefined"
-                                    ? window.location.origin +
-                                      `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
-                                    : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
-                                name:
-                                  user.email?.split("@")[0] || "Marble Race",
-                                voiceName: challenge?.voices[0].name,
-                              }
-                            );
-                            await updateChallengeInvites(
-                              { email: enteredEmail, isCompleted: false },
-                              enteredEmail,
-                              challengeId
-                            );
-                            logFirebaseEvent("challenge_invite_sent", {
-                              challengeId,
-                              coverId: challenge?.coverId,
-                              voiceId: challenge?.voices[0].id,
-                              voiceName: challenge?.voices[0].name,
-                              email: user?.email,
-                              invitedEmail: enteredEmail,
-                            });
-                            setSendingEmail(false);
+                      InputProps={{
+                        endAdornment: (
+                          <IconButton
+                            disabled={sendingEmail}
+                            size="small"
+                            onClick={async () => {
+                              if (sendingEmail) return;
+                              if (enteredEmail) {
+                                if (!validateEmail(enteredEmail))
+                                  return alert("Enter valid Email");
+                                else if (enteredEmail === user.email)
+                                  return alert("You cannot enter your email");
+                                else if (challenge.invites[enteredEmail]) {
+                                  return alert(
+                                    `You have already invited ${enteredEmail}`
+                                  );
+                                }
+                                setSendingEmail(true);
+                                // continueUrl=http://localhost:3000/challenges/m9lhvxube2QBPriHgBPk?loginEnteredEmail%3Dlogesh.r24@gmail.com&lang=en
+                                // await sendSignInLinkToEmail(auth, enteredEmail, {
+                                //   url:
+                                //     typeof window !== "undefined"
+                                //       ? window.location.origin +
+                                //         `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
+                                //       : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
+                                //   handleCodeInApp: true,
+                                // });
+                                await axios.post(
+                                  `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-challenge-invitation`,
+                                  {
+                                    email: enteredEmail,
+                                    redirectUrl:
+                                      typeof window !== "undefined"
+                                        ? window.location.origin +
+                                          `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
+                                        : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
+                                    name:
+                                      user.email?.split("@")[0] ||
+                                      "Marble Race",
+                                    voiceName: challenge?.voices[0].name,
+                                  }
+                                );
+                                await updateChallengeInvites(
+                                  { email: enteredEmail, isCompleted: false },
+                                  enteredEmail,
+                                  challengeId
+                                );
+                                logFirebaseEvent("challenge_invite_sent", {
+                                  challengeId,
+                                  coverId: challenge?.coverId,
+                                  voiceId: challenge?.voices[0].id,
+                                  voiceName: challenge?.voices[0].name,
+                                  email: user?.email,
+                                  invitedEmail: enteredEmail,
+                                });
+                                setSendingEmail(false);
 
-                            alert(
-                              `Your Challenge has been sent to ${enteredEmail}`
-                            );
-                            setEnteredEmail("");
-                          })();
-                        }
+                                alert(
+                                  `Your Challenge has been sent to ${enteredEmail}`
+                                );
+                                setEnteredEmail("");
+                              }
+                            }}
+                          >
+                            {sendingEmail ? (
+                              <CircularProgress size={15} />
+                            ) : (
+                              <SendRoundedIcon fontSize="small" />
+                            )}
+                          </IconButton>
+                          // <LoadingButton
+                          //   loading={sendingEmail}
+                          //   variant="contained"
+                          //   size="small"
+                          //   onClick={() => {
+                          //     if (sendingEmail) return;
+                          //     if (enteredEmail) {
+                          //       if (!validateEmail(enteredEmail))
+                          //         return alert("Enter valid Email");
+                          //       else if (enteredEmail === user.email)
+                          //         return alert("You cannot enter your email");
+                          //       else if (challenge.invites[enteredEmail]) {
+                          //         return alert(
+                          //           `You have already invited ${enteredEmail}`
+                          //         );
+                          //       }
+                          //       (async () => {
+                          //         setSendingEmail(true);
+                          //         // continueUrl=http://localhost:3000/challenges/m9lhvxube2QBPriHgBPk?loginEnteredEmail%3Dlogesh.r24@gmail.com&lang=en
+                          //         // await sendSignInLinkToEmail(auth, enteredEmail, {
+                          //         //   url:
+                          //         //     typeof window !== "undefined"
+                          //         //       ? window.location.origin +
+                          //         //         `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
+                          //         //       : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
+                          //         //   handleCodeInApp: true,
+                          //         // });
+                          //         await axios.post(
+                          //           `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-challenge-invitation`,
+                          //           {
+                          //             email: enteredEmail,
+                          //             redirectUrl:
+                          //               typeof window !== "undefined"
+                          //                 ? window.location.origin +
+                          //                   `/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`
+                          //                 : `https://marblerace.ai/challenges/${challengeId}?loginEnteredEmail=${enteredEmail}`,
+                          //             name:
+                          //               user.email?.split("@")[0] ||
+                          //               "Marble Race",
+                          //             voiceName: challenge?.voices[0].name,
+                          //           }
+                          //         );
+                          //         await updateChallengeInvites(
+                          //           { email: enteredEmail, isCompleted: false },
+                          //           enteredEmail,
+                          //           challengeId
+                          //         );
+                          //         logFirebaseEvent("challenge_invite_sent", {
+                          //           challengeId,
+                          //           coverId: challenge?.coverId,
+                          //           voiceId: challenge?.voices[0].id,
+                          //           voiceName: challenge?.voices[0].name,
+                          //           email: user?.email,
+                          //           invitedEmail: enteredEmail,
+                          //         });
+                          //         setSendingEmail(false);
+
+                          //         alert(
+                          //           `Your Challenge has been sent to ${enteredEmail}`
+                          //         );
+                          //         setEnteredEmail("");
+                          //       })();
+                          //     }
+                          //   }}
+                          // >
+                          //   Send
+                          // </LoadingButton>
+                        ),
                       }}
-                    >
-                      Send
-                    </LoadingButton>
+                    />
                   </Stack>
                 </Stack>
               ) : (
