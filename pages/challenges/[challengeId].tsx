@@ -362,6 +362,12 @@ const Challenge = (props: Props) => {
                             "_blank"
                           );
                         }
+                        logFirebaseEvent("challenge_share_clicked", {
+                          challengeId,
+                          coverId: challenge?.coverId,
+                          voiceId: challenge?.voices[0].id,
+                          email: user?.email,
+                        });
                       }}
                     >
                       Share Challenge 🔗

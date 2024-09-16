@@ -227,6 +227,7 @@ const Index = () => {
           backgroundSize: "120% 120%",
           backgroundRepeat: "repeat",
           backgroundPosition: "center",
+          backgroundColor: "black",
           // transform: "scale(1.1)",
         }}
       >
