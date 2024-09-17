@@ -67,6 +67,7 @@ const AppWithoutSSR = dynamic(
     ssr: false,
   }
 );
+export const canvasElemWidth = 414;
 
 const Challenge = (props: Props) => {
   const router = useRouter();
@@ -84,8 +85,6 @@ const Challenge = (props: Props) => {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [userDoc, setUserDoc] = useState<UserDoc | null>(null);
   const [resultLoading, setResultLoading] = useState(false);
-
-  const canvasElemWidth = 414;
 
   const downloadAndPlay = async () => {
     if (isDownloading) return;

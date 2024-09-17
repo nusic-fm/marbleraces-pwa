@@ -56,7 +56,7 @@ const SelectRacetracks = ({
   }, [selectedTracksList]);
 
   return (
-    <Stack>
+    <Stack justifyContent="center" alignItems="center">
       <Box
         display={"flex"}
         gap={2}
@@ -78,7 +78,7 @@ const SelectRacetracks = ({
         direction="row"
         gap={2}
         px={1}
-        width={"90%"}
+        width={isMobileView ? "90vw" : "90%"}
         height="160px"
         justifyContent="start"
         alignItems={"center"}
