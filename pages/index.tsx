@@ -24,7 +24,7 @@ import {
   DocumentData,
   documentId,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { auth, db, logFirebaseEvent } from "../src/services/firebase.service";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { CoverV1, CoverV1Doc } from "../src/models/Cover";
@@ -52,6 +52,8 @@ import { LoadingButton } from "@mui/lab";
 import { createUser, getUserDoc } from "../src/services/db/user.service";
 import { UserDoc } from "../src/models/User";
 import OpenChallenges from "../src/components/OpenChallenges";
+import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
+import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -133,6 +135,7 @@ const Index = () => {
     useState(false);
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
+  const coversScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (coversCollectionSnapshot?.size) {
@@ -259,7 +262,43 @@ const Index = () => {
               <Box
                 // width="100%"
                 height={700}
+                position={"relative"}
               >
+                <Box
+                  position={"absolute"}
+                  top={0}
+                  left={"50%"}
+                  display={"flex"}
+                  justifyContent={"center"}
+                  gap={2}
+                  zIndex={9}
+                  sx={{
+                    transform: "translateX(-50%)",
+                  }}
+                >
+                  <IconButton>
+                    <ArrowUpwardRoundedIcon
+                      htmlColor="#c3c3c3"
+                      onClick={() => {
+                        coversScrollRef.current?.scrollTo({
+                          top: coversScrollRef.current?.scrollTop - 400,
+                          behavior: "smooth",
+                        });
+                      }}
+                    />
+                  </IconButton>
+                  <IconButton>
+                    <ArrowDownwardRoundedIcon
+                      htmlColor="#c3c3c3"
+                      onClick={() => {
+                        coversScrollRef.current?.scrollTo({
+                          top: coversScrollRef.current?.scrollTop + 400,
+                          behavior: "smooth",
+                        });
+                      }}
+                    />
+                  </IconButton>
+                </Box>
                 {coversSnapshot?.docs.length ? (
                   <Box
                     width={window.innerWidth > 500 ? 500 : "100%"} // Responsive
@@ -268,6 +307,7 @@ const Index = () => {
                     mb={"-120px"}
                     height={isMobileView ? 500 : 600}
                     position="relative"
+                    ref={coversScrollRef}
                   >
                     {coversSnapshot.docs.map((doc, i) => {
                       const id = doc.id;
@@ -627,97 +667,13 @@ const Index = () => {
                 </Stack>
               </Stack>
             )}
-            {/* {activeStep === 2 && selectedCoverDoc && selectedVoiceObj && (
-          <Stack
-            direction={"row"}
-            justifyContent="center"
-            alignItems={"center"}
-            width={800}
-            height={700}
-            pt={3}
-          >
-            <motion.div
-              style={{
-                fontSize: 164,
-                width: 350,
-                height: 600,
-                display: "flex",
-                alignItems: "start",
-                justifyContent: "center",
-                // background:
-                //   "linear-gradient(306deg, rgb(107, 46, 66), rgb(46, 87, 107))",
-                backgroundImage: `url(https://voxaudio.nusic.fm/marble_race%2Fbackgrounds%2FBG${bgNo}.png?alt=media)`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                borderRadius: 20,
-                boxShadow: `0 0 1px hsl(0deg 0% 0% / 0.075), 0 0 2px hsl(0deg 0% 0% / 0.075),
-                    0 0 4px hsl(0deg 0% 0% / 0.075), 0 0 8px hsl(0deg 0% 0% / 0.075),
-                    0 0 16px hsl(0deg 0% 0% / 0.075)`,
-                // transformOrigin: "10% 60%",
-              }}
-              variants={cardVariants}
-            >
-              <Stack alignItems={"center"}>
-                <Typography
-                  variant="h6"
-                  align="center"
-                  sx={{
-                    background: "rgba(0,0,0,0.8)",
-                    overflow: "hidden",
-                  }}
-                  mt={2}
-                  height="4.2rem"
-                >
-                  {selectedCoverDoc.title}
-                </Typography>
-                <Stack
-                  gap={1}
-                  direction="row"
-                  alignItems={"center"}
-                  justifyContent="center"
-                  height={100}
-                  mt={4}
-                >
-                  <Avatar
-                    src={`https://voxaudio.nusic.fm/${encodeURIComponent(
-                      "voice_models/avatars/thumbs/"
-                    )}${selectedVoiceObj.id}_200x200?alt=media`}
-                    sx={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: "50%",
-                      cursor: "pointer",
-                    }}
-                  />
-                  <Typography variant="h4">VS</Typography>
-                  <Avatar
-                    sx={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: "50%",
-                    }}
-                  />
-                </Stack>
-                <Box mt={6}>
-                  <Typography
-                    component={"a"}
-                    href={`${location.origin}/challenges/${newChallengeId}`}
-                  >
-                    {newChallengeId}
-                  </Typography>
-                </Box>
-              </Stack>
-            </motion.div>
-          </Stack>
-        )} */}
           </Stack>
           {!isMobileView && (
             <Stack
               width={"25%"}
               alignItems={"center"}
-              pt={10}
               px={2}
-              minHeight={"100%"}
+              height={"calc(100vh - 100px)"}
               sx={{
                 boxShadow: "0 0 10px 0 rgba(0,0,0,1)",
                 borderRadius: 10,

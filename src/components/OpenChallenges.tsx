@@ -19,7 +19,8 @@ const OpenChallenges = ({ userUid, email }: Props) => {
       alignItems={"center"}
       width={"100%"}
       height={"100%"}
-      sx={{ overflowY: "auto" }}
+      pt={5}
+      position={"relative"}
     >
       <Typography
         variant="h5"
@@ -41,7 +42,7 @@ const OpenChallenges = ({ userUid, email }: Props) => {
           zIndex={-1}
         />
       </Typography>
-      <Stack width={"100%"} gap={2}>
+      <Stack width={"100%"} gap={2} height={"100%"} sx={{ overflowY: "auto" }}>
         {challenges?.docs.map((challenge) => {
           const challengeDoc = challenge.data() as Challenge;
           const isCompleted = email && challengeDoc.invites[email]?.isCompleted;
@@ -99,22 +100,6 @@ const OpenChallenges = ({ userUid, email }: Props) => {
                 position={"relative"}
                 zIndex={1}
               >
-                {/* <Box
-                  position={"absolute"}
-                  bottom={-10}
-                  left={0}
-                  width={"100%"}
-                  height={"10px"}
-                  zIndex={-1}
-                  sx={{
-                    backgroundImage: `url(${getBackgroundPath(
-                      challengeDoc.bgId
-                    )})`,
-                    backgroundSize: "cover",
-                    // backgroundPosition: "center",
-                  }}
-                /> */}
-
                 <Typography
                   align="center"
                   sx={{
@@ -132,7 +117,7 @@ const OpenChallenges = ({ userUid, email }: Props) => {
                   direction={"row"}
                   gap={2}
                   alignItems={"center"}
-                  justifyContent={"center"}
+                  justifyContent={"start"}
                   width={"100%"}
                   // sx={{ backdropFilter: "blur(10px)" }}
                 >
@@ -140,7 +125,7 @@ const OpenChallenges = ({ userUid, email }: Props) => {
                     direction={"row"}
                     gap={1}
                     alignItems={"center"}
-                    width={"50%"}
+                    width={"70%"}
                   >
                     <Avatar
                       src={getVoiceAvatarPath(challengeDoc.voices[0].id)}
@@ -157,12 +142,6 @@ const OpenChallenges = ({ userUid, email }: Props) => {
                       {challengeDoc.voices[0].name}
                     </Typography>
                   </Stack>
-                  {/* {userUid !== challengeDoc.creatorUid &&
-                  email &&
-                  challengeDoc.invites[email]?.isCompleted ? (
-                    <Chip label="Completed" color="success" size="small" />
-                  ) : (
-                  )} */}
                   <Button
                     variant="outlined"
                     size="small"
