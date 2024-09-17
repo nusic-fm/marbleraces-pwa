@@ -22,7 +22,7 @@ const createWaitlist = async (email: string): Promise<boolean> => {
     });
     return false;
   }
-  await setDoc(d, { email, isInvited: false, invitedAt: serverTimestamp() });
+  // await setDoc(d, { email, isInvited: false, invitedAt: serverTimestamp() });
   return true;
 };
 export { createWaitlist };
