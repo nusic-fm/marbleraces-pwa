@@ -145,17 +145,22 @@ const EmailLink = ({
                 setIsLoading(true);
                 const sendEmail = await createWaitlist(email);
                 if (sendEmail) {
-                  await axios.post(
-                    `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-waitlist-email`,
-                    {
-                      email: email,
-                    }
-                  );
-                  alert(
-                    "Joined the waitlist! You will be notified with an Invitation soon."
-                  );
-                  setEmail("");
-                  setIsLoading(false);
+                  try {
+                    await axios.post(
+                      `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-waitlist-email`,
+                      {
+                        email: email,
+                      }
+                    );
+                    alert(
+                      "Joined the waitlist! You will be notified with an Invitation soon."
+                    );
+                  } catch (e: any) {
+                    alert(e.response.data || "Error occurred, try again");
+                  } finally {
+                    setEmail("");
+                    setIsLoading(false);
+                  }
                 } else {
                   alert(
                     "Whoops, you've already on the waitlist! We'll let you know when new invites are available"
