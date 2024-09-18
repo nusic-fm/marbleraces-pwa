@@ -27,6 +27,20 @@ export default class MyDocument extends Document {
         <body>
           <Main />
           <NextScript />
+          <Script id="mouseflow" strategy="afterInteractive">
+            {`
+              window._mfq = window._mfq || [];
+              (function() {
+              debugger
+              console.log("Runninggggg-----Runninggggg-----Runninggggg-----Runninggggg-----Runninggggg-----")
+                var mf = document.createElement("script");
+                mf.type = "text/javascript";
+                mf.defer = true;
+                mf.src = "//cdn.mouseflow.com/projects/95d77f8f-e6a3-4145-9742-b678bae08320.js";
+                document.getElementsByTagName("head")[0].appendChild(mf);
+              })();
+            `}
+          </Script>
         </body>
       </Html>
     );
