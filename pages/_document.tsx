@@ -3,6 +3,7 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
 import createEmotionCache from "../src/createEmotionCache";
 import { GoogleTagManager } from "@next/third-parties/google";
+import Script from "next/script";
 
 export default class MyDocument extends Document {
   render() {
@@ -26,7 +27,20 @@ export default class MyDocument extends Document {
         <body>
           <NextScript />
           <Main />
-          <GoogleTagManager gtmId="GTM-N3W8NWVG" />
+          <Script
+            strategy="lazyOnload"
+            dangerouslySetInnerHTML={{
+              __html: `
+            window._mfq = window._mfq || [];
+  (function() {
+    var mf = document.createElement("script");
+    mf.type = "text/javascript"; mf.defer = true;
+    mf.src = "//cdn.mouseflow.com/projects/95d77f8f-e6a3-4145-9742-b678bae08320.js";
+    document.getElementsByTagName("head")[0].appendChild(mf);
+  })();
+            `,
+            }}
+          ></Script>
         </body>
       </Html>
     );
