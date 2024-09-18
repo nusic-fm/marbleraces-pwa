@@ -28,6 +28,7 @@ export default class MyDocument extends Document {
           <NextScript />
           <Main />
           <Script
+            id="mouseflow"
             strategy="lazyOnload"
             dangerouslySetInnerHTML={{
               __html: `
