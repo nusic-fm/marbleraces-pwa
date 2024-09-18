@@ -1,9 +1,8 @@
 import * as React from "react";
 import Document, { Html, Head, Main, NextScript } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
-import theme from "../src/theme";
 import createEmotionCache from "../src/createEmotionCache";
-import Script from "next/script";
+import { GoogleTagManager } from "@next/third-parties/google";
 
 export default class MyDocument extends Document {
   render() {
@@ -25,22 +24,9 @@ export default class MyDocument extends Document {
           {(this.props as any).emotionStyleTags}
         </Head>
         <body>
-          <Main />
           <NextScript />
-          <Script id="mouseflow" strategy="afterInteractive">
-            {`
-              if (typeof window !== 'undefined') {
-                window._mfq = window._mfq || [];
-                (function() {
-                  var mf = document.createElement("script");
-                  mf.type = "text/javascript";
-                  mf.defer = true;
-                  mf.src = "//cdn.mouseflow.com/projects/95d77f8f-e6a3-4145-9742-b678bae08320.js";
-                  document.getElementsByTagName("head")[0].appendChild(mf);
-                })();
-              }
-            `}
-          </Script>
+          <Main />
+          <GoogleTagManager gtmId="GTM-N3W8NWVG" />
         </body>
       </Html>
     );
