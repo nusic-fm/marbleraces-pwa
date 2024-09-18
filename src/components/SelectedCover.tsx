@@ -162,7 +162,7 @@ const SelectedCover = (props: Props) => {
 
   if (showPlayMode) {
     return (
-      <Stack>
+      <Stack mb={isMobileView ? 8 : 0}>
         <Typography
           align="center"
           variant="h5"
@@ -185,10 +185,13 @@ const SelectedCover = (props: Props) => {
           flexWrap={"wrap"}
           gap={2}
           position={"relative"}
+          ref={(r: HTMLDivElement | null) => {
+            r?.scrollIntoView({ behavior: "smooth" });
+          }}
         >
           <Box
             position={"absolute"}
-            top={"100%"}
+            top={isMobileView ? "92%" : "100%"}
             left={"50%"}
             sx={{ transform: "translate(-50%, -50%)" }}
           >
@@ -348,23 +351,13 @@ const SelectedCover = (props: Props) => {
             ) : (
               <Stack
                 alignItems={"center"}
-                py={8}
+                py={isMobileView ? 4 : 8}
                 width="100%"
                 gap={4}
                 sx={{
                   background: "rgba(0,0,0,0.8)",
                 }}
               >
-                <Typography
-                  height={"100%"}
-                  width={"100%"}
-                  display="flex"
-                  justifyContent={"center"}
-                  variant="h6"
-                  align="center"
-                >
-                  {selectedCoverDoc.title}
-                </Typography>
                 {isDownloading ? (
                   <LinearProgressWithLabel
                     value={downloadProgress}
@@ -661,18 +654,20 @@ const SelectedCover = (props: Props) => {
             </Stack>
           </Stack>
           <Box my={4} position="relative">
-            <Box position={"absolute"} top={0} left={-45}>
-              <IconButton
-                onClick={() => {
-                  router.push("/", undefined, { shallow: true });
-                  setActiveStep(0);
-                  setSelectedCoverDoc(null);
-                  setSelectedVoiceObj(null);
-                }}
-              >
-                <ArrowBackRoundedIcon />
-              </IconButton>
-            </Box>
+            {!isMobileView && (
+              <Box position={"absolute"} top={0} left={-45}>
+                <IconButton
+                  onClick={() => {
+                    router.push("/", undefined, { shallow: true });
+                    setActiveStep(0);
+                    setSelectedCoverDoc(null);
+                    setSelectedVoiceObj(null);
+                  }}
+                >
+                  <ArrowBackRoundedIcon />
+                </IconButton>
+              </Box>
+            )}
             <Box display={"flex"} gap={2}>
               <Button
                 variant="contained"

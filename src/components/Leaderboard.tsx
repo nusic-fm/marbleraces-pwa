@@ -1,4 +1,12 @@
-import { Box, Chip, LinearProgress, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  LinearProgress,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { query, collection, orderBy, limit } from "firebase/firestore";
 import React from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
@@ -12,6 +20,8 @@ const Leaderboard = (props: Props) => {
   const [usersDocs, loading, error] = useCollectionData(
     query(collection(db, "marblerace_users"), orderBy("xp", "desc"), limit(10))
   );
+  const theme = useTheme();
+  const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <Stack
@@ -36,8 +46,9 @@ const Leaderboard = (props: Props) => {
         display={"flex"}
         justifyContent={"center"}
         width={"100%"}
-        height={"100%"}
-        // sx={{ background: "black" }}
+        height={isMobileView ? "50vh" : "100%"}
+        sx={{ overflowY: "auto" }}
+        mb={isMobileView ? 8 : 0}
       >
         <Stack gap={2} width={"100%"} alignItems={"center"}>
           {loading
@@ -52,6 +63,7 @@ const Leaderboard = (props: Props) => {
                   //   borderRadius: 2,
                   // }}
                   px={2}
+                  alignItems={"center"}
                 >
                   <Box
                     flexBasis={"10%"}

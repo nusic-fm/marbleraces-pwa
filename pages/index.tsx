@@ -2,6 +2,7 @@ import {
   Avatar,
   AvatarGroup,
   Button,
+  Drawer,
   IconButton,
   Stack,
   Typography,
@@ -38,7 +39,6 @@ import { getCover } from "../src/services/db/cover.service";
 import Head from "next/head";
 import Header from "../src/components/Header";
 import RequestInvitation from "../src/components/ Modals/RequestInvitation";
-import { LoadingButton } from "@mui/lab";
 import { createUser, getUserDoc } from "../src/services/db/user.service";
 import { UserDoc } from "../src/models/User";
 import OpenChallenges from "../src/components/OpenChallenges";
@@ -46,7 +46,7 @@ import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
 import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 import SelectedCover from "../src/components/SelectedCover";
 import Leaderboard from "../src/components/Leaderboard";
-import { createRandomNumber } from "../src/helpers";
+import Footer from "../src/components/Footer";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -136,6 +136,8 @@ const Index = () => {
     }
     return bgNos.sort(() => 0.5 - Math.random());
   });
+  const [showLeaderboardDrawer, setShowLeaderboardDrawer] = useState(false);
+  const [showChallengesDrawer, setShowChallengesDrawer] = useState(false);
 
   useEffect(() => {
     if (coversCollectionSnapshot?.size) {
@@ -288,27 +290,25 @@ const Index = () => {
                       transform: "translateX(-50%)",
                     }}
                   >
-                    <IconButton>
-                      <ArrowUpwardRoundedIcon
-                        htmlColor="#c3c3c3"
-                        onClick={() => {
-                          coversScrollRef.current?.scrollTo({
-                            top: coversScrollRef.current?.scrollTop - 400,
-                            behavior: "smooth",
-                          });
-                        }}
-                      />
+                    <IconButton
+                      onClick={() => {
+                        coversScrollRef.current?.scrollTo({
+                          top: coversScrollRef.current?.scrollTop - 400,
+                          behavior: "smooth",
+                        });
+                      }}
+                    >
+                      <ArrowUpwardRoundedIcon htmlColor="#c3c3c3" />
                     </IconButton>
-                    <IconButton>
-                      <ArrowDownwardRoundedIcon
-                        htmlColor="#c3c3c3"
-                        onClick={() => {
-                          coversScrollRef.current?.scrollTo({
-                            top: coversScrollRef.current?.scrollTop + 400,
-                            behavior: "smooth",
-                          });
-                        }}
-                      />
+                    <IconButton
+                      onClick={() => {
+                        coversScrollRef.current?.scrollTo({
+                          top: coversScrollRef.current?.scrollTop + 400,
+                          behavior: "smooth",
+                        });
+                      }}
+                    >
+                      <ArrowDownwardRoundedIcon htmlColor="#c3c3c3" />
                     </IconButton>
                   </Box>
                   {coversSnapshotDocs?.length ? (
@@ -532,6 +532,38 @@ const Index = () => {
           }
         />
       </Stack>
+      <Drawer
+        open={showLeaderboardDrawer}
+        anchor="bottom"
+        onClose={() => setShowLeaderboardDrawer(false)}
+      >
+        <Leaderboard />
+      </Drawer>
+      <Drawer
+        open={showChallengesDrawer}
+        anchor="bottom"
+        onClose={() => setShowChallengesDrawer(false)}
+      >
+        <OpenChallenges userUid={user?.uid} email={userDoc?.email} />
+      </Drawer>
+      {isMobileView && (
+        <Footer
+          onHomeClick={() => {
+            router.push("/");
+            setActiveStep(0);
+            setShowLeaderboardDrawer(false);
+            setShowChallengesDrawer(false);
+          }}
+          onLeaderboardClick={() => {
+            setShowLeaderboardDrawer(true);
+            setShowChallengesDrawer(false);
+          }}
+          onChallengesClick={() => {
+            setShowChallengesDrawer(true);
+            setShowLeaderboardDrawer(false);
+          }}
+        />
+      )}
     </>
   );
 };

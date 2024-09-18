@@ -1,7 +1,16 @@
 import { collection, orderBy, query } from "firebase/firestore";
 import { useCollectionOnce } from "react-firebase-hooks/firestore";
 import { db, logFirebaseEvent } from "../services/firebase.service";
-import { Avatar, Box, Button, Stack, Tooltip, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Button,
+  Stack,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { Challenge } from "../models/Challenge";
 import { useRouter } from "next/router";
 import { getBackgroundPath, getVoiceAvatarPath } from "../helpers";
@@ -13,6 +22,9 @@ const OpenChallenges = ({ userUid, email }: Props) => {
     query(collection(db, "challenges"), orderBy("createdAt", "desc"))
   );
   const router = useRouter();
+  const theme = useTheme();
+  const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <Stack
       gap={4}
@@ -42,7 +54,13 @@ const OpenChallenges = ({ userUid, email }: Props) => {
           zIndex={-1}
         />
       </Typography>
-      <Stack width={"100%"} gap={2} height={"100%"} sx={{ overflowY: "auto" }}>
+      <Stack
+        width={"100%"}
+        gap={2}
+        height={isMobileView ? "60vh" : "100%"}
+        sx={{ overflowY: "auto" }}
+        mb={isMobileView ? 8 : 0}
+      >
         {challenges?.docs.map((challenge) => {
           const challengeDoc = challenge.data() as Challenge;
           const isCompleted = email && challengeDoc.invites[email]?.isCompleted;

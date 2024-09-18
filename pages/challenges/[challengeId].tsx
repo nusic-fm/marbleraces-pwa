@@ -13,6 +13,8 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -58,6 +60,7 @@ import RequestInvitation from "../../src/components/ Modals/RequestInvitation";
 import { increment, serverTimestamp } from "firebase/firestore";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import { uploadChallengeVideo } from "../../src/services/storage/challengeVideo";
+import Footer from "../../src/components/Footer";
 
 type Props = {};
 
@@ -85,6 +88,8 @@ const Challenge = (props: Props) => {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [userDoc, setUserDoc] = useState<UserDoc | null>(null);
   const [resultLoading, setResultLoading] = useState(false);
+  const theme = useTheme();
+  const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
 
   const downloadAndPlay = async () => {
     if (isDownloading) return;
@@ -902,6 +907,17 @@ const Challenge = (props: Props) => {
               : `https://marblerace.ai/challenges/${challengeId}`
           }
         />
+        {isMobileView && (
+          <Footer
+            onHomeClick={() => {
+              router.push("/");
+            }}
+            hideLeaderboard
+            hideOpenChallenges
+            onLeaderboardClick={() => {}}
+            onChallengesClick={() => {}}
+          />
+        )}
       </Stack>
     </>
   );
