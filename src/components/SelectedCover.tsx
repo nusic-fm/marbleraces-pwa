@@ -280,12 +280,12 @@ const SelectedCover = (props: Props) => {
                   coverId: selectedCoverDoc.id,
                   voices: [
                     {
-                      name: selectedVoiceObj?.name || "",
-                      id: selectedVoiceObj?.id || "",
-                    },
-                    {
                       name: secondaryVoiceObj?.name || "",
                       id: secondaryVoiceObj?.id || "",
+                    },
+                    {
+                      name: selectedVoiceObj?.name || "",
+                      id: selectedVoiceObj?.id || "",
                     },
                   ],
                   tracksList: selectedTracksList,
@@ -368,28 +368,29 @@ const SelectedCover = (props: Props) => {
                     <Stack
                       direction={"row"}
                       alignItems="center"
-                      gap={2}
+                      gap={1}
                       justifyContent="center"
                     >
-                      <Badge
-                        badgeContent={<StarRoundedIcon htmlColor="gold" />}
-                        color="primary"
-                      >
-                        <Avatar
-                          src={`https://voxaudio.nusic.fm/${encodeURIComponent(
-                            "voice_models/avatars/thumbs/"
-                          )}${selectedVoiceObj?.id}_200x200?alt=media`}
-                          key={selectedVoiceObj?.id}
-                          sx={{
-                            width: 60,
-                            height: 60,
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => {}}
-                        />
-                      </Badge>
-
+                      <IconButton>
+                        <Badge
+                          badgeContent={<StarRoundedIcon htmlColor="gold" />}
+                          color="primary"
+                        >
+                          <Avatar
+                            src={`https://voxaudio.nusic.fm/${encodeURIComponent(
+                              "voice_models/avatars/thumbs/"
+                            )}${selectedVoiceObj?.id}_200x200?alt=media`}
+                            key={selectedVoiceObj?.id}
+                            sx={{
+                              width: 60,
+                              height: 60,
+                              borderRadius: "50%",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {}}
+                          />
+                        </Badge>
+                      </IconButton>
                       <Typography variant="h6" fontWeight={900}>
                         VS
                       </Typography>
