@@ -1,18 +1,16 @@
 import {
-  collection,
   doc,
   getDoc,
-  getDocs,
   onSnapshot,
-  query,
   serverTimestamp,
   setDoc,
   updateDoc,
-  where,
 } from "firebase/firestore";
 import { UserDoc } from "../../models/User";
 import { db, logFirebaseEvent } from "../firebase.service";
 import { GAEventNames } from "../../models/GAEventNames";
+import { updateUserSignUpOnWaitlistDoc } from "./waitlist.service";
+import { updateUserSignUpOnInviteDoc } from "./invites.service";
 
 const DB_NAME = "marblerace_users";
 
@@ -33,8 +31,9 @@ const createUser = async (uid: string, email: string) => {
     uid,
     createdAt: serverTimestamp(),
     lastSeen: serverTimestamp(),
-    lastActivityAt: serverTimestamp(),
   });
+  updateUserSignUpOnWaitlistDoc(email);
+  updateUserSignUpOnInviteDoc(email);
   return newUserObj;
 };
 

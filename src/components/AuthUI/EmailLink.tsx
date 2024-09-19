@@ -163,8 +163,9 @@ const EmailLink = ({
                   }
                 } else {
                   alert(
-                    "Whoops, you've already on the waitlist! We'll let you know when new invites are available"
+                    "Whoops, you are already on the waitlist! We'll let you know when new invites are available"
                   );
+                  setEmail("");
                 }
               }
             }}
