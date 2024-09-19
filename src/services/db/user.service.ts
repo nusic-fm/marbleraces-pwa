@@ -5,12 +5,13 @@ import {
   getDocs,
   onSnapshot,
   query,
+  serverTimestamp,
   setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
 import { UserDoc } from "../../models/User";
-import { db } from "../firebase.service";
+import { db, logFirebaseEvent } from "../firebase.service";
 
 const DB_NAME = "marblerace_users";
 
@@ -23,8 +24,9 @@ const DB_NAME = "marblerace_users";
 
 const createUser = async (uid: string, email: string) => {
   const d = doc(db, DB_NAME, uid);
-  const newUserObj = { uid, email, xp: 100 };
+  const newUserObj = { uid, email, xp: 100, createdAt: serverTimestamp() };
   await setDoc(d, newUserObj);
+  logFirebaseEvent("user_sign_up", { email, uid });
   return newUserObj;
 };
 

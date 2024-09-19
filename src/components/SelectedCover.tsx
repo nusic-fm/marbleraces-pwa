@@ -135,15 +135,14 @@ const SelectedCover = (props: Props) => {
         }
       );
       setIsDownloading(false);
-      //   logFirebaseEvent("challenge_play_started", {
-      //     challengeId,
-      //     coverId: challenge?.coverId,
-      //     voiceId: challenge?.voices[0].id,
-      //     voiceName: challenge?.voices[0].name,
-      //     email: user?.email,
-      //     chosenVoiceId: challenge?.voices[1].id,
-      //     chosenVoiceName: challenge?.voices[1].name,
-      //   });
+      logFirebaseEvent("single_play_started", {
+        coverId: selectedCoverDoc?.id,
+        voiceId: secondaryVoiceObj.id,
+        voiceName: secondaryVoiceObj.name,
+        email: user?.email,
+        chosenVoiceId: selectedVoiceObj.id,
+        chosenVoiceName: selectedVoiceObj.name,
+      });
       setReady(true);
     }
   };
@@ -686,6 +685,9 @@ const SelectedCover = (props: Props) => {
                   setSecondaryVoiceObj({
                     id: selectRandomSecondaryVoice.id,
                     name: selectRandomSecondaryVoice.name,
+                  });
+                  logFirebaseEvent("choose_single_play", {
+                    email: user?.email,
                   });
                 }}
               >
