@@ -32,6 +32,8 @@ const createUser = async (uid: string, email: string) => {
     isNewUser: true,
     uid,
     createdAt: serverTimestamp(),
+    lastSeen: serverTimestamp(),
+    lastActivityAt: serverTimestamp(),
   });
   return newUserObj;
 };
@@ -74,4 +76,17 @@ const updateLoginTimestamp = async (id: string) => {
   updateDoc(d, { lastSeen: serverTimestamp() });
 };
 
-export { getUserDoc, updateUserProfile, createUser, updateLoginTimestamp };
+const updateUserActivityTimestamp = async (
+  id: string,
+  activity: "played_single" | "challenge_created"
+) => {
+  const d = doc(db, DB_NAME, id);
+  updateDoc(d, { lastActivity: serverTimestamp(), activity });
+};
+
+export {
+  getUserDoc,
+  updateUserProfile,
+  createUser,
+  updateUserActivityTimestamp,
+};

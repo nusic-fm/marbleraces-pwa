@@ -35,8 +35,11 @@ import { IRefPhaserGame } from "../models/Phaser";
 import LinearProgressWithLabel from "./LinearProgressWithLabel";
 import { downloadAudioFiles, stopAndDestroyPlayers } from "../hooks/useTonejs";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
-import { updateUserProfile } from "../services/db/user.service";
-import { increment, serverTimestamp } from "firebase/firestore";
+import {
+  updateUserActivityTimestamp,
+  updateUserProfile,
+} from "../services/db/user.service";
+import { increment } from "firebase/firestore";
 import { createSinglePlay } from "../services/db/singlePlays.service";
 import { GAEventNames } from "../models/GAEventNames";
 
@@ -144,6 +147,7 @@ const SelectedCover = (props: Props) => {
         uid: userDoc?.uid,
         chosenVoiceId: selectedVoiceObj.id,
       });
+      if (user?.uid) updateUserActivityTimestamp(user.uid, "played_single");
       setReady(true);
     }
   };
@@ -723,17 +727,6 @@ const SelectedCover = (props: Props) => {
                       tracksList: selectedTracksList,
                       creatorUid: user.uid,
                       invites: {},
-                    });
-                    logFirebaseEvent(GAEventNames.CHALLENGE_CREATED, {
-                      coverId: selectedCoverDoc.id,
-                      title: selectedCoverDoc.title,
-                      voiceId: selectedVoiceObj.id,
-                      bgNo,
-                      skinId: selectedSkin,
-                      trailpath: selectedTrail,
-                      challengeId,
-                      email: user.email?.split("@")[0],
-                      uid: user.uid,
                     });
                     // setNewChallengeId(challengeId);
                     // TODO: Route

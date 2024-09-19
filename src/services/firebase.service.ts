@@ -4,6 +4,7 @@ import { getAuth } from "firebase/auth";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { TypeGAEventNames } from "../models/GAEventNames";
 // import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -32,7 +33,7 @@ const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-const logFirebaseEvent = (type: any, additionalParams: any) => {
+const logFirebaseEvent = (type: TypeGAEventNames, additionalParams: any) => {
   if (analytics) {
     logEvent(analytics, type, additionalParams);
   }
