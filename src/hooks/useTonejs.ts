@@ -202,6 +202,7 @@ const stopAndDestroyPlayers = () => {
     }
   }
   Tone.Transport.stop();
+  isToneInitialized = false;
 };
 
 const getToneStatus = () => {
@@ -210,6 +211,15 @@ const getToneStatus = () => {
     isMuted,
     toneLoadingForSection,
   };
+};
+
+const mutePlayers = () => {
+  if (instrPlayerRef) instrPlayerRef.mute = true;
+  Object.keys(playersRef).map((k) => (playersRef[k].mute = true));
+};
+const unMutePlayers = () => {
+  if (instrPlayerRef) instrPlayerRef.mute = false;
+  Object.keys(playersRef).map((k) => (playersRef[k].mute = false));
 };
 
 export {
@@ -222,4 +232,6 @@ export {
   stopPlayer,
   getToneStatus,
   stopAndDestroyPlayers,
+  mutePlayers,
+  unMutePlayers,
 };

@@ -33,7 +33,12 @@ import { canvasElemWidth } from "../../pages/challenges/[challengeId]";
 import dynamic from "next/dynamic";
 import { IRefPhaserGame } from "../models/Phaser";
 import LinearProgressWithLabel from "./LinearProgressWithLabel";
-import { downloadAudioFiles, stopAndDestroyPlayers } from "../hooks/useTonejs";
+import {
+  downloadAudioFiles,
+  mutePlayers,
+  stopAndDestroyPlayers,
+  unMutePlayers,
+} from "../hooks/useTonejs";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import {
   updateUserActivityTimestamp,
@@ -42,6 +47,8 @@ import {
 import { increment } from "firebase/firestore";
 import { createSinglePlay } from "../services/db/singlePlays.service";
 import { GAEventNames } from "../models/GAEventNames";
+import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
+import VolumeOffRoundedIcon from "@mui/icons-material/VolumeOffRounded";
 
 type Props = {
   selectedCoverDoc: CoverV1Doc;
@@ -109,6 +116,7 @@ const SelectedCover = (props: Props) => {
   const [ready, setReady] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [resultLoading, setResultLoading] = useState(false);
+  const [muted, setMuted] = useState(false);
 
   const downloadAndPlay = async () => {
     if (isDownloading) return;
@@ -234,6 +242,27 @@ const SelectedCover = (props: Props) => {
                 >
                   Stop Game
                 </Button>
+                <IconButton
+                  onClick={() => {
+                    if (muted) unMutePlayers();
+                    else mutePlayers();
+                    setMuted(!muted);
+                    logFirebaseEvent(
+                      muted
+                        ? GAEventNames.SINGLE_PLAY_UNMUTED
+                        : GAEventNames.SINGLE_PLAY_MUTED,
+                      {
+                        email: userDoc?.email.split("@")[0],
+                        uid: userDoc?.uid,
+                        title: selectedCoverDoc.title,
+                        chosenVoice: selectedVoiceObj?.id,
+                        secondaryVoice: secondaryVoiceObj?.id,
+                      }
+                    );
+                  }}
+                >
+                  {muted ? <VolumeOffRoundedIcon /> : <VolumeUpRoundedIcon />}
+                </IconButton>
               </Stack>
             </Box>
           )}
