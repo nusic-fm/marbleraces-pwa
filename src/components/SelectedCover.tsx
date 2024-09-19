@@ -38,6 +38,7 @@ import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import { updateUserProfile } from "../services/db/user.service";
 import { increment, serverTimestamp } from "firebase/firestore";
 import { createSinglePlay } from "../services/db/singlePlays.service";
+import { GAEventNames } from "../models/GAEventNames";
 
 type Props = {
   selectedCoverDoc: CoverV1Doc;
@@ -135,13 +136,13 @@ const SelectedCover = (props: Props) => {
         }
       );
       setIsDownloading(false);
-      logFirebaseEvent("single_play_started", {
+      logFirebaseEvent(GAEventNames.SINGLE_PLAY_STARTED, {
         coverId: selectedCoverDoc?.id,
+        title: selectedCoverDoc?.title,
         voiceId: secondaryVoiceObj.id,
-        voiceName: secondaryVoiceObj.name,
-        email: user?.email,
+        email: userDoc?.email?.split("@")[0],
+        uid: userDoc?.uid,
         chosenVoiceId: selectedVoiceObj.id,
-        chosenVoiceName: selectedVoiceObj.name,
       });
       setReady(true);
     }
@@ -686,8 +687,10 @@ const SelectedCover = (props: Props) => {
                     id: selectRandomSecondaryVoice.id,
                     name: selectRandomSecondaryVoice.name,
                   });
-                  logFirebaseEvent("choose_single_play", {
-                    email: user?.email,
+                  logFirebaseEvent(GAEventNames.CHOOSE_SINGLE_PLAY, {
+                    coverId: selectedCoverDoc.id,
+                    title: selectedCoverDoc.title,
+                    email: user?.email?.split("@")[0],
                   });
                 }}
               >
@@ -721,16 +724,16 @@ const SelectedCover = (props: Props) => {
                       creatorUid: user.uid,
                       invites: {},
                     });
-                    logFirebaseEvent("challenge_created", {
+                    logFirebaseEvent(GAEventNames.CHALLENGE_CREATED, {
                       coverId: selectedCoverDoc.id,
-                      coverTitle: selectedCoverDoc.title,
+                      title: selectedCoverDoc.title,
                       voiceId: selectedVoiceObj.id,
-                      voiceName: selectedVoiceObj.name,
-                      bgNo: bgNo,
+                      bgNo,
                       skinId: selectedSkin,
                       trailpath: selectedTrail,
                       challengeId,
-                      email: user.email,
+                      email: user.email?.split("@")[0],
+                      uid: user.uid,
                     });
                     // setNewChallengeId(challengeId);
                     // TODO: Route

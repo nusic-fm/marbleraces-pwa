@@ -14,6 +14,7 @@ import {
 import { Challenge } from "../models/Challenge";
 import { useRouter } from "next/router";
 import { getBackgroundPath, getVoiceAvatarPath } from "../helpers";
+import { GAEventNames } from "../models/GAEventNames";
 
 type Props = { userUid?: string; email?: string };
 
@@ -166,14 +167,18 @@ const OpenChallenges = ({ userUid, email }: Props) => {
                     color="info"
                     onClick={() => {
                       if (userUid === challengeDoc.creatorUid) {
-                        logFirebaseEvent("view_my_challenge", {
+                        logFirebaseEvent(GAEventNames.VIEW_MY_CHALLENGE, {
                           challengeId: challenge.id,
-                          userUid,
+                          title: challengeDoc.title,
+                          uid: userUid,
                         });
                       } else {
-                        logFirebaseEvent("play_open_challenge", {
+                        logFirebaseEvent(GAEventNames.CLICK_OPEN_CHALLENGE, {
                           challengeId: challenge.id,
-                          userUid,
+                          title: challengeDoc.title,
+                          creatorName:
+                            challengeDoc.creatorUserObj.email?.split("@")[0],
+                          uid: userUid,
                         });
                       }
                       router.push(`challenges/${challenge.id}`);

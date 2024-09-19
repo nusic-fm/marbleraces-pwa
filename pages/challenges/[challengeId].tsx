@@ -61,6 +61,7 @@ import { increment, serverTimestamp } from "firebase/firestore";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import { uploadChallengeVideo } from "../../src/services/storage/challengeVideo";
 import Footer from "../../src/components/Footer";
+import { GAEventNames } from "../../src/models/GAEventNames";
 
 type Props = {};
 
@@ -116,14 +117,14 @@ const Challenge = (props: Props) => {
         }
       );
       setIsDownloading(false);
-      logFirebaseEvent("challenge_play_started", {
+      logFirebaseEvent(GAEventNames.CHALLENGE_PLAY_STARTED, {
         challengeId,
-        coverId: challenge?.coverId,
-        voiceId: challenge?.voices[0].id,
-        voiceName: challenge?.voices[0].name,
-        email: user?.email,
+        coverId: challenge.coverId,
+        title: challenge.title,
+        voiceId: challenge.voices[0].id,
+        email: user?.email?.split("@")[0],
         chosenVoiceId: challenge?.voices[1].id,
-        chosenVoiceName: challenge?.voices[1].name,
+        uid: userDoc?.uid,
       });
       setReady(true);
     }
@@ -170,15 +171,15 @@ const Challenge = (props: Props) => {
         userDoc.email,
         challengeId
       );
-      logFirebaseEvent("challenge_completed", {
+      logFirebaseEvent(GAEventNames.CHALLENGE_COMPLETED, {
         challengeId,
+        title: challenge.title,
         coverId: challenge.coverId,
         voiceId: challenge.voices[0].id,
-        voiceName: challenge.voices[0].name,
         email: user?.email,
         chosenVoiceId: challenge.voices[1].id,
-        chosenVoiceName: challenge.voices[1].name,
         win,
+        uid: userDoc.uid,
       });
       setResultLoading(false);
     }
@@ -251,13 +252,13 @@ const Challenge = (props: Props) => {
           setChallenge({ ...challengeDoc, id: challengeId });
           const _cover = await getCover(challengeDoc.coverId);
           setCover(_cover);
-          logFirebaseEvent("challenge_viewed", {
+          logFirebaseEvent(GAEventNames.CHALLENGE_VIEWED, {
             challengeId,
             coverId: challengeDoc?.coverId,
-            coverTitle: _cover?.title,
+            title: _cover?.title,
             voiceId: challengeDoc?.voices[0].id,
-            voiceName: challengeDoc?.voices[0].name,
-            email: user?.email,
+            email: user?.email?.split("@")[0],
+            uid: user?.uid,
           });
         }
         // else {
@@ -385,11 +386,12 @@ const Challenge = (props: Props) => {
                             "_blank"
                           );
                         }
-                        logFirebaseEvent("challenge_share_clicked", {
+                        logFirebaseEvent(GAEventNames.CHALLENGE_SHARE_CLICKED, {
                           challengeId,
                           coverId: challenge?.coverId,
                           voiceId: challenge?.voices[0].id,
-                          email: user?.email,
+                          email: userDoc?.email?.split("@")[0],
+                          uid: userDoc?.uid,
                         });
                       }}
                     >
@@ -452,14 +454,18 @@ const Challenge = (props: Props) => {
                                   enteredEmail,
                                   challengeId
                                 );
-                                logFirebaseEvent("challenge_invite_sent", {
-                                  challengeId,
-                                  coverId: challenge?.coverId,
-                                  voiceId: challenge?.voices[0].id,
-                                  voiceName: challenge?.voices[0].name,
-                                  email: user?.email,
-                                  invitedEmail: enteredEmail,
-                                });
+                                logFirebaseEvent(
+                                  GAEventNames.CHALLENGE_INVITE_SENT,
+                                  {
+                                    challengeId,
+                                    title: challenge.title,
+                                    coverId: challenge.coverId,
+                                    voiceId: challenge.voices[0].id,
+                                    email: user?.email?.split("@")[0],
+                                    invitedEmail: enteredEmail.split("@")[0],
+                                    uid: userDoc?.uid,
+                                  }
+                                );
                                 setSendingEmail(false);
 
                                 alert(
@@ -771,23 +777,30 @@ const Challenge = (props: Props) => {
                                 )
                                   downloadAndPlay();
                                 else if (user) {
-                                  logFirebaseEvent("challenge_play_clicked", {
-                                    challengeId,
-                                    coverId: challenge?.coverId,
-                                    voiceId: challenge?.voices[0].id,
-                                    voiceName: challenge?.voices[0].name,
-                                    email: user?.email,
-                                    error: "Choose a Voice to Play the Race",
-                                  });
+                                  logFirebaseEvent(
+                                    GAEventNames.CHALLENGE_PLAY_CLICKED,
+                                    {
+                                      challengeId,
+                                      title: challenge.title,
+                                      coverId: challenge?.coverId,
+                                      voiceId: challenge?.voices[0].id,
+                                      email: user.email?.split("@")[0],
+                                      uid: user.uid,
+                                      error: "Choose a Voice to Play the Race",
+                                    }
+                                  );
                                   alert("Choose a Voice to Play the Race");
                                 } else {
-                                  logFirebaseEvent("challenge_play_clicked", {
-                                    challengeId,
-                                    coverId: challenge?.coverId,
-                                    voiceId: challenge?.voices[0].id,
-                                    voiceName: challenge?.voices[0].name,
-                                    error: "Sign In to play the Challenge",
-                                  });
+                                  logFirebaseEvent(
+                                    GAEventNames.CHALLENGE_PLAY_CLICKED,
+                                    {
+                                      challengeId,
+                                      title: challenge.title,
+                                      coverId: challenge?.coverId,
+                                      voiceId: challenge?.voices[0].id,
+                                      error: "Sign In to play the Challenge",
+                                    }
+                                  );
                                   alert("Sign In to play the Challenge");
                                 }
                               }}

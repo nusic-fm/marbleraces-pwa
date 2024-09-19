@@ -25,8 +25,6 @@ import { auth, db, logFirebaseEvent } from "../src/services/firebase.service";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { CoverV1, CoverV1Doc } from "../src/models/Cover";
 import { motion, Variants } from "framer-motion";
-import SelectRacetracks from "../src/components/SelectRacetracks";
-import { createChallenge } from "../src/services/db/challenge.service";
 
 import { useRouter } from "next/router";
 import {
@@ -47,6 +45,7 @@ import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 import SelectedCover from "../src/components/SelectedCover";
 import Leaderboard from "../src/components/Leaderboard";
 import Footer from "../src/components/Footer";
+import { GAEventNames } from "../src/models/GAEventNames";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -178,6 +177,12 @@ const Index = () => {
                 creds.user.email
               );
               setUserDoc(newUserObj);
+            } else {
+              logFirebaseEvent(GAEventNames.USER_SIGN_IN, {
+                email: email.split("@")[0],
+                domain: email.split("@")[1],
+                uid: creds.user.uid,
+              });
             }
             window.localStorage.removeItem("emailForSignIn");
             router.push("/", undefined, { shallow: true });
@@ -215,8 +220,10 @@ const Index = () => {
           if (latestDoc) setUserDoc(latestDoc);
         });
         if (doc) setUserDoc(doc);
-        logFirebaseEvent("user_login", {
+        logFirebaseEvent(GAEventNames.USER_LOGIN, {
           email: user.email?.split("@")[0],
+          domain: user.email?.split("@")[1],
+          uid: user.uid,
         });
       })();
     }
@@ -424,10 +431,13 @@ const Index = () => {
                                     }}
                                     size="large"
                                     onClick={() => {
-                                      logFirebaseEvent("cover_selected", {
-                                        coverId: id,
-                                        coverTitle: coverDoc.title,
-                                      });
+                                      logFirebaseEvent(
+                                        GAEventNames.COVER_SELECTED,
+                                        {
+                                          coverId: id,
+                                          title: coverDoc.title,
+                                        }
+                                      );
                                       setSelectedCoverDoc({ ...coverDoc, id });
                                       setSelectedVoiceObj({
                                         id: coverDoc.voices[0].id,

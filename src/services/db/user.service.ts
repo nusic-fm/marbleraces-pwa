@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { UserDoc } from "../../models/User";
 import { db, logFirebaseEvent } from "../firebase.service";
+import { GAEventNames } from "../../models/GAEventNames";
 
 const DB_NAME = "marblerace_users";
 
@@ -26,7 +27,11 @@ const createUser = async (uid: string, email: string) => {
   const d = doc(db, DB_NAME, uid);
   const newUserObj = { uid, email, xp: 100, createdAt: serverTimestamp() };
   await setDoc(d, newUserObj);
-  logFirebaseEvent("user_sign_up", { email, uid });
+  logFirebaseEvent(GAEventNames.USER_SIGN_UP, {
+    email: email.split("@")[0],
+    isNewUser: true,
+    uid,
+  });
   return newUserObj;
 };
 
