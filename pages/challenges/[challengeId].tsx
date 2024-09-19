@@ -151,7 +151,6 @@ const Challenge = (props: Props) => {
         //   newChallenge.invites[userDoc.email].result = {}
         // }
         // setChallenge({...challenge, invites})
-        // TODO: update challenge
         await updateUserProfile(userDoc.uid, { xp: increment(500) });
       } else {
         await updateUserProfile(challenge.creatorUid, { xp: increment(500) });
@@ -693,7 +692,7 @@ const Challenge = (props: Props) => {
                       // skinPath={getSkinPath(challenge.skinId)}
                       // backgroundPath={getBackgroundPath(challenge.bgId)}
                       // selectedTracks={challenge.tracksList.slice(0, 4)}
-                      // noOfRaceTracks={4}
+                      noOfRaceTracks={isMobileView ? 4 : 8}
                       // gravityY={0.5}
                       canvasElemWidth={canvasElemWidth}
                       onGameComplete={onGameComplete}

@@ -14,6 +14,7 @@ export const GAEventNames = {
   VIEW_MY_CHALLENGE: "view_my_challenge",
   CLICK_OPEN_CHALLENGE: "click_open_challenge",
   SINGLE_PLAY_STARTED: "single_play_started",
+  SINGLE_PLAY_COMPLETED: "single_play_completed",
 } as const;
 
 export type TypeGAEventNames = (typeof GAEventNames)[keyof typeof GAEventNames];

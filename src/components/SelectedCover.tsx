@@ -193,53 +193,50 @@ const SelectedCover = (props: Props) => {
             r?.scrollIntoView({ behavior: "smooth" });
           }}
         >
-          <Box
-            position={"absolute"}
-            top={isMobileView ? "92%" : "100%"}
-            left={"50%"}
-            sx={{ transform: "translate(-50%, -50%)" }}
-          >
-            <Stack direction={"row"} gap={1} alignItems={"center"}>
-              {!ready && (
-                <IconButton onClick={() => goBack(false)}>
-                  <ArrowBackRoundedIcon />
-                </IconButton>
-              )}
-              <Button
-                variant="contained"
-                onClick={() => {
-                  if (ready) {
-                    goBack();
-                  } else {
-                    if (user) downloadAndPlay();
-                    // else if (user) {
-                    //   logFirebaseEvent("challenge_play_clicked", {
-                    //     challengeId,
-                    //     coverId: challenge?.coverId,
-                    //     voiceId: challenge?.voices[0].id,
-                    //     voiceName: challenge?.voices[0].name,
-                    //     email: user?.email,
-                    //     error: "Choose a Voice to Play the Race",
-                    //   });
-                    //   alert("Choose a Voice to Play the Race");
-                    // } else {
-                    //   logFirebaseEvent("challenge_play_clicked", {
-                    //     challengeId,
-                    //     coverId: challenge?.coverId,
-                    //     voiceId: challenge?.voices[0].id,
-                    //     voiceName: challenge?.voices[0].name,
-                    //     error: "Sign In to play the Challenge",
-                    //   });
-                    //   alert("Sign In to play the Challenge");
-                    // }
-                  }
-                }}
-                color={ready ? "error" : "success"}
-              >
-                {ready ? "Stop Game" : "Start Game"}
-              </Button>
-            </Stack>
-          </Box>
+          {ready && (
+            <Box
+              position={"absolute"}
+              top={isMobileView ? "92%" : "100%"}
+              left={"50%"}
+              sx={{ transform: "translate(-50%, -50%)" }}
+            >
+              <Stack direction={"row"} gap={1} alignItems={"center"}>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    if (ready) {
+                      goBack();
+                    } else {
+                      if (user) downloadAndPlay();
+                      // else if (user) {
+                      //   logFirebaseEvent("challenge_play_clicked", {
+                      //     challengeId,
+                      //     coverId: challenge?.coverId,
+                      //     voiceId: challenge?.voices[0].id,
+                      //     voiceName: challenge?.voices[0].name,
+                      //     email: user?.email,
+                      //     error: "Choose a Voice to Play the Race",
+                      //   });
+                      //   alert("Choose a Voice to Play the Race");
+                      // } else {
+                      //   logFirebaseEvent("challenge_play_clicked", {
+                      //     challengeId,
+                      //     coverId: challenge?.coverId,
+                      //     voiceId: challenge?.voices[0].id,
+                      //     voiceName: challenge?.voices[0].name,
+                      //     error: "Sign In to play the Challenge",
+                      //   });
+                      //   alert("Sign In to play the Challenge");
+                      // }
+                    }
+                  }}
+                  color={"error"}
+                >
+                  Stop Game
+                </Button>
+              </Stack>
+            </Box>
+          )}
           <Box
             width={canvasElemWidth}
             height={(canvasElemWidth * 16) / 9}
@@ -301,7 +298,7 @@ const SelectedCover = (props: Props) => {
                 // skinPath={getSkinPath(challenge.skinId)}
                 // backgroundPath={getBackgroundPath(challenge.bgId)}
                 // selectedTracks={challenge.tracksList.slice(0, 4)}
-                // noOfRaceTracks={4}
+                noOfRaceTracks={isMobileView ? 4 : 8}
                 // gravityY={0.5}
                 canvasElemWidth={canvasElemWidth}
                 onGameComplete={async (
@@ -321,7 +318,7 @@ const SelectedCover = (props: Props) => {
                         xp: increment(500),
                       });
                     }
-                    await createSinglePlay({
+                    const playId = await createSinglePlay({
                       email: userDoc.email,
                       userId: userDoc.uid,
                       coverId: selectedCoverDoc.id,
@@ -336,6 +333,12 @@ const SelectedCover = (props: Props) => {
                           name: secondaryVoiceObj?.name || "",
                         },
                       ],
+                    });
+                    logFirebaseEvent(GAEventNames.SINGLE_PLAY_COMPLETED, {
+                      email: userDoc.email.split("@")[0],
+                      uid: userDoc.uid,
+                      win,
+                      playId,
                     });
                     setResultLoading(false);
                     setTimeout(() => {
@@ -511,6 +514,24 @@ const SelectedCover = (props: Props) => {
                           ))}
                       </Select>
                     )} */}
+                    </Stack>
+                    <Stack direction={"row"} gap={1} alignItems={"center"}>
+                      <IconButton onClick={() => goBack(false)} size="small">
+                        <ArrowBackRoundedIcon fontSize="small" />
+                      </IconButton>
+                      <Button
+                        variant="contained"
+                        onClick={() => {
+                          if (ready) {
+                            goBack();
+                          } else {
+                            if (user) downloadAndPlay();
+                          }
+                        }}
+                        color={"success"}
+                      >
+                        Start Game
+                      </Button>
                     </Stack>
                   </Stack>
                 )}

@@ -21,10 +21,11 @@ type Props = {
     videoBlob: Blob
   ) => Promise<void>;
   userDoc: UserDoc;
+  noOfRaceTracks?: number;
 };
 
 const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
-  { challenge, canvasElemWidth, onGameComplete, userDoc },
+  { challenge, canvasElemWidth, onGameComplete, userDoc, noOfRaceTracks },
   ref
 ) {
   return (
@@ -39,7 +40,7 @@ const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
       skinPath={getSkinPath(challenge.skinId)}
       backgroundPath={getBackgroundPath(challenge.bgId)}
       selectedTracks={challenge.tracksList.slice(0, 4)}
-      noOfRaceTracks={8}
+      noOfRaceTracks={noOfRaceTracks || 8}
       gravityY={0.8}
       width={canvasElemWidth}
       enableMotion={false}
