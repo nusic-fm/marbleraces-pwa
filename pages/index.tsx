@@ -220,11 +220,6 @@ const Index = () => {
           if (latestDoc) setUserDoc(latestDoc);
         });
         if (doc) setUserDoc(doc);
-        logFirebaseEvent(GAEventNames.USER_LOGIN, {
-          email: user.email?.split("@")[0],
-          domain: user.email?.split("@")[1],
-          uid: user.uid,
-        });
       })();
     }
   }, [user]);

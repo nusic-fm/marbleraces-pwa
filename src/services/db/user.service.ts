@@ -31,6 +31,7 @@ const createUser = async (uid: string, email: string) => {
     email: email.split("@")[0],
     isNewUser: true,
     uid,
+    createdAt: serverTimestamp(),
   });
   return newUserObj;
 };
@@ -46,7 +47,15 @@ const getUserDoc = async (
     });
   }
   const ss = await getDoc(d);
-  return ss.data() as UserDoc | undefined;
+  const userDoc = ss.data();
+  if (userDoc) {
+    logFirebaseEvent(GAEventNames.USER_LOGIN, {
+      email: userDoc.email?.split("@")[0],
+      uid: id,
+    });
+    updateLoginTimestamp(id);
+  }
+  return userDoc as UserDoc | undefined;
 };
 
 const updateUserProfile = async (id: string, profileObj: any) => {
@@ -54,10 +63,15 @@ const updateUserProfile = async (id: string, profileObj: any) => {
   await updateDoc(d, profileObj);
 };
 
-const getUserDocByEmail = async (email: string) => {
-  const d = query(collection(db, DB_NAME), where("email", "==", email));
-  const ss = await getDocs(d);
-  return ss.docs.map((doc) => doc.data() as UserDoc);
+// const getUserDocByEmail = async (email: string) => {
+//   const d = query(collection(db, DB_NAME), where("email", "==", email));
+//   const ss = await getDocs(d);
+//   return ss.docs.map((doc) => doc.data() as UserDoc);
+// };
+
+const updateLoginTimestamp = async (id: string) => {
+  const d = doc(db, DB_NAME, id);
+  updateDoc(d, { lastSeen: serverTimestamp() });
 };
 
-export { getUserDoc, updateUserProfile, createUser, getUserDocByEmail };
+export { getUserDoc, updateUserProfile, createUser, updateLoginTimestamp };
