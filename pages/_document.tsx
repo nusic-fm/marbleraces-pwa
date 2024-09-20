@@ -23,10 +23,6 @@ export default class MyDocument extends Document {
           ></link>
           <meta name="emotion-insertion-point" content="" />
           {(this.props as any).emotionStyleTags}
-        </Head>
-        <body>
-          <NextScript />
-          <Main />
           <Script
             id="mouseflow"
             strategy="lazyOnload"
@@ -42,6 +38,10 @@ export default class MyDocument extends Document {
             `,
             }}
           ></Script>
+        </Head>
+        <body>
+          <NextScript />
+          <Main />
         </body>
       </Html>
     );
