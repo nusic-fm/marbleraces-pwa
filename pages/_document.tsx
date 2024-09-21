@@ -25,7 +25,7 @@ export default class MyDocument extends Document {
           {(this.props as any).emotionStyleTags}
           <Script
             id="mouseflow"
-            strategy="lazyOnload"
+            strategy="afterInteractive"
             dangerouslySetInnerHTML={{
               __html: `
             window._mfq = window._mfq || [];
