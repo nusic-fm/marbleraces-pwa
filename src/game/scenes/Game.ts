@@ -4,7 +4,7 @@ import {
   marbleRacePlayVocals,
 } from "../../hooks/useTonejs";
 import _ from "lodash";
-import { GameVoiceInfo } from "./Preloader";
+import { GameVoiceInfo, ObstacleNames } from "./Preloader";
 import { BodyType } from "matter";
 import { duplicateArrayElemToN } from "../../helpers";
 import { IGameDataParams } from "../../models/Phaser";
@@ -82,6 +82,9 @@ export default class Game extends Phaser.Scene {
   isGameOver: boolean = false;
   winnerIdx: number = -1;
   isResultShown = false;
+  damageMultipliyer: number = 1;
+  level1Hammer: Phaser.GameObjects.Sprite | undefined;
+  level2Hammer: Phaser.GameObjects.Sprite | undefined;
 
   init(data: IGameDataParams) {
     // Sort the voices randomly
@@ -108,6 +111,29 @@ export default class Game extends Phaser.Scene {
     this.prevVoiceIdx = index;
     // Logic that should be throttled
     marbleRacePlayVocals(this.coverDocId, this.voices[index].id);
+  }
+  renderWeapons() {
+    this.level1Hammer = this.add
+      .sprite(350, 550, "hammer_1")
+      .setScale(0.1)
+      .setScrollFactor(0)
+      .setInteractive()
+      .on("pointerdown", () => {
+        this.damageMultipliyer = 1;
+      });
+
+    this.level2Hammer = this.add
+      .sprite(350, 630, "hammer_2")
+      .setScale(0.1)
+      .setScrollFactor(0)
+      .setInteractive()
+      .on("pointerdown", () => {
+        this.damageMultipliyer = 1.5;
+      });
+
+    // w.setPosition(w.x - w.width, w.y - w.height);
+
+    // .setScrollFactor(0);
   }
 
   createTextureMask = (
@@ -214,7 +240,8 @@ export default class Game extends Phaser.Scene {
     xOffset: number,
     startOffset: number,
     prodShapes: any,
-    miniShapes: any
+    miniShapes: any,
+    obstacleShapes: any
   ) => {
     const scaleFactor = this.cameras.main.width / 414;
     const yOffset = startOffset + 835 / 2;
@@ -243,6 +270,37 @@ export default class Game extends Phaser.Scene {
     this.matter.world.add(contraint);
     this.createTextureMask(seesawX, seesawY, seesaw);
     this.createTextureMask(xOffset, yOffset, baseSprite);
+    const randomObstaclePosition = _.sample([
+      [this.centerX, seesawY - 200],
+      [this.centerX - 100, seesawY],
+      [this.centerX + 100, seesawY],
+      [this.centerX, seesawY + 200],
+      [this.centerX - 100, seesawY + 400],
+      [this.centerX + 100, seesawY + 400],
+    ]);
+
+    const randomObstacle = _.sample(ObstacleNames);
+    if (randomObstaclePosition && randomObstacle) {
+      const target = this.matter.add
+        .sprite(
+          randomObstaclePosition[0],
+          randomObstaclePosition[1],
+          `obstacle_${randomObstacle}`,
+          undefined,
+          {
+            shape:
+              obstacleShapes[randomObstacle as keyof typeof obstacleShapes],
+            friction: 0,
+            frictionAir: 0,
+            frictionStatic: 0,
+          }
+        )
+        .setScale(0.17);
+      target.setInteractive();
+      target.on("pointerdown", (e: any) => {
+        this.handleDamage(target, e);
+      });
+    }
     return startOffset + 840;
   };
   createCircleBlockers = (
@@ -383,7 +441,8 @@ export default class Game extends Phaser.Scene {
   createStaticTriangles = (
     xOffset: number,
     startOffset: number,
-    prodShapes: any
+    prodShapes: any,
+    obstacleShapes: any
   ) => {
     const yOffset = startOffset + 833 / 2;
     const baseSprite = this.matter.add
@@ -393,9 +452,83 @@ export default class Game extends Phaser.Scene {
       })
       .setScale(this.cameras.main.width / 414);
     this.createTextureMask(xOffset, yOffset, baseSprite);
+    const randomObstaclePosition = _.sample([
+      [100, startOffset],
+      [350, startOffset],
+      [this.centerX, startOffset + 200],
+      [100, startOffset + 400],
+      [400, startOffset + 400],
+    ]);
+    const randomObstacle = _.sample(ObstacleNames);
+    if (randomObstaclePosition && randomObstacle) {
+      const target = this.matter.add
+        .sprite(
+          randomObstaclePosition[0],
+          randomObstaclePosition[1],
+          `obstacle_${randomObstacle}`,
+          undefined,
+          {
+            shape:
+              obstacleShapes[randomObstacle as keyof typeof obstacleShapes],
+            // angle: 124,
+            friction: 0,
+            frictionAir: 0,
+            frictionStatic: 0,
+          }
+        )
+        .setScale(0.17);
+      target.setInteractive();
+      target.on("pointerdown", (e: any) => {
+        this.handleDamage(target, e);
+      });
+    }
 
     return startOffset + 1000;
   };
+
+  handleDamage(target: Phaser.Physics.Matter.Sprite, e: any) {
+    // Logic for handling damage
+    console.log("Damage dealt to the target!");
+    if (this.damageMultipliyer) {
+      target.setScale(target.scale / (1.1 * this.damageMultipliyer));
+      const particleConfig = {
+        speed: { min: -50, max: 50 },
+        scale: { start: 1, end: 10 },
+        blendMode: "ADD",
+        // lifespan: 400,
+        alpha: 0.5,
+        particleBringToTop: true,
+      };
+      const particle = this.add.particles(
+        e.worldX,
+        e.worldY,
+        "trail",
+        particleConfig
+      );
+      // Add an event listener to destroy the emitter after the particles' lifespan
+      this.time.delayedCall(
+        200,
+        () => {
+          // emitter.stop();
+          particle.destroy(); // Destroys the particle manager and emitter
+        },
+        [],
+        this
+      );
+    }
+    if (target.scale <= 0.08) {
+      target.destroy();
+    }
+
+    // // Example: reduce health, show effects, etc.
+    // target.health = (target.health || 100) - 10; // Example: reduce health by 10
+    // console.log("Target health:", target.health);
+
+    // if (target.health <= 0) {
+    //     console.log("Target destroyed!");
+    //     target.destroy(); // Destroy the target if health is 0
+    // }
+  }
 
   createReduceSizeSlider = (
     xOffset: number,
@@ -525,7 +658,8 @@ export default class Game extends Phaser.Scene {
   createStaticCircles = (
     xOffset: number,
     startOffset: number,
-    prodShapes: any
+    prodShapes: any,
+    obstaclesShapes: any
   ) => {
     const yOffset = startOffset + 835 / 2;
     const baseSprite = this.matter.add
@@ -536,12 +670,43 @@ export default class Game extends Phaser.Scene {
       .setScale(this.cameras.main.width / 414);
     // .setDisplaySize(this.cameras.main.width + 96, 835);
     this.createTextureMask(xOffset, yOffset, baseSprite);
+    const randomObstaclePosition = _.sample([
+      [150, startOffset],
+      [350, startOffset],
+      [150, startOffset + 200],
+      [350, startOffset + 200],
+      [150, startOffset + 400],
+      [350, startOffset + 400],
+    ]);
+    const randomObstacle = _.sample(ObstacleNames);
+    if (randomObstaclePosition && randomObstacle) {
+      const target = this.matter.add
+        .sprite(
+          randomObstaclePosition[0],
+          randomObstaclePosition[1],
+          `obstacle_${randomObstacle}`,
+          undefined,
+          {
+            shape:
+              obstaclesShapes[randomObstacle as keyof typeof obstaclesShapes],
+            friction: 0,
+            frictionAir: 0,
+            frictionStatic: 0,
+          }
+        )
+        .setScale(0.17);
+      target.setInteractive();
+      target.on("pointerdown", (e: any) => {
+        this.handleDamage(target, e);
+      });
+    }
     return startOffset + 835;
   };
   createZigzagSlider = (
     xOffset: number,
     startOffset: number,
-    prodShapes: any
+    prodShapes: any,
+    obstacleShapes: any
   ) => {
     const yOffset = startOffset + 833 / 2;
     const baseSprite = this.matter.add
@@ -551,6 +716,37 @@ export default class Game extends Phaser.Scene {
       })
       .setScale(this.cameras.main.width / 414);
     this.createTextureMask(xOffset, yOffset, baseSprite);
+    const randomObstaclePosition = _.sample([
+      [150, startOffset],
+      [350, startOffset],
+      [150, startOffset + 200],
+      [350, startOffset + 200],
+      [150, startOffset + 400],
+      [350, startOffset + 400],
+    ]);
+    const randomObstacle = _.sample(ObstacleNames);
+    if (randomObstaclePosition && randomObstacle) {
+      const target = this.matter.add
+        .sprite(
+          randomObstaclePosition[0],
+          randomObstaclePosition[1],
+          `obstacle_${randomObstacle}`,
+          undefined,
+          {
+            shape:
+              obstacleShapes[randomObstacle as keyof typeof obstacleShapes],
+            // angle: 124,
+            friction: 0,
+            frictionAir: 0,
+            frictionStatic: 0,
+          }
+        )
+        .setScale(0.17);
+      target.setInteractive();
+      target.on("pointerdown", (e: any) => {
+        this.handleDamage(target, e);
+      });
+    }
     return startOffset + 880;
   };
   createMarbles = (marbleRadius: number, miniShapes: any) => {
@@ -807,6 +1003,7 @@ export default class Game extends Phaser.Scene {
 
     var prodShapes = this.cache.json.get("prod_shapes");
     var miniShapes = this.cache.json.get("mini_shapes");
+    var obstacleShapes = this.cache.json.get("obstacles_shapes");
 
     let startOffset = 800;
     const xOffset = canvasWidth / 2;
@@ -816,7 +1013,8 @@ export default class Game extends Phaser.Scene {
           startOffset = this.createStaticCircles(
             xOffset,
             startOffset,
-            prodShapes
+            prodShapes,
+            obstacleShapes
           );
           break;
         case "02":
@@ -830,7 +1028,8 @@ export default class Game extends Phaser.Scene {
           startOffset = this.createStaticTriangles(
             xOffset,
             startOffset,
-            prodShapes
+            prodShapes,
+            obstacleShapes
           );
           break;
         case "06":
@@ -838,14 +1037,16 @@ export default class Game extends Phaser.Scene {
             xOffset,
             startOffset,
             prodShapes,
-            miniShapes
+            miniShapes,
+            obstacleShapes
           );
           break;
         case "07":
           startOffset = this.createZigzagSlider(
             xOffset,
             startOffset,
-            prodShapes
+            prodShapes,
+            obstacleShapes
           );
           break;
         case "11":
@@ -963,6 +1164,7 @@ export default class Game extends Phaser.Scene {
     marbleRaceOnlyInstrument(this.coverDocId, 120, this.musicStartOffset).then(
       () => (this.isInstrumentPlaying = true)
     );
+    this.renderWeapons();
   }
   showResult() {
     const labelContent = this.winnerIdx === 1 ? "You Win!" : "You Lose";
@@ -998,6 +1200,15 @@ export default class Game extends Phaser.Scene {
     this.isResultShown = true;
   }
   update(time: number, delta: number): void {
+    if (this.damageMultipliyer === 1) {
+      // Highlight level 1 hammer
+      this.level2Hammer?.setScale(0.1);
+      this.level1Hammer?.setScale(0.2);
+    } else if (this.damageMultipliyer === 1.5) {
+      // Highlight level 2 hammer
+      this.level1Hammer?.setScale(0.1);
+      this.level2Hammer?.setScale(0.2);
+    }
     if (this.isGameOver && this.isResultShown === false) {
       // if (this.isResultShown) return;
       this.showResult();
