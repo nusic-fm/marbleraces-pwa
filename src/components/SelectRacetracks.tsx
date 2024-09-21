@@ -23,8 +23,8 @@ export const tracks = [
   "03",
   "06",
   "07",
-  "11",
-  "14",
+  // "11", Not working on mobile
+  // "14", Not working on mobile
   "16",
   "21",
   "22",

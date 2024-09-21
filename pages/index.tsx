@@ -269,11 +269,11 @@ const Index = () => {
                 <Typography
                   align="center"
                   variant="h4"
-                  lineHeight={1.8}
+                  lineHeight={1.6}
                   // sx={{ background: "black" }}
                   // px={2}
                 >
-                  Challenge Friend <br /> To A Marble Race
+                  AI Marble Races <br /> Are Taking Over
                 </Typography>
                 <Box
                   // width="100%"
@@ -483,7 +483,7 @@ const Index = () => {
                     lineHeight={1.8}
                     mt={"150px"}
                   >
-                    Winner Takes All!
+                    Play Test Now!
                   </Typography>
                 </Box>
               </>
