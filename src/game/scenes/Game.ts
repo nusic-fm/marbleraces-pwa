@@ -493,7 +493,7 @@ export default class Game extends Phaser.Scene {
       target.setScale(target.scale / (1.1 * this.damageMultipliyer));
       const particleConfig = {
         speed: { min: -50, max: 50 },
-        scale: { start: 1, end: 10 },
+        scale: { start: 0.01, end: 0.1 },
         blendMode: "ADD",
         // lifespan: 400,
         alpha: 0.5,
@@ -502,7 +502,7 @@ export default class Game extends Phaser.Scene {
       const particle = this.add.particles(
         e.worldX,
         e.worldY,
-        "trail",
+        "whack",
         particleConfig
       );
       // Add an event listener to destroy the emitter after the particles' lifespan

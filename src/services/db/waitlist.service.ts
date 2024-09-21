@@ -3,19 +3,20 @@ import { db } from "../firebase.service";
 
 const DB_NAME = "waitlists";
 
-const createWaitlist = async (email: string): Promise<boolean> => {
+const waitlistExists = async (email: string): Promise<boolean> => {
   const d = doc(db, DB_NAME, email);
   const docSnap = await getDoc(d);
-  if (docSnap.exists()) {
-    // await updateDoc(d, {
-    //   reInvite: true,
-    //   reInvitedAt: serverTimestamp(),
-    // });
-    return false;
-  }
-  // Waitlist created in the server
-  // await setDoc(d, { email, isInvited: false, invitedAt: serverTimestamp() });
-  return true;
+  return docSnap.exists();
+  // if (docSnap.exists()) {
+  //   // await updateDoc(d, {
+  //   //   reInvite: true,
+  //   //   reInvitedAt: serverTimestamp(),
+  //   // });
+  //   return true;
+  // }
+  // // Waitlist created in the server
+  // // await setDoc(d, { email, isInvited: false, invitedAt: serverTimestamp() });
+  // return false;
 };
 
 const updateUserSignUpOnWaitlistDoc = async (email: string) => {
@@ -26,4 +27,4 @@ const updateUserSignUpOnWaitlistDoc = async (email: string) => {
   }
 };
 
-export { createWaitlist, updateUserSignUpOnWaitlistDoc };
+export { waitlistExists, updateUserSignUpOnWaitlistDoc };

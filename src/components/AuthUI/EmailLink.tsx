@@ -4,7 +4,7 @@ import axios from "axios";
 import { useState } from "react";
 // import { useSendSignInLinkToEmail } from "react-firebase-hooks/auth";
 import { validateEmail } from "../../helpers";
-import { createWaitlist } from "../../services/db/waitlist.service";
+import { waitlistExists } from "../../services/db/waitlist.service";
 
 type Props = {
   url: string;
@@ -146,8 +146,8 @@ const EmailLink = ({
             onClick={async () => {
               if (validateEmail(email)) {
                 setIsLoading(true);
-                const sendEmail = await createWaitlist(email);
-                if (sendEmail) {
+                const exists = await waitlistExists(email);
+                if (!exists) {
                   try {
                     await axios.post(
                       `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-waitlist-email`,
