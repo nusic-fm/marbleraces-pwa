@@ -47,11 +47,13 @@ const EmailLink = ({
       // if (isSuccess) {
       window.localStorage.setItem("emailForSignIn", email);
       alert(`Invitation Code Sent to ${email}`);
+      setEmail("");
       if (successCallback) successCallback();
       // }
     } catch (e: any) {
       console.log(e);
       alert(e?.response?.data || "Error occurred, try again");
+      // TODO: Re send the Login Link
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +108,7 @@ const EmailLink = ({
                     }
                   );
                   alert(`Login link sent to ${email}`);
+                  setEmail("");
                 } catch (e: any) {
                   console.log(e);
                   if (e.response.data === "User not found") {
@@ -155,6 +158,7 @@ const EmailLink = ({
                     alert(
                       "Joined the waitlist! You will be notified with an Invitation soon."
                     );
+                    setEmail("");
                   } catch (e: any) {
                     alert(e.response.data || "Error occurred, try again");
                   } finally {
