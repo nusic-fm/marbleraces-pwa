@@ -171,15 +171,25 @@ const marbleRaceOnlyInstrument = async (
   Tone.Transport.start(undefined, startOffset);
 };
 
-const marbleRacePlayVocals = async (id: string, vId: string) => {
+const marbleRacePlayVocals = async (
+  id: string,
+  vId: string,
+  switchOld: boolean = true
+) => {
   const url = `https://voxaudio.nusic.fm/covers/${id}/${vId}.mp3`;
-  if (currentlyPlayingUrl) {
+  if (currentlyPlayingUrl && switchOld) {
     playersRef[currentlyPlayingUrl].stop();
     currentlyPlayingUrl = "";
   }
   if (url in playersRef) {
     currentlyPlayingUrl = url;
     playersRef[url].start(undefined, Tone.Transport.seconds);
+    // playersRef[url].volume.value = 0.5;
+    // // Increase volume to 1 gradually
+    // playersRef[url].volume.linearRampToValueAtTime(
+    //   1,
+    //   Tone.Transport.seconds + 1
+    // );
   }
 };
 

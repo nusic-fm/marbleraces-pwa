@@ -107,10 +107,10 @@ export default class Game extends Phaser.Scene {
     this.trailConfig.alpha = data.trailsOpacity;
   }
 
-  throttledUpdate(index: number) {
+  throttledUpdate(index: number, switchOld: boolean = true) {
     this.prevVoiceIdx = index;
     // Logic that should be throttled
-    marbleRacePlayVocals(this.coverDocId, this.voices[index].id);
+    marbleRacePlayVocals(this.coverDocId, this.voices[index].id, switchOld);
   }
   renderWeapons() {
     this.level1Hammer = this.add
@@ -515,6 +515,10 @@ export default class Game extends Phaser.Scene {
         [],
         this
       );
+      // Play sound
+      if (this.damageMultipliyer === 1)
+        this.sound.play("low_whack", { volume: 0.5 });
+      else this.sound.play("high_whack", { volume: 0.5 });
     }
     if (target.scale <= 0.08) {
       target.destroy();
@@ -901,67 +905,11 @@ export default class Game extends Phaser.Scene {
     this.increaseSizeScreenOffset.push(startOffset);
     return startOffset + 230;
   };
-  // createTrails = (voiceSprite: MatterJS.BodyType, i: number) => {
-  //     const velocity = Math.sqrt(
-  //         voiceSprite.velocity.x ** 2 + voiceSprite.velocity.y ** 2
-  //     );
-  //     // If velocity is zero, do not draw the trail
-  //     if (velocity > 0) {
-  //         // Calculate the position directly behind the circle relative to its velocity vector
-  //         // const offsetX = (-voiceSprite.velocity.x / velocity) * 23;
-  //         // const offsetY = (-voiceSprite.velocity.y / velocity) * 23;
-  //         const trailX = voiceSprite.position.x;
-  //         const trailY = voiceSprite.position.y;
-  //         //     // Calculate the angle of the trail image
-  //         const angle =
-  //             Math.atan2(voiceSprite.velocity.y, voiceSprite.velocity.x) *
-  //             (180 / Math.PI);
-  //         // Add the current trail position to the trail points array
-  //         this.trailPoints[i].push({
-  //             x: trailX,
-  //             y: trailY,
-  //             angle,
-  //         });
-  //         // Adjust trail length based on velocity
-  //         this.trailLength = Phaser.Math.Clamp(
-  //             velocity * 2,
-  //             10,
-  //             this.isRotating ? 20 : 100
-  //         );
-  //         // Limit the number of points in the trail to the trail length
-  //         if (this.trailPoints[i].length > this.trailLength) {
-  //             this.trailPoints[i].shift();
-  //         }
-  //         // Clear the previous trail
-  //         this.trailGraphics[i].clear();
-  //         //     this.trailsGroup[i].clear(true, true);
-  //         //     // Draw the trail
-  //         for (let j = 0; j < this.trailPoints[i].length; j++) {
-  //             const point = this.trailPoints[i][j];
-  //             const alpha = (j + 0.01) / this.trailPoints[i].length; // Gradually decrease alpha
-  //             this.trailGraphics[i].fillStyle(0x0cffffff, alpha * 0.2);
-  //             // this.trailGraphics.fillCircle(point.x, point.y, 20);
-  //             const trailRadius = this.heightReducedIndices.includes(i)
-  //                 ? 11
-  //                 : 22;
-  //             this.trailGraphics[i].fillRoundedRect(
-  //                 point.x - trailRadius,
-  //                 point.y - trailRadius,
-  //                 trailRadius * 2,
-  //                 trailRadius * 2,
-  //                 trailRadius
-  //             );
-  //             // .setAngle(point.angle);
-  //         }
-  //     } else {
-  //         // Clear the trail if velocity is zero
-  //         this.trailGraphics[i].clear();
-  //         // this.trailsGroup[i].clear(true, true);
-  //     }
-  // };
 
   create() {
     console.log("Game Scene...");
+    this.sound.add("low_whack", { loop: false, volume: 0.5 });
+    this.sound.add("high_whack", { loop: false, volume: 0.5 });
     // Center the background image
     const centerX = this.cameras.main.width / 2;
     if (!this.enableMotion) {
@@ -971,16 +919,6 @@ export default class Game extends Phaser.Scene {
         .setScrollFactor(0);
       bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
     } else {
-      // this.background = this.add.image(0, 0, "background");
-
-      // // Set the origin to the top-left corner
-      // this.background.setOrigin(0, 0);
-
-      // // Scale the background image to fit the game width
-      // let scaleX = this.cameras.main.width / this.background.width;
-      // let scaleY = this.cameras.main.height / this.background.height;
-      // let scale = Math.max(scaleX, scaleY);
-      // this.background.setScale(scale).setScrollFactor(0);
       this.background = this.add
         .tileSprite(
           0,
@@ -1318,7 +1256,10 @@ export default class Game extends Phaser.Scene {
       const secondLargest = Math.max(
         ...unFinishedPositions.filter((p) => p !== largest)
       );
-      const index = voicesPositions.findIndex((v) => v === largest);
+      const largestIndex = voicesPositions.findIndex((v) => v === largest);
+      // const secondLargestIndex = voicesPositions.findIndex(
+      //   (v) => v === secondLargest
+      // );
       // if (largest > this.finishLineOffset) {
       //     // Find 2nd largest
       //     index = voicesPositions.indexOf(
@@ -1327,15 +1268,17 @@ export default class Game extends Phaser.Scene {
       //             .reduce((a, b) => (a > b ? a : b))
       //     );
       // }
-      if (index === -1) {
+      if (largestIndex === -1) {
         this.isGameOver = true;
         return;
       }
       if (
-        this.prevVoiceIdx !== index &&
+        this.prevVoiceIdx !== largestIndex &&
         largest > secondLargest + this.marbleRadius
       )
-        this.throttledUpdate(index);
+        this.throttledUpdate(largestIndex);
+      // else if (secondLargest >= largest - this.marbleRadius * 2)
+      //   this.throttledUpdate(secondLargestIndex, false);
       if (this.autoScroll) {
         this.cameras.main.scrollY = largest - 300;
       }
