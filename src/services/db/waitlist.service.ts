@@ -1,4 +1,13 @@
-import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { db } from "../firebase.service";
 
 const DB_NAME = "waitlists";
@@ -27,4 +36,10 @@ const updateUserSignUpOnWaitlistDoc = async (email: string) => {
   }
 };
 
-export { waitlistExists, updateUserSignUpOnWaitlistDoc };
+const countOfWaitlistUsers = async () => {
+  const q = query(collection(db, DB_NAME), where("signUp", "==", false));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.size;
+};
+
+export { waitlistExists, updateUserSignUpOnWaitlistDoc, countOfWaitlistUsers };
