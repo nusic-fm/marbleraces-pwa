@@ -5,6 +5,7 @@ import {
   Stack,
   Typography,
   Button,
+  Divider,
 } from "@mui/material";
 import { doc } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -37,14 +38,10 @@ function RequestInvitation({ show, redirectUrl }: Props) {
   return (
     <Dialog open={show}>
       <DialogTitle>
-        {showSignIn
-          ? "Login to Marble Races"
-          : isWaitingList
-          ? "Join the Waitlist"
-          : "Request a Free Invitation"}
+        {showSignIn ? "Login to Marble Races" : "Request a Free Invitation"}
       </DialogTitle>
       <DialogContent>
-        {!showSignIn && !isWaitingList && (
+        {!showSignIn && (
           <Stack
             direction={"row"}
             gap={1}
@@ -59,21 +56,6 @@ function RequestInvitation({ show, redirectUrl }: Props) {
             </Typography>
           </Stack>
         )}
-        {isWaitingList && (
-          <Stack
-            direction={"row"}
-            gap={1}
-            alignItems="center"
-            justifyContent={"center"}
-          >
-            <Typography variant="caption" align="center">
-              Number on the Waitlist:
-            </Typography>
-            <Typography component={"span"} variant="h5">
-              {waitlistNumber}
-            </Typography>
-          </Stack>
-        )}
         <EmailLink
           url={redirectUrl}
           successCallback={() => {
@@ -82,25 +64,39 @@ function RequestInvitation({ show, redirectUrl }: Props) {
           isWaitingList={isWaitingList}
           showSignIn={showSignIn}
         />
-        <Stack
-          direction="row"
-          justifyContent="center"
-          gap={1}
-          alignItems="center"
-        >
-          <Typography variant="caption" align="center">
-            {showSignIn ? "Don't have an Account?" : "Already have an Account?"}
-          </Typography>
-          <Button
-            variant="text"
-            color="info"
-            onClick={() => setShowSignIn(!showSignIn)}
-            size="small"
+        {isWaitingList && (
+          <Stack
+            direction={"row"}
+            gap={1}
+            alignItems="center"
+            justifyContent={"center"}
           >
-            {showSignIn ? "Request Invitation" : "Login"}
-          </Button>
-        </Stack>
+            <Typography variant="caption" align="center" fontSize={"0.6rem"}>
+              Number on the Waitlist:
+            </Typography>
+            <Typography variant="caption">{waitlistNumber}</Typography>
+          </Stack>
+        )}
       </DialogContent>
+      <Stack
+        direction="row"
+        justifyContent="center"
+        gap={1}
+        alignItems="center"
+        mb={2}
+      >
+        <Typography variant="caption" align="center">
+          {showSignIn ? "Don't have an Account?" : "Already have an Account?"}
+        </Typography>
+        <Button
+          variant="text"
+          color="info"
+          onClick={() => setShowSignIn(!showSignIn)}
+          size="small"
+        >
+          {showSignIn ? "Request Invitation" : "Login"}
+        </Button>
+      </Stack>
     </Dialog>
   );
 }
