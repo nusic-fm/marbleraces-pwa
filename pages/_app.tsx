@@ -28,6 +28,12 @@ interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache;
 }
 
+interface MyWindow extends Window {
+  _mfq?: any[];
+}
+
+declare var window: MyWindow;
+
 export default function MyApp(props: MyAppProps) {
   const {
     Component,
@@ -66,7 +72,19 @@ export default function MyApp(props: MyAppProps) {
   //     })();
   //   }
   // }, []);
-
+  useEffect(() => {
+    window._mfq = window._mfq || [];
+    // if (typeof window !== "undefined") {
+    (function () {
+      var mf = document.createElement("script");
+      mf.type = "text/javascript";
+      mf.defer = true;
+      mf.src =
+        "//cdn.mouseflow.com/projects/95d77f8f-e6a3-4145-9742-b678bae08320.js";
+      document.getElementsByTagName("head")[0].appendChild(mf);
+    })();
+    // }
+  }, []);
   return (
     <CacheProvider value={emotionCache}>
       {/* <Head>

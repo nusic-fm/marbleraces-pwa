@@ -130,7 +130,7 @@ const Index = () => {
   const coversScrollRef = useRef<HTMLDivElement>(null);
   const [sortedBgNo] = useState<number[]>(() => {
     const bgNos = [];
-    for (let i = 11; i <= 40; i++) {
+    for (let i = 23; i <= 40; i++) {
       bgNos.push(i);
     }
     return bgNos.sort(() => 0.5 - Math.random());

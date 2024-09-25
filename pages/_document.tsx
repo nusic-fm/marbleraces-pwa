@@ -1,9 +1,6 @@
-import * as React from "react";
 import Document, { Html, Head, Main, NextScript } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
 import createEmotionCache from "../src/createEmotionCache";
-import { GoogleTagManager } from "@next/third-parties/google";
-import Script from "next/script";
 
 export default class MyDocument extends Document {
   render() {
@@ -23,21 +20,6 @@ export default class MyDocument extends Document {
           ></link>
           <meta name="emotion-insertion-point" content="" />
           {(this.props as any).emotionStyleTags}
-          <Script
-            id="mouseflow"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `
-            window._mfq = window._mfq || [];
-  (function() {
-    var mf = document.createElement("script");
-    mf.type = "text/javascript"; mf.defer = true;
-    mf.src = "//cdn.mouseflow.com/projects/95d77f8f-e6a3-4145-9742-b678bae08320.js";
-    document.getElementsByTagName("head")[0].appendChild(mf);
-  })();
-            `,
-            }}
-          ></Script>
         </Head>
         <body>
           <NextScript />
