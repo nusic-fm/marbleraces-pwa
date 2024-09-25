@@ -63,6 +63,7 @@ function RequestInvitation({ show, redirectUrl }: Props) {
           }}
           isWaitingList={isWaitingList}
           showSignIn={showSignIn}
+          setShowSignIn={setShowSignIn}
         />
         {isWaitingList && (
           <Stack

@@ -11,6 +11,7 @@ type Props = {
   successCallback?: () => void;
   isWaitingList?: boolean;
   showSignIn?: boolean;
+  setShowSignIn?: (showSignIn: boolean) => void;
 };
 
 const EmailLink = ({
@@ -18,6 +19,7 @@ const EmailLink = ({
   successCallback,
   isWaitingList,
   showSignIn,
+  setShowSignIn,
 }: Props) => {
   const [email, setEmail] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
@@ -113,6 +115,12 @@ const EmailLink = ({
                   console.log(e);
                   if (e.response.data === "User not found") {
                     alert("Email not found, please request an Invitation");
+                  } else if (
+                    e.response.data ===
+                    "Not Authorized for Login, Request an Invite"
+                  ) {
+                    alert("Not Authorized for Login, Request an Invite");
+                    setShowSignIn && setShowSignIn(false);
                   } else alert("Errer occurred, try again");
                 } finally {
                   setIsLoading(false);
