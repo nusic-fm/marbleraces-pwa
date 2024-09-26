@@ -29,7 +29,6 @@ import { UserDoc } from "../models/User";
 import { cardVariants } from "../../pages";
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import { canvasElemWidth } from "../../pages/challenges/[challengeId]";
 import dynamic from "next/dynamic";
 import { IRefPhaserGame } from "../models/Phaser";
 import LinearProgressWithLabel from "./LinearProgressWithLabel";
@@ -45,10 +44,14 @@ import {
   updateUserProfile,
 } from "../services/db/user.service";
 import { increment } from "firebase/firestore";
-import { createSinglePlay } from "../services/db/singlePlays.service";
+import {
+  createSinglePlay,
+  updateSinglePlay,
+} from "../services/db/singlePlays.service";
 import { GAEventNames } from "../models/GAEventNames";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import VolumeOffRoundedIcon from "@mui/icons-material/VolumeOffRounded";
+import GameEndSurvey from "./GameEndSurvey";
 
 type Props = {
   selectedCoverDoc: CoverV1Doc;
@@ -117,6 +120,8 @@ const SelectedCover = (props: Props) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [resultLoading, setResultLoading] = useState(false);
   const [muted, setMuted] = useState(false);
+  const canvasElemWidth = window.innerWidth > 414 ? 414 : window.innerWidth;
+  const [surveyPlayId, setSurveyPlayId] = useState<string>("");
 
   const downloadAndPlay = async () => {
     if (isDownloading) return;
@@ -202,13 +207,13 @@ const SelectedCover = (props: Props) => {
           }}
         >
           {ready && (
-            <Box
-              position={"absolute"}
-              top={isMobileView ? "92%" : "100%"}
-              left={"50%"}
-              sx={{ transform: "translate(-50%, -50%)" }}
-            >
-              <Stack direction={"row"} gap={1} alignItems={"center"}>
+            <>
+              <Box
+                position={"absolute"}
+                top={isMobileView ? "92%" : "100%"}
+                left={"50%"}
+                sx={{ transform: "translate(-50%, -50%)" }}
+              >
                 <Button
                   variant="contained"
                   onClick={() => {
@@ -242,6 +247,13 @@ const SelectedCover = (props: Props) => {
                 >
                   Stop Game
                 </Button>
+              </Box>
+              <Box
+                position={"absolute"}
+                top={isMobileView ? "92%" : "100%"}
+                right={0}
+                sx={{ transform: "translate(-50%, -50%)" }}
+              >
                 <IconButton
                   onClick={() => {
                     if (muted) unMutePlayers();
@@ -263,8 +275,8 @@ const SelectedCover = (props: Props) => {
                 >
                   {muted ? <VolumeOffRoundedIcon /> : <VolumeUpRoundedIcon />}
                 </IconButton>
-              </Stack>
-            </Box>
+              </Box>
+            </>
           )}
           <Box
             width={canvasElemWidth}
@@ -371,8 +383,8 @@ const SelectedCover = (props: Props) => {
                     });
                     setResultLoading(false);
                     setTimeout(() => {
-                      goBack(true);
-                    }, 1000);
+                      setSurveyPlayId(playId);
+                    }, 600);
                   }
                 }}
                 userDoc={userDoc}
@@ -568,6 +580,20 @@ const SelectedCover = (props: Props) => {
             )}
           </Box>
         </Stack>
+        <GameEndSurvey
+          open={!!surveyPlayId}
+          onClose={(
+            rating: number,
+            likedFeatures: string[],
+            tellUsMore: string
+          ) => {
+            updateSinglePlay(surveyPlayId, {
+              survey: { id: 1, rating, likedFeatures, tellUsMore },
+            });
+            setSurveyPlayId("");
+            goBack(true);
+          }}
+        />
       </Stack>
     );
   }
@@ -601,7 +627,7 @@ const SelectedCover = (props: Props) => {
                       0 0 16px hsl(0deg 0% 0% / 0.075)`,
             // transformOrigin: "10% 60%",
           }}
-          variants={cardVariants}
+          variants={cardVariants(isMobileView)}
         >
           <Stack alignItems={"center"}>
             <Typography
@@ -626,6 +652,20 @@ const SelectedCover = (props: Props) => {
         mx={isMobileView ? 0 : "auto"}
       >
         <Stack gap={2} alignItems="center">
+          {isMobileView && (
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{
+                background: "rgba(0,0,0,0.3)",
+                // overflow: "hidden",
+              }}
+              my={2}
+              // height="4.2rem"
+            >
+              {selectedCoverDoc.title}
+            </Typography>
+          )}
           <Stack gap={2} alignItems="center">
             <Typography align="center" variant="h5">
               Choose your Voice

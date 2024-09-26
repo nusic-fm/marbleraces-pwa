@@ -3,14 +3,11 @@ import {
   Box,
   Popover,
   Typography,
-  IconButton,
-  Button,
   useMediaQuery,
   useTheme,
+  Checkbox,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
-import RemoveIcon from "@mui/icons-material/Remove";
 
 type Props = {
   selectedTracksList: string[];
@@ -19,15 +16,15 @@ type Props = {
 
 export const tracks = [
   "01",
-  "02",
+  // "02",
   "03",
   "06",
   "07",
   // "11", Not working on mobile
   // "14", Not working on mobile
   "16",
-  "21",
-  "22",
+  // "21",
+  // "22",
 ];
 const SelectRacetracks = ({
   selectedTracksList,
@@ -64,7 +61,7 @@ const SelectRacetracks = ({
         justifyContent="center"
       >
         <Typography variant="h6">Choose Racetracks</Typography>
-        <Button
+        {/* <Button
           size="small"
           variant="outlined"
           color="secondary"
@@ -72,7 +69,7 @@ const SelectRacetracks = ({
           disabled={selectedTracksList.length === 0}
         >
           {showRemove ? "Done" : "Remove"}
-        </Button>
+        </Button> */}
       </Box>
       <Stack
         direction="row"
@@ -84,24 +81,31 @@ const SelectRacetracks = ({
         alignItems={"center"}
         sx={{ overflowX: "auto" }}
       >
-        {selectedTracksList.map((trackPath) => (
-          <Box
-            key={trackPath}
-            position="relative"
-            minWidth={68}
-            width={68}
-            height={122}
-          >
-            <img
-              src={`https://voxaudio.nusic.fm/marble_race%2Ftracks_preview%2F${trackPath}.png?alt=media`}
-              style={{
-                cursor: "pointer",
-                objectFit: "cover",
-                width: "100%",
-                height: "100%",
-              }}
-            />
-            {showRemove && (
+        {tracks.map((trackPath) => (
+          <Stack key={trackPath} alignItems={"center"}>
+            <Box position="relative">
+              <img
+                src={`https://voxaudio.nusic.fm/marble_race%2Ftracks_preview%2F${trackPath}.png?alt=media`}
+                style={{
+                  cursor: "pointer",
+                  objectFit: "cover",
+                  width: "100%",
+                  height: "100%",
+                }}
+                onClick={() => {
+                  if (selectedTracksList.includes(trackPath)) {
+                    setSelectedTracksList((prevTracks) =>
+                      prevTracks.filter((t) => t !== trackPath)
+                    );
+                  } else {
+                    setSelectedTracksList((prevTracks) => [
+                      ...prevTracks,
+                      trackPath,
+                    ]);
+                  }
+                }}
+              />
+              {/* {showRemove && (
               <Box
                 sx={{
                   position: "absolute",
@@ -125,10 +129,27 @@ const SelectRacetracks = ({
                   <RemoveIcon />
                 </IconButton>
               </Box>
-            )}
-          </Box>
+            )} */}
+            </Box>
+            <Checkbox
+              checked={selectedTracksList.includes(trackPath)}
+              color="default"
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedTracksList((prevTracks) => [
+                    ...prevTracks,
+                    trackPath,
+                  ]);
+                } else {
+                  setSelectedTracksList((prevTracks) =>
+                    prevTracks.filter((t) => t !== trackPath)
+                  );
+                }
+              }}
+            />
+          </Stack>
         ))}
-        <Box minWidth={60} width={60} height={122}>
+        {/* <Box minWidth={60} width={60} height={122}>
           <Box
             width={"100%"}
             height={"100%"}
@@ -145,7 +166,7 @@ const SelectRacetracks = ({
               <AddIcon fontSize="large" />
             </IconButton>
           </Box>
-        </Box>
+        </Box> */}
         <Popover
           open={Boolean(dialogRef)}
           anchorEl={dialogRef}

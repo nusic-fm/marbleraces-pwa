@@ -17,6 +17,7 @@ const config: Phaser.Types.Core.GameConfig = {
       // debug: true,
     },
   },
+  powerPreference: "high-performance",
   scene: [Preloader, GameScene],
 };
 
@@ -25,8 +26,8 @@ const StartGame = (parent: string, data: IGameDataParams) => {
     config.physics.matter.gravity.y = data.gravityY;
   const game = new Game({
     ...config,
-    width: data.width,
-    height: (data.width * 16) / 9,
+    width: data.dprAdjustedWidth,
+    height: data.dprAdjustedHeight,
     parent,
   });
   game.scene.start("preloader", data);
