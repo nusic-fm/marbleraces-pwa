@@ -8,8 +8,9 @@ import {
 import StartGame from "./main";
 import * as Tone from "tone";
 import { IGameDataParams, IRefPhaserGame } from "../models/Phaser";
-import { uploadChallengeVideo } from "../services/storage/challengeVideo";
+// import { uploadChallengeVideo } from "../services/storage/challengeVideo";
 import { EventBus } from "./EventBus";
+import { Box } from "@mui/material";
 
 interface IProps extends IGameDataParams {
   currentActiveScene?: (scene_instance: Phaser.Scene) => void;
@@ -116,7 +117,11 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
     // }, recordDuration * 1000);
   };
 
+  const height = (width * 16) / 9;
+
   useLayoutEffect(() => {
+    const dprAdjustedWidth = width * window.devicePixelRatio;
+    const dprAdjustedHeight = height * window.devicePixelRatio;
     game.current = StartGame("game-container", {
       voices,
       coverDocId,
@@ -126,7 +131,10 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
       selectedTracks,
       noOfRaceTracks,
       gravityY,
+      dprAdjustedWidth,
+      dprAdjustedHeight,
       width,
+      height,
       enableMotion,
       trailPath,
       trailsLifeSpace,
@@ -156,7 +164,18 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
     };
   }, [ref]);
 
-  return <div id="game-container" style={{ height: "100%" }}></div>;
+  return (
+    <Box
+      id="game-container"
+      sx={{
+        height: "100%",
+        "& canvas": {
+          width,
+          height,
+        },
+      }}
+    />
+  );
 });
 
 export default PhaserGame;

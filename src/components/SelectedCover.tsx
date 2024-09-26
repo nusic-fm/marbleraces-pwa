@@ -29,7 +29,6 @@ import { UserDoc } from "../models/User";
 import { cardVariants } from "../../pages";
 import { Dispatch, SetStateAction, useRef, useState } from "react";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import { canvasElemWidth } from "../../pages/challenges/[challengeId]";
 import dynamic from "next/dynamic";
 import { IRefPhaserGame } from "../models/Phaser";
 import LinearProgressWithLabel from "./LinearProgressWithLabel";
@@ -117,6 +116,7 @@ const SelectedCover = (props: Props) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [resultLoading, setResultLoading] = useState(false);
   const [muted, setMuted] = useState(false);
+  const canvasElemWidth = window.innerWidth > 414 ? 414 : window.innerWidth;
 
   const downloadAndPlay = async () => {
     if (isDownloading) return;
@@ -202,13 +202,13 @@ const SelectedCover = (props: Props) => {
           }}
         >
           {ready && (
-            <Box
-              position={"absolute"}
-              top={isMobileView ? "92%" : "100%"}
-              left={"50%"}
-              sx={{ transform: "translate(-50%, -50%)" }}
-            >
-              <Stack direction={"row"} gap={1} alignItems={"center"}>
+            <>
+              <Box
+                position={"absolute"}
+                top={isMobileView ? "92%" : "100%"}
+                left={"50%"}
+                sx={{ transform: "translate(-50%, -50%)" }}
+              >
                 <Button
                   variant="contained"
                   onClick={() => {
@@ -242,6 +242,13 @@ const SelectedCover = (props: Props) => {
                 >
                   Stop Game
                 </Button>
+              </Box>
+              <Box
+                position={"absolute"}
+                top={isMobileView ? "92%" : "100%"}
+                right={0}
+                sx={{ transform: "translate(-50%, -50%)" }}
+              >
                 <IconButton
                   onClick={() => {
                     if (muted) unMutePlayers();
@@ -263,8 +270,8 @@ const SelectedCover = (props: Props) => {
                 >
                   {muted ? <VolumeOffRoundedIcon /> : <VolumeUpRoundedIcon />}
                 </IconButton>
-              </Stack>
-            </Box>
+              </Box>
+            </>
           )}
           <Box
             width={canvasElemWidth}
@@ -601,7 +608,7 @@ const SelectedCover = (props: Props) => {
                       0 0 16px hsl(0deg 0% 0% / 0.075)`,
             // transformOrigin: "10% 60%",
           }}
-          variants={cardVariants}
+          variants={cardVariants(isMobileView)}
         >
           <Stack alignItems={"center"}>
             <Typography

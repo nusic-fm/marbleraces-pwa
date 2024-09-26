@@ -71,7 +71,6 @@ const AppWithoutSSR = dynamic(
     ssr: false,
   }
 );
-export const canvasElemWidth = 414;
 
 const Challenge = (props: Props) => {
   const router = useRouter();
@@ -91,6 +90,12 @@ const Challenge = (props: Props) => {
   const [resultLoading, setResultLoading] = useState(false);
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
+  const canvasElemWidth =
+    typeof window !== "undefined"
+      ? window.innerWidth > 414
+        ? 414
+        : window.innerWidth
+      : 414; // TODO: Refer this in Game.ts
 
   const downloadAndPlay = async () => {
     if (isDownloading) return;

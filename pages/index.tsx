@@ -46,6 +46,7 @@ import SelectedCover from "../src/components/SelectedCover";
 import Leaderboard from "../src/components/Leaderboard";
 import Footer from "../src/components/Footer";
 import { GAEventNames } from "../src/models/GAEventNames";
+import { tracks } from "../src/components/SelectRacetracks";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -76,20 +77,22 @@ const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
     );
   }
 };
-export const cardVariants: Variants = {
+export const cardVariants: (isMobileView: boolean) => Variants = (
+  isMobileView: boolean
+) => ({
   offscreen: {
     y: 300,
   },
   onscreen: {
     y: 50,
-    rotate: -10,
+    rotate: isMobileView ? 0 : -10,
     transition: {
       type: "spring",
       bounce: 0.4,
       duration: 0.8,
     },
   },
-};
+});
 const Index = () => {
   const [user, authLoading, authError] = useAuthState(auth);
   const [checkingAuth, setCheckingAuth] = useState(false);
@@ -114,13 +117,8 @@ const Index = () => {
   } | null>(null);
   const [selectedSkin, setSelectedSkin] = useState("smoke01.png");
   const [selectedTrail, setSelectedTrail] = useState("snow.png");
-  const [selectedTracksList, setSelectedTracksList] = useState<string[]>([
-    "01",
-    "03",
-    "06",
-    "07",
-    "16",
-  ]);
+  const [selectedTracksList, setSelectedTracksList] =
+    useState<string[]>(tracks);
   const router = useRouter();
   const { coverId, qBgNo } = router.query;
   const [isCreateChallengeLoading, setIsCreateChallengeLoading] =
@@ -373,7 +371,7 @@ const Index = () => {
                       0 0 16px hsl(0deg 0% 0% / 0.075)`,
                                 transformOrigin: "10% 60%",
                               }}
-                              variants={cardVariants}
+                              variants={cardVariants(isMobileView)}
                             >
                               <Stack alignItems={"center"}>
                                 <Typography
