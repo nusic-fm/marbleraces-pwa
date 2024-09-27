@@ -1371,6 +1371,7 @@ export default class Game extends Phaser.Scene {
       //     this.matter.body.setAngularVelocity(c.body as BodyType, 0.05);
       // });
       if (this.isInstrumentPlaying && this.isRotating === false) {
+        /*
         let largest = -Infinity;
         let secondLargest = -Infinity;
         let largestIndex = -1;
@@ -1391,11 +1392,36 @@ export default class Game extends Phaser.Scene {
             }
           }
         }
+        */
+        const unFinishedPositions = [];
+        const finishedPositions = [];
+        const voicesPositions = [];
+        for (let i = 0; i < this.marbles.length; i++) {
+          const y = this.marbles[i].position.y;
+          voicesPositions.push(y);
+          if (y < this.finishLineOffset) {
+            unFinishedPositions.push(y);
+          } else if (y > this.finishLineOffset) {
+            finishedPositions.push(y);
+          }
+        }
+        // Above is the refactored code
+        // const voicesPositions = this.marbles.map((m) => m.position.y);
+        // const unFinishedPositions = voicesPositions.filter(
+        //   (y) => y < this.finishLineOffset
+        // );
+        // const finishedPositions = voicesPositions.filter(
+        //   (y) => y > this.finishLineOffset
+        // );
 
         if (this.winnerIdx === -1 && finishedPositions.length) {
           this.winnerIdx = voicesPositions.indexOf(finishedPositions[0]);
         }
-
+        const largest = Math.max(...unFinishedPositions);
+        const largestIndex = voicesPositions.findIndex((v) => v === largest);
+        const secondLargest = Math.max(
+          ...unFinishedPositions.filter((p) => p !== largest)
+        );
         if (largestIndex === -1) {
           this.isGameOver = true;
           return;
