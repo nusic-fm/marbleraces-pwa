@@ -1434,7 +1434,7 @@ export default class Game extends Phaser.Scene {
         // else if (secondLargest >= largest - this.marbleRadius * 2)
         //   this.throttledUpdate(secondLargestIndex, false);
         if (this.autoScroll) {
-          this.cameras.main.scrollY = largest - 300;
+          this.cameras.main.scrollY = largest - 300 * window.devicePixelRatio;
         }
       }
 
