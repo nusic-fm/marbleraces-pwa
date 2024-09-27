@@ -121,7 +121,7 @@ const EmailLink = ({
                   ) {
                     alert("Not Authorized for Login, Request an Invite");
                     setShowSignIn && setShowSignIn(false);
-                  } else alert("Errer occurred, try again");
+                  } else alert(e.response?.data || "Errer occurred, try again");
                 } finally {
                   setIsLoading(false);
                 }

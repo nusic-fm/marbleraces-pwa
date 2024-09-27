@@ -603,9 +603,10 @@ const SelectedCover = (props: Props) => {
       justifyContent={isMobileView ? "center" : "unset"}
       alignItems={"center"}
       width={isMobileView ? "100%" : 800}
-      height={700}
+      minHeight={700}
       flexWrap={"wrap"}
       gap={2}
+      mb={isMobileView ? 8 : 0}
     >
       {!isMobileView && (
         <motion.div
@@ -653,18 +654,92 @@ const SelectedCover = (props: Props) => {
       >
         <Stack gap={2} alignItems="center">
           {isMobileView && (
-            <Typography
-              variant="h6"
-              align="center"
-              sx={{
-                background: "rgba(0,0,0,0.3)",
-                // overflow: "hidden",
-              }}
-              my={2}
-              // height="4.2rem"
-            >
-              {selectedCoverDoc.title}
-            </Typography>
+            <>
+              <Typography
+                variant="h6"
+                align="center"
+                sx={{
+                  background: "rgba(0,0,0,0.3)",
+                  // only show first two lines
+                  display: "-webkit-box",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 2,
+                  overflow: "hidden",
+                }}
+                my={2}
+                // height="4.2rem"
+              >
+                {selectedCoverDoc.title}
+              </Typography>
+
+              <Box display={"flex"} gap={2} mb={1.5}>
+                <LoadingButton
+                  loading={isCreateChallengeLoading}
+                  variant="outlined"
+                  color="info"
+                  // sx={{
+                  //   background:
+                  //     "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
+                  // }}
+                  size="large"
+                  onClick={async () => {
+                    if (selectedVoiceObj && user) {
+                      setIsCreateChallengeLoading(true);
+                      const challengeId = await createChallenge({
+                        bgId: bgNo.toString(),
+                        skinId: selectedSkin,
+                        title: selectedCoverDoc.title,
+                        coverId: selectedCoverDoc.id,
+                        trailpath: selectedTrail,
+                        creatorUserObj: {
+                          id: user.uid,
+                          email: user.email,
+                        },
+                        voices: [{ ...selectedVoiceObj }],
+                        tracksList: selectedTracksList,
+                        creatorUid: user.uid,
+                        invites: {},
+                      });
+                      // setNewChallengeId(challengeId);
+                      // TODO: Route
+                      // setActiveStep(2);
+                      router.push(`/challenges/${challengeId}`);
+                    } else alert("Signin and try again");
+                  }}
+                >
+                  Challenge Friend
+                </LoadingButton>
+                <Divider orientation="vertical" flexItem />
+                <Button
+                  variant="contained"
+                  sx={{
+                    background:
+                      "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
+                  }}
+                  onClick={() => {
+                    setShowPlayMode(true);
+                    const otherVoices = selectedCoverDoc.voices.filter(
+                      (v) => v.id !== selectedVoiceObj?.id
+                    );
+                    const selectRandomSecondaryVoice =
+                      otherVoices[
+                        Math.floor(Math.random() * otherVoices.length)
+                      ];
+                    setSecondaryVoiceObj({
+                      id: selectRandomSecondaryVoice.id,
+                      name: selectRandomSecondaryVoice.name,
+                    });
+                    logFirebaseEvent(GAEventNames.CHOOSE_SINGLE_PLAY, {
+                      coverId: selectedCoverDoc.id,
+                      title: selectedCoverDoc.title,
+                      email: user?.email?.split("@")[0],
+                    });
+                  }}
+                >
+                  Play
+                </Button>
+              </Box>
+            </>
           )}
           <Stack gap={2} alignItems="center">
             <Typography align="center" variant="h5">
@@ -763,71 +838,75 @@ const SelectedCover = (props: Props) => {
                 </IconButton>
               </Box>
             )}
-            <Box display={"flex"} gap={2}>
-              <Button
-                variant="contained"
-                sx={{
-                  background:
-                    "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
-                }}
-                onClick={() => {
-                  setShowPlayMode(true);
-                  const otherVoices = selectedCoverDoc.voices.filter(
-                    (v) => v.id !== selectedVoiceObj?.id
-                  );
-                  const selectRandomSecondaryVoice =
-                    otherVoices[Math.floor(Math.random() * otherVoices.length)];
-                  setSecondaryVoiceObj({
-                    id: selectRandomSecondaryVoice.id,
-                    name: selectRandomSecondaryVoice.name,
-                  });
-                  logFirebaseEvent(GAEventNames.CHOOSE_SINGLE_PLAY, {
-                    coverId: selectedCoverDoc.id,
-                    title: selectedCoverDoc.title,
-                    email: user?.email?.split("@")[0],
-                  });
-                }}
-              >
-                Play
-              </Button>
-              <Divider orientation="vertical" flexItem />
-              <LoadingButton
-                loading={isCreateChallengeLoading}
-                variant="outlined"
-                color="info"
-                // sx={{
-                //   background:
-                //     "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
-                // }}
-                size="large"
-                onClick={async () => {
-                  if (selectedVoiceObj && user) {
-                    setIsCreateChallengeLoading(true);
-                    const challengeId = await createChallenge({
-                      bgId: bgNo.toString(),
-                      skinId: selectedSkin,
-                      title: selectedCoverDoc.title,
-                      coverId: selectedCoverDoc.id,
-                      trailpath: selectedTrail,
-                      creatorUserObj: {
-                        id: user.uid,
-                        email: user.email,
-                      },
-                      voices: [{ ...selectedVoiceObj }],
-                      tracksList: selectedTracksList,
-                      creatorUid: user.uid,
-                      invites: {},
+            {!isMobileView && (
+              <Box display={"flex"} gap={2} mb={1.5}>
+                <LoadingButton
+                  loading={isCreateChallengeLoading}
+                  variant="outlined"
+                  color="info"
+                  // sx={{
+                  //   background:
+                  //     "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
+                  // }}
+                  size="large"
+                  onClick={async () => {
+                    if (selectedVoiceObj && user) {
+                      setIsCreateChallengeLoading(true);
+                      const challengeId = await createChallenge({
+                        bgId: bgNo.toString(),
+                        skinId: selectedSkin,
+                        title: selectedCoverDoc.title,
+                        coverId: selectedCoverDoc.id,
+                        trailpath: selectedTrail,
+                        creatorUserObj: {
+                          id: user.uid,
+                          email: user.email,
+                        },
+                        voices: [{ ...selectedVoiceObj }],
+                        tracksList: selectedTracksList,
+                        creatorUid: user.uid,
+                        invites: {},
+                      });
+                      // setNewChallengeId(challengeId);
+                      // TODO: Route
+                      // setActiveStep(2);
+                      router.push(`/challenges/${challengeId}`);
+                    } else alert("Signin and try again");
+                  }}
+                >
+                  Challenge Friend
+                </LoadingButton>
+                <Divider orientation="vertical" flexItem />
+                <Button
+                  variant="contained"
+                  sx={{
+                    background:
+                      "linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%)",
+                  }}
+                  onClick={() => {
+                    setShowPlayMode(true);
+                    const otherVoices = selectedCoverDoc.voices.filter(
+                      (v) => v.id !== selectedVoiceObj?.id
+                    );
+                    const selectRandomSecondaryVoice =
+                      otherVoices[
+                        Math.floor(Math.random() * otherVoices.length)
+                      ];
+                    setSecondaryVoiceObj({
+                      id: selectRandomSecondaryVoice.id,
+                      name: selectRandomSecondaryVoice.name,
                     });
-                    // setNewChallengeId(challengeId);
-                    // TODO: Route
-                    // setActiveStep(2);
-                    router.push(`/challenges/${challengeId}`);
-                  } else alert("Signin and try again");
-                }}
-              >
-                Challenge Friend
-              </LoadingButton>
-            </Box>
+                    logFirebaseEvent(GAEventNames.CHOOSE_SINGLE_PLAY, {
+                      coverId: selectedCoverDoc.id,
+                      title: selectedCoverDoc.title,
+                      email: user?.email?.split("@")[0],
+                    });
+                  }}
+                >
+                  Play
+                </Button>
+              </Box>
+            )}
           </Box>
         </Stack>
       </Stack>

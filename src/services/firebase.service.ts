@@ -35,7 +35,7 @@ const storage = getStorage(app);
 
 const logFirebaseEvent = (type: TypeGAEventNames, additionalParams: any) => {
   if (analytics) {
-    // logEvent(analytics, type, additionalParams);
+    logEvent(analytics, type, additionalParams);
   }
 };
 
