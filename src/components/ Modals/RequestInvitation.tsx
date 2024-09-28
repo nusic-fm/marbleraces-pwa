@@ -85,6 +85,7 @@ function RequestInvitation({ show, redirectUrl }: Props) {
         gap={1}
         alignItems="center"
         mb={2}
+        px={2}
       >
         <Typography variant="caption" align="center">
           {showSignIn ? "Don't have an Account?" : "Already have an Account?"}

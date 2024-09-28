@@ -3,7 +3,7 @@ import { Stack, TextField, Box } from "@mui/material";
 import axios from "axios";
 import { useState } from "react";
 // import { useSendSignInLinkToEmail } from "react-firebase-hooks/auth";
-import { validateEmail } from "../../helpers";
+import { getClientTimeInCustomFormat, validateEmail } from "../../helpers";
 import { waitlistExists } from "../../services/db/waitlist.service";
 import { getUserDocByEmail } from "../../services/db/user.service";
 import { getInviteDoc } from "../../services/db/invites.service";
@@ -50,6 +50,7 @@ const EmailLink = ({
         {
           redirectUrl: url,
           email: email,
+          requestedTime: getClientTimeInCustomFormat(),
         }
       );
       // if (isSuccess) {
@@ -113,6 +114,7 @@ const EmailLink = ({
                     {
                       redirectUrl: url,
                       email: email,
+                      requestedTime: getClientTimeInCustomFormat(),
                     }
                   );
                   alert(res.data || `Login link sent to ${email}`);
@@ -186,6 +188,7 @@ const EmailLink = ({
                       `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-waitlist-email`,
                       {
                         email: email,
+                        requestedTime: getClientTimeInCustomFormat(),
                       }
                     );
                     alert(

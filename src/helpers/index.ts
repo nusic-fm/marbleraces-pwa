@@ -58,3 +58,16 @@ export const validateEmail = (email: string) => {
     /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   );
 };
+
+export const getClientTimeInCustomFormat = () => {
+  const time = new Date().toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const timeArray = time.split(",");
+  return `${timeArray[0]}, ${timeArray[2]} ${timeArray[1].trim()}`; // Format: 10:57 PM, Sep 28  2024
+};
