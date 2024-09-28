@@ -3,6 +3,12 @@ import { db } from "../firebase.service";
 
 const DB_NAME = "invites";
 
+const getInviteDoc = async (email: string) => {
+  const d = doc(db, DB_NAME, email);
+  const docSnap = await getDoc(d);
+  return docSnap.data();
+};
+
 const updateUserSignUpOnInviteDoc = async (email: string) => {
   const d = doc(db, DB_NAME, email);
   const docSnap = await getDoc(d);
@@ -11,4 +17,4 @@ const updateUserSignUpOnInviteDoc = async (email: string) => {
   }
 };
 
-export { updateUserSignUpOnInviteDoc };
+export { updateUserSignUpOnInviteDoc, getInviteDoc };

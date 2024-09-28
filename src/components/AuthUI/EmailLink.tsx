@@ -5,6 +5,8 @@ import { useState } from "react";
 // import { useSendSignInLinkToEmail } from "react-firebase-hooks/auth";
 import { validateEmail } from "../../helpers";
 import { waitlistExists } from "../../services/db/waitlist.service";
+import { getUserDocByEmail } from "../../services/db/user.service";
+import { getInviteDoc } from "../../services/db/invites.service";
 
 type Props = {
   url: string;
@@ -29,8 +31,12 @@ const EmailLink = ({
   //   useSendSignInLinkToEmail(auth);
 
   const onEmailLinkSignIn = async () => {
+    const previousEmail = window.localStorage.getItem("emailForSignIn");
     if (!email || !validateEmail(email)) {
       alert("Enter a valid email");
+      return;
+    } else if (previousEmail === email) {
+      alert("You have already requested an Invitation for this email");
       return;
     }
     setIsLoading(true);
@@ -39,7 +45,7 @@ const EmailLink = ({
       //   url,
       //   handleCodeInApp: true,
       // });
-      await axios.post(
+      const res = await axios.post(
         `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/request-invitation-link`,
         {
           redirectUrl: url,
@@ -48,7 +54,7 @@ const EmailLink = ({
       );
       // if (isSuccess) {
       window.localStorage.setItem("emailForSignIn", email);
-      alert(`Invitation Code Sent to ${email}`);
+      alert(res.data || `Invitation Code Sent to ${email}`);
       setEmail("");
       if (successCallback) successCallback();
       // }
@@ -102,21 +108,21 @@ const EmailLink = ({
               if (validateEmail(email)) {
                 setIsLoading(true);
                 try {
-                  await axios.post(
+                  const res = await axios.post(
                     `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-login-link`,
                     {
                       redirectUrl: url,
                       email: email,
                     }
                   );
-                  alert(`Login link sent to ${email}`);
+                  alert(res.data || `Login link sent to ${email}`);
                   setEmail("");
                 } catch (e: any) {
                   console.log(e);
-                  if (e.response.data === "User not found") {
+                  if (e.response?.data === "User not found") {
                     alert("Email not found, please request an Invitation");
                   } else if (
-                    e.response.data ===
+                    e.response?.data ===
                     "Not Authorized for Login, Request an Invite"
                   ) {
                     alert("Not Authorized for Login, Request an Invite");
@@ -154,21 +160,41 @@ const EmailLink = ({
             onClick={async () => {
               if (validateEmail(email)) {
                 setIsLoading(true);
+                // Check if the email is in Users/invites List
+                const userDoc = await getUserDocByEmail(email);
+                if (userDoc) {
+                  alert("You already have an account, please login");
+                  setIsLoading(false);
+                  setShowSignIn && setShowSignIn(true);
+                  return;
+                }
+                const inviteDoc = await getInviteDoc(email);
+                if (inviteDoc) {
+                  alert(
+                    "You have already been invited before! please login to continue"
+                  );
+                  setIsLoading(false);
+                  setShowSignIn && setShowSignIn(true);
+                  return;
+                }
+
                 const exists = await waitlistExists(email);
                 if (!exists) {
+                  // Check if the email is in Users/invites List
                   try {
-                    await axios.post(
+                    const res = await axios.post(
                       `${process.env.NEXT_PUBLIC_VOX_COVER_SERVER}/send-waitlist-email`,
                       {
                         email: email,
                       }
                     );
                     alert(
-                      "Joined the waitlist! You will be notified with an Invitation soon."
+                      res.data ||
+                        "Joined the waitlist! You will be notified with an Invitation soon."
                     );
                     setEmail("");
                   } catch (e: any) {
-                    alert(e.response.data || "Error occurred, try again");
+                    alert(e.response?.data || "Error occurred, try again");
                   } finally {
                     setEmail("");
                     setIsLoading(false);

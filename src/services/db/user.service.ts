@@ -1,10 +1,15 @@
 import {
+  collection,
   doc,
   getDoc,
+  getDocs,
+  limit,
   onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { UserDoc } from "../../models/User";
 import { db, logFirebaseEvent } from "../firebase.service";
@@ -83,9 +88,20 @@ const updateUserActivityTimestamp = async (
   updateDoc(d, { lastActivity: serverTimestamp(), activity });
 };
 
+const getUserDocByEmail = async (email: string) => {
+  const d = query(
+    collection(db, DB_NAME),
+    where("email", "==", email),
+    limit(1)
+  );
+  const ss = await getDocs(d);
+  return ss.docs.map((doc) => doc.data() as UserDoc)[0];
+};
+
 export {
   getUserDoc,
   updateUserProfile,
   createUser,
   updateUserActivityTimestamp,
+  getUserDocByEmail,
 };
