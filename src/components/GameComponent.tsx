@@ -22,10 +22,18 @@ type Props = {
   ) => Promise<void>;
   userDoc: UserDoc;
   noOfRaceTracks?: number;
+  gravityY?: number;
 };
 
 const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
-  { challenge, canvasElemWidth, onGameComplete, userDoc, noOfRaceTracks },
+  {
+    challenge,
+    canvasElemWidth,
+    onGameComplete,
+    userDoc,
+    noOfRaceTracks,
+    gravityY,
+  },
   ref
 ) {
   return (
@@ -41,7 +49,7 @@ const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
       backgroundPath={getBackgroundPath(challenge.bgId)}
       selectedTracks={challenge.tracksList.slice(0, 4)}
       noOfRaceTracks={noOfRaceTracks || 8}
-      gravityY={0.8}
+      gravityY={gravityY || 0.8}
       width={canvasElemWidth}
       enableMotion={false}
       trailPath={getTrailPath(challenge.trailpath)}

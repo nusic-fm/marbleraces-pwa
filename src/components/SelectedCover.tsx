@@ -340,7 +340,7 @@ const SelectedCover = (props: Props) => {
                 // backgroundPath={getBackgroundPath(challenge.bgId)}
                 // selectedTracks={challenge.tracksList.slice(0, 4)}
                 noOfRaceTracks={isMobileView ? 4 : 8}
-                // gravityY={0.5}
+                gravityY={isMobileView ? 3 * window.devicePixelRatio : 0.8}
                 canvasElemWidth={canvasElemWidth}
                 onGameComplete={async (
                   win: boolean,
