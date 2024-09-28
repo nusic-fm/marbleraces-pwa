@@ -72,16 +72,6 @@ export default class Game extends Phaser.Scene {
   background: Phaser.GameObjects.TileSprite | undefined;
   enableMotion: boolean = false;
   marbleTrailParticles: Phaser.GameObjects.Particles.ParticleEmitter[] = [];
-  trailConfig = {
-    speed: { min: -50, max: 50 },
-    scale: {
-      start: window.devicePixelRatio,
-      end: window.devicePixelRatio * 0.5,
-    },
-    blendMode: "ADD",
-    lifespan: 400,
-    alpha: 0.5,
-  };
   isGameOver: boolean = false;
   winnerIdx: number = -1;
   isResultShown = false;
@@ -90,6 +80,17 @@ export default class Game extends Phaser.Scene {
   level2Hammer: Phaser.GameObjects.Sprite | undefined;
   canvasWidth: number = 0;
   canvasHeight: number = 0;
+  dpr: number = window.devicePixelRatio || 2;
+  trailConfig = {
+    speed: { min: -50, max: 50 },
+    scale: {
+      start: this.dpr,
+      end: this.dpr * 0.5,
+    },
+    blendMode: "ADD",
+    lifespan: 400,
+    alpha: 0.5,
+  };
 
   init(data: IGameDataParams) {
     // Sort the voices randomly
@@ -104,13 +105,14 @@ export default class Game extends Phaser.Scene {
     );
     this.enableMotion = data.enableMotion;
     this.canvasWidth = data.width;
-    this.marbleRadius = (22 / 414) * this.canvasWidth * window.devicePixelRatio;
+    this.marbleRadius = (22 / 414) * this.canvasWidth * this.dpr;
     if (data.height) this.canvasHeight = data.height;
     this.centerX = this.cameras.main.width / 2;
     this.centerY = this.cameras.main.height / 2;
     this.trailConfig.scale.end = data.trailEndSize;
     this.trailConfig.lifespan = data.trailsLifeSpace;
     this.trailConfig.alpha = data.trailsOpacity;
+    this.dpr = window.devicePixelRatio || 2;
   }
 
   throttledUpdate(index: number, switchOld: boolean = true) {
@@ -122,11 +124,11 @@ export default class Game extends Phaser.Scene {
   renderWeapons() {
     this.level1Hammer = this.add
       .sprite(
-        (350 / 414) * this.canvasWidth * window.devicePixelRatio,
-        (550 / 414) * this.canvasWidth * window.devicePixelRatio,
+        (350 / 414) * this.canvasWidth * this.dpr,
+        (550 / 414) * this.canvasWidth * this.dpr,
         "hammer_1"
       )
-      .setScale((0.1 / 414) * this.canvasWidth * window.devicePixelRatio)
+      .setScale((0.1 / 414) * this.canvasWidth * this.dpr)
       .setScrollFactor(0)
       .setInteractive()
       .on("pointerdown", () => {
@@ -135,11 +137,11 @@ export default class Game extends Phaser.Scene {
 
     this.level2Hammer = this.add
       .sprite(
-        (350 / 414) * this.canvasWidth * window.devicePixelRatio,
-        (630 / 414) * this.canvasWidth * window.devicePixelRatio,
+        (350 / 414) * this.canvasWidth * this.dpr,
+        (630 / 414) * this.canvasWidth * this.dpr,
         "hammer_2"
       )
-      .setScale((0.1 / 414) * this.canvasWidth * window.devicePixelRatio)
+      .setScale((0.1 / 414) * this.canvasWidth * this.dpr)
       .setScrollFactor(0)
       .setInteractive()
       .on("pointerdown", () => {
@@ -154,7 +156,7 @@ export default class Game extends Phaser.Scene {
   ) => {
     // Create the texture sprite
     const textureSprite = this.add.sprite(xOffset, yOffset, "textureImage");
-    textureSprite.setScale(window.devicePixelRatio);
+    textureSprite.setScale(this.dpr);
 
     // Use the base sprite's texture as a mask for the texture sprite
     const mask = new Phaser.Display.Masks.BitmapMask(this, baseSprite);
@@ -172,7 +174,7 @@ export default class Game extends Phaser.Scene {
     // TODO: Scale the sprite
     startOffset += 151;
     const l1CrossLeft = this.matter.add.sprite(
-      18 * window.devicePixelRatio,
+      18 * this.dpr,
       startOffset,
       "02_cross",
       undefined,
@@ -181,10 +183,10 @@ export default class Game extends Phaser.Scene {
         isStatic: true,
       }
     );
-    l1CrossLeft.setScale(window.devicePixelRatio);
+    l1CrossLeft.setScale(this.dpr);
     this.crossRightRotation.push(l1CrossLeft);
     const l1CrossRight = this.matter.add.sprite(
-      canvasWidth - 18 * window.devicePixelRatio,
+      canvasWidth - 18 * this.dpr,
       startOffset,
       "02_cross",
       undefined,
@@ -193,11 +195,11 @@ export default class Game extends Phaser.Scene {
         isStatic: true,
       }
     );
-    l1CrossRight.setScale(window.devicePixelRatio);
+    l1CrossRight.setScale(this.dpr);
     this.crossLeftRotation.push(l1CrossRight);
-    startOffset += 200 * window.devicePixelRatio;
+    startOffset += 200 * this.dpr;
     const l2CrossLeft = this.matter.add.sprite(
-      126 * window.devicePixelRatio,
+      126 * this.dpr,
       startOffset,
       "02_cross",
       undefined,
@@ -206,10 +208,10 @@ export default class Game extends Phaser.Scene {
         isStatic: true,
       }
     );
-    l2CrossLeft.setScale(window.devicePixelRatio);
+    l2CrossLeft.setScale(this.dpr);
     this.crossLeftRotation.push(l2CrossLeft);
     const l2CrossRight = this.matter.add.sprite(
-      canvasWidth - 126 * window.devicePixelRatio,
+      canvasWidth - 126 * this.dpr,
       startOffset,
       "02_cross",
       undefined,
@@ -218,11 +220,11 @@ export default class Game extends Phaser.Scene {
         isStatic: true,
       }
     );
-    l2CrossRight.setScale(window.devicePixelRatio);
+    l2CrossRight.setScale(this.dpr);
     this.crossRightRotation.push(l2CrossRight);
-    startOffset += 200 * window.devicePixelRatio;
+    startOffset += 200 * this.dpr;
     const l3CrossLeft = this.matter.add.sprite(
-      18 * window.devicePixelRatio,
+      18 * this.dpr,
       startOffset,
       "02_cross",
       undefined,
@@ -231,10 +233,10 @@ export default class Game extends Phaser.Scene {
         isStatic: true,
       }
     );
-    l3CrossLeft.setScale(window.devicePixelRatio);
+    l3CrossLeft.setScale(this.dpr);
     this.crossRightRotation.push(l3CrossLeft);
     const l3CrossRight = this.matter.add.sprite(
-      canvasWidth - 18 * window.devicePixelRatio,
+      canvasWidth - 18 * this.dpr,
       startOffset,
       "02_cross",
       undefined,
@@ -243,11 +245,11 @@ export default class Game extends Phaser.Scene {
         isStatic: true,
       }
     );
-    l3CrossRight.setScale(window.devicePixelRatio);
+    l3CrossRight.setScale(this.dpr);
     this.crossLeftRotation.push(l3CrossRight);
-    startOffset += 200 * window.devicePixelRatio;
+    startOffset += 200 * this.dpr;
     const l4CrossLeft = this.matter.add.sprite(
-      126 * window.devicePixelRatio,
+      126 * this.dpr,
       startOffset,
       "02_cross",
       undefined,
@@ -256,10 +258,10 @@ export default class Game extends Phaser.Scene {
         isStatic: true,
       }
     );
-    l4CrossLeft.setScale(window.devicePixelRatio);
+    l4CrossLeft.setScale(this.dpr);
     this.crossLeftRotation.push(l4CrossLeft);
     const l4CrossRight = this.matter.add.sprite(
-      canvasWidth - 126 * window.devicePixelRatio,
+      canvasWidth - 126 * this.dpr,
       startOffset,
       "02_cross",
       undefined,
@@ -268,10 +270,10 @@ export default class Game extends Phaser.Scene {
         isStatic: true,
       }
     );
-    l4CrossRight.setScale(window.devicePixelRatio);
+    l4CrossRight.setScale(this.dpr);
     this.crossRightRotation.push(l4CrossRight);
 
-    return startOffset + 500 * window.devicePixelRatio;
+    return startOffset + 500 * this.dpr;
   };
   createSeesawScreen = (
     xOffset: number,
@@ -285,7 +287,7 @@ export default class Game extends Phaser.Scene {
         shape: prodShapes["06"],
         isStatic: true,
       })
-      .setScale(window.devicePixelRatio * (this.canvasWidth / (512 - 100)));
+      .setScale(this.dpr * (this.canvasWidth / (512 - 100)));
     const yOffset = startOffset + baseSprite.height / 2;
     baseSprite.setPosition(xOffset, yOffset);
     const seesawX = xOffset - 2;
@@ -299,14 +301,14 @@ export default class Game extends Phaser.Scene {
         shape: miniShapes["06b"],
         // isStatic: true,
       })
-      .setScale(window.devicePixelRatio);
+      .setScale(this.dpr);
     const contraint = this.matter.constraint.create({
       bodyA: seesaw.body as BodyType,
       bodyB: baseSprite.body as BodyType,
       pointA: { x: 0, y: 0 },
       pointB: {
         x: -2,
-        y: seesawContraintY * window.devicePixelRatio,
+        y: seesawContraintY * this.dpr,
       },
       stiffness: 1,
       length: 0,
@@ -336,7 +338,7 @@ export default class Game extends Phaser.Scene {
             frictionStatic: 0,
           }
         )
-        .setScale((0.17 / 414) * this.canvasWidth * window.devicePixelRatio);
+        .setScale((0.17 / 414) * this.canvasWidth * this.dpr);
       target.setInteractive();
       target.on("pointerdown", (e: any) => {
         this.handleDamage(target, e);
@@ -345,7 +347,7 @@ export default class Game extends Phaser.Scene {
       this.createTextureMask(seesawX, seesawY, seesaw);
       this.createTextureMask(xOffset, yOffset, baseSprite);
     }
-    return startOffset + baseSprite.height * window.devicePixelRatio;
+    return startOffset + baseSprite.height * this.dpr;
   };
   createCircleBlockers = (
     xOffset: number,
@@ -358,9 +360,9 @@ export default class Game extends Phaser.Scene {
         shape: prodShapes["21"],
         isStatic: true,
       })
-      .setScale(window.devicePixelRatio * (this.canvasWidth / (512 - 100)));
+      .setScale(this.dpr * (this.canvasWidth / (512 - 100)));
     this.createTextureMask(xOffset, yOffset, baseSprite);
-    return startOffset + baseSprite.height * window.devicePixelRatio;
+    return startOffset + baseSprite.height * this.dpr;
   };
   createStarRotations = (_startOffset: number, miniShapes: any) => {
     // TODO: Scale the sprite
@@ -386,7 +388,7 @@ export default class Game extends Phaser.Scene {
     this.leftRotatableStars.push(
       this.matter.add
         .sprite(
-          ((115 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((115 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -395,14 +397,14 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale((1 / 414) * this.canvasWidth * window.devicePixelRatio)
+        .setScale((1 / 414) * this.canvasWidth * this.dpr)
         .setAngle(35)
     );
 
     this.rightRotatableStars.push(
       this.matter.add
         .sprite(
-          ((305 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((305 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -411,14 +413,14 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale((1 / 414) * this.canvasWidth * window.devicePixelRatio)
+        .setScale((1 / 414) * this.canvasWidth * this.dpr)
     );
     // Second Row
-    startOffset += 165 * window.devicePixelRatio;
+    startOffset += 165 * this.dpr;
     this.rightRotatableStars.push(
       this.matter.add
         .sprite(
-          ((10 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((10 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -427,13 +429,13 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale((1 / 414) * this.canvasWidth * window.devicePixelRatio)
+        .setScale((1 / 414) * this.canvasWidth * this.dpr)
         .setAngle(5)
     );
     this.rightRotatableStars.push(
       this.matter.add
         .sprite(
-          ((206 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((206 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -442,13 +444,13 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale((1 / 414) * this.canvasWidth * window.devicePixelRatio)
+        .setScale((1 / 414) * this.canvasWidth * this.dpr)
       // .setAngle()
     );
     this.leftRotatableStars.push(
       this.matter.add
         .sprite(
-          ((400 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((400 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -457,15 +459,15 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale(window.devicePixelRatio)
+        .setScale(this.dpr)
         .setAngle(35)
     );
     // Third Row
-    startOffset += 180 * window.devicePixelRatio;
+    startOffset += 180 * this.dpr;
     this.leftRotatableStars.push(
       this.matter.add
         .sprite(
-          ((115 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((115 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -474,13 +476,13 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale(window.devicePixelRatio)
+        .setScale(this.dpr)
         .setAngle(30)
     );
     this.rightRotatableStars.push(
       this.matter.add
         .sprite(
-          ((305 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((305 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -489,15 +491,15 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale(window.devicePixelRatio)
+        .setScale(this.dpr)
         .setAngle(5)
     );
     // Fourth Row
-    startOffset += 160 * window.devicePixelRatio;
+    startOffset += 160 * this.dpr;
     this.rightRotatableStars.push(
       this.matter.add
         .sprite(
-          ((10 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((10 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -506,13 +508,13 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale(window.devicePixelRatio)
+        .setScale(this.dpr)
         .setAngle(8)
     );
     this.leftRotatableStars.push(
       this.matter.add
         .sprite(
-          ((210 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((210 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -521,13 +523,13 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale(window.devicePixelRatio)
+        .setScale(this.dpr)
         .setAngle(30)
     );
     this.leftRotatableStars.push(
       this.matter.add
         .sprite(
-          ((400 / 414) * this.canvasWidth + barWidth) * window.devicePixelRatio,
+          ((400 / 414) * this.canvasWidth + barWidth) * this.dpr,
           startOffset,
           "mini_star",
           undefined,
@@ -536,10 +538,10 @@ export default class Game extends Phaser.Scene {
             isStatic: true,
           }
         )
-        .setScale(window.devicePixelRatio)
+        .setScale(this.dpr)
         .setAngle(35)
     );
-    return startOffset + 500 * window.devicePixelRatio;
+    return startOffset + 500 * this.dpr;
   };
 
   createStaticTriangles = (
@@ -554,7 +556,7 @@ export default class Game extends Phaser.Scene {
         shape: prodShapes["03"],
         isStatic: true,
       })
-      .setScale(window.devicePixelRatio * (this.canvasWidth / (512 - 100)));
+      .setScale(this.dpr * (this.canvasWidth / (512 - 100)));
     this.createTextureMask(xOffset, yOffset, baseSprite);
     const randomObstaclePosition = _.sample([
       [100, startOffset],
@@ -580,15 +582,13 @@ export default class Game extends Phaser.Scene {
           frictionStatic: 0,
         }
       );
-      target.setScale(
-        (0.17 / 414) * this.canvasWidth * window.devicePixelRatio
-      );
+      target.setScale((0.17 / 414) * this.canvasWidth * this.dpr);
       target.setInteractive();
       target.on("pointerdown", (e: any) => {
         this.handleDamage(target, e);
       });
     }
-    return startOffset + baseSprite.height * window.devicePixelRatio;
+    return startOffset + baseSprite.height * this.dpr;
   };
 
   handleDamage(target: Phaser.Physics.Matter.Sprite, e: any) {
@@ -651,10 +651,10 @@ export default class Game extends Phaser.Scene {
         shape: prodShapes["16"],
         isStatic: true,
       })
-      .setScale(window.devicePixelRatio * (this.canvasWidth / (512 - 100)));
+      .setScale(this.dpr * (this.canvasWidth / (512 - 100)));
     // .setScale(this.cameras.main.width / 414);
     this.createTextureMask(xOffset, yOffset, baseSprite);
-    startOffset += baseSprite.height * window.devicePixelRatio;
+    startOffset += baseSprite.height * this.dpr;
     this.increaseSizeScreenOffset.push(startOffset);
     startOffset += 300;
     return startOffset;
@@ -776,7 +776,7 @@ export default class Game extends Phaser.Scene {
         shape: prodShapes["01"],
         isStatic: true,
       })
-      .setScale(window.devicePixelRatio * (this.canvasWidth / (512 - 100)));
+      .setScale(this.dpr * (this.canvasWidth / (512 - 100)));
     const yOffset = startOffset + baseSprite.height / 2;
     baseSprite.setPosition(baseSprite.x, yOffset);
     this.createTextureMask(xOffset, yOffset, baseSprite);
@@ -805,15 +805,13 @@ export default class Game extends Phaser.Scene {
           frictionStatic: 0,
         }
       );
-      target.setScale(
-        (0.17 / 414) * this.canvasWidth * window.devicePixelRatio
-      );
+      target.setScale((0.17 / 414) * this.canvasWidth * this.dpr);
       target.setInteractive();
       target.on("pointerdown", (e: any) => {
         this.handleDamage(target, e);
       });
     }
-    return startOffset + baseSprite.height * window.devicePixelRatio;
+    return startOffset + baseSprite.height * this.dpr;
   };
   createZigzagSlider = (
     xOffset: number,
@@ -832,9 +830,7 @@ export default class Game extends Phaser.Scene {
       }
     );
     baseSprite.setPosition(baseSprite.x, startOffset + baseSprite.height / 2);
-    baseSprite.setScale(
-      window.devicePixelRatio * (this.canvasWidth / (512 - 100))
-    );
+    baseSprite.setScale(this.dpr * (this.canvasWidth / (512 - 100)));
     this.createTextureMask(
       xOffset,
       startOffset + baseSprite.height / 2,
@@ -865,13 +861,13 @@ export default class Game extends Phaser.Scene {
             frictionStatic: 0,
           }
         )
-        .setScale((0.17 / 414) * this.canvasWidth * window.devicePixelRatio);
+        .setScale((0.17 / 414) * this.canvasWidth * this.dpr);
       target.setInteractive();
       target.on("pointerdown", (e: any) => {
         this.handleDamage(target, e);
       });
     }
-    return startOffset + baseSprite.height * window.devicePixelRatio;
+    return startOffset + baseSprite.height * this.dpr;
   };
   createMarbles = (marbleRadius: number, miniShapes: any) => {
     this.largeCircle = this.matter.add.sprite(
@@ -890,7 +886,7 @@ export default class Game extends Phaser.Scene {
     // this.largeCircle.setScale(0.1);
     // this.isRotating = false;
     this.largeCircle.setScale(
-      (this.canvasWidth / this.largeCircle.width) * window.devicePixelRatio
+      (this.canvasWidth / this.largeCircle.width) * this.dpr
     );
     // .setScale(0.8);
     const xOffsetValues = [
@@ -965,7 +961,7 @@ export default class Game extends Phaser.Scene {
     });
     this.countdownText = this.add
       .text(this.centerX, this.centerY - 100, "3", {
-        fontSize: `${64 * window.devicePixelRatio}px`,
+        fontSize: `${64 * this.dpr}px`,
         color: "#ffffff",
       })
       .setOrigin(0.5);
@@ -986,11 +982,11 @@ export default class Game extends Phaser.Scene {
             shape: miniShapes["02"],
             isStatic: true,
           })
-          .setScale((0.8 / 414) * this.canvasWidth * window.devicePixelRatio)
+          .setScale((0.8 / 414) * this.canvasWidth * this.dpr)
       );
-      leftOffset += (80 / 414) * this.canvasWidth * window.devicePixelRatio;
+      leftOffset += (80 / 414) * this.canvasWidth * this.dpr;
     });
-    startOffset += (250 / 414) * this.canvasWidth * window.devicePixelRatio;
+    startOffset += (250 / 414) * this.canvasWidth * this.dpr;
     new Array(5).fill("").map(() => {
       this.horizontalCrossLeftRotation.push(
         this.matter.add
@@ -998,12 +994,12 @@ export default class Game extends Phaser.Scene {
             shape: miniShapes["02"],
             isStatic: true,
           })
-          .setScale((0.8 / 414) * this.canvasWidth * window.devicePixelRatio)
+          .setScale((0.8 / 414) * this.canvasWidth * this.dpr)
       );
-      rightOffset -= (80 / 414) * this.canvasWidth * window.devicePixelRatio;
+      rightOffset -= (80 / 414) * this.canvasWidth * this.dpr;
     });
     leftOffset = 20;
-    startOffset += (250 / 414) * this.canvasWidth * window.devicePixelRatio;
+    startOffset += (250 / 414) * this.canvasWidth * this.dpr;
     new Array(5).fill("").map(() => {
       this.horizontalCrossRightRotation.push(
         this.matter.add
@@ -1011,12 +1007,12 @@ export default class Game extends Phaser.Scene {
             shape: miniShapes["02"],
             isStatic: true,
           })
-          .setScale((0.8 / 414) * this.canvasWidth * window.devicePixelRatio)
+          .setScale((0.8 / 414) * this.canvasWidth * this.dpr)
       );
-      leftOffset += (80 / 414) * this.canvasWidth * window.devicePixelRatio;
+      leftOffset += (80 / 414) * this.canvasWidth * this.dpr;
     });
     rightOffset = canvasWidth - 20;
-    startOffset += (250 / 414) * this.canvasWidth * window.devicePixelRatio;
+    startOffset += (250 / 414) * this.canvasWidth * this.dpr;
     new Array(5).fill("").map(() => {
       this.horizontalCrossLeftRotation.push(
         this.matter.add
@@ -1024,12 +1020,12 @@ export default class Game extends Phaser.Scene {
             shape: miniShapes["02"],
             isStatic: true,
           })
-          .setScale((0.8 / 414) * this.canvasWidth * window.devicePixelRatio)
+          .setScale((0.8 / 414) * this.canvasWidth * this.dpr)
       );
-      rightOffset -= (80 / 414) * this.canvasWidth * window.devicePixelRatio;
+      rightOffset -= (80 / 414) * this.canvasWidth * this.dpr;
     });
     this.increaseSizeScreenOffset.push(startOffset);
-    return startOffset + 500 * window.devicePixelRatio;
+    return startOffset + 500 * this.dpr;
   };
 
   create() {
@@ -1050,8 +1046,8 @@ export default class Game extends Phaser.Scene {
         .setScrollFactor(0)
         .setOrigin(0, 0);
       this.background.setScale(
-        (414 / this.background.width) * window.devicePixelRatio,
-        (736 / this.background.height) * window.devicePixelRatio
+        (414 / this.background.width) * this.dpr,
+        (736 / this.background.height) * this.dpr
       );
       this.add
         .image(this.centerX, this.centerY, "center_logo")
@@ -1070,7 +1066,7 @@ export default class Game extends Phaser.Scene {
     // // Below line placed at the right position when setScale is not used
     // siteUrl.setPosition(siteUrl.x - siteUrl.width / 2, this.centerY + 100);
 
-    // siteUrl.setScale(window.devicePixelRatio);
+    // siteUrl.setScale(this.dpr);
     // // Fix the position of the siteUrl when setScale is used
     // siteUrl.setPosition(
     //   siteUrl.x - siteUrl.width / 2,
@@ -1083,7 +1079,7 @@ export default class Game extends Phaser.Scene {
     var miniShapes = this.cache.json.get("mini_shapes");
     var obstaclesShapes = this.cache.json.get("obstacles_shapes");
 
-    let startOffset = 800 * window.devicePixelRatio;
+    let startOffset = 800 * this.dpr;
     const xOffset = this.centerX;
     // this.selectedTracks = ["06", "07", "03", "01", "16"];
     this.selectedTracks.map((trackNo) => {
@@ -1233,7 +1229,7 @@ export default class Game extends Phaser.Scene {
 
     const label = this.add
       .text(this.centerX, this.centerY - 150, labelContent, {
-        fontSize: `${64 * window.devicePixelRatio}px`,
+        fontSize: `${64 * this.dpr}px`,
         color: "#ffffff",
         stroke: "#000",
         strokeThickness: 4,
@@ -1243,13 +1239,13 @@ export default class Game extends Phaser.Scene {
     label.setPosition(label.x - label.width / 2, label.y - label.height / 2);
     const labelXp = this.add
       .text(this.centerX, this.centerY + 150, xpContent, {
-        fontSize: `${52 * window.devicePixelRatio}px`,
+        fontSize: `${52 * this.dpr}px`,
         color: "#573FC8",
         stroke: "#fff",
         strokeThickness: 4,
       })
       .setScrollFactor(0);
-    // .setScale(window.devicePixelRatio);
+    // .setScale(this.dpr);
     labelXp.setDepth(1);
     labelXp.setPosition(
       labelXp.x - labelXp.width / 2,
@@ -1262,20 +1258,12 @@ export default class Game extends Phaser.Scene {
   update(): void {
     if (this.damageMultipliyer === 1) {
       // Highlight level 1 hammer
-      this.level2Hammer?.setScale(
-        (0.1 / 414) * this.canvasWidth * window.devicePixelRatio
-      );
-      this.level1Hammer?.setScale(
-        (0.2 / 414) * this.canvasWidth * window.devicePixelRatio
-      );
+      this.level2Hammer?.setScale((0.1 / 414) * this.canvasWidth * this.dpr);
+      this.level1Hammer?.setScale((0.2 / 414) * this.canvasWidth * this.dpr);
     } else if (this.damageMultipliyer === 1.5) {
       // Highlight level 2 hammer
-      this.level1Hammer?.setScale(
-        (0.1 / 414) * this.canvasWidth * window.devicePixelRatio
-      );
-      this.level2Hammer?.setScale(
-        (0.2 / 414) * this.canvasWidth * window.devicePixelRatio
-      );
+      this.level1Hammer?.setScale((0.1 / 414) * this.canvasWidth * this.dpr);
+      this.level2Hammer?.setScale((0.2 / 414) * this.canvasWidth * this.dpr);
     }
     if (this.isGameOver && this.isResultShown === false) {
       // if (this.isResultShown) return;
@@ -1434,7 +1422,7 @@ export default class Game extends Phaser.Scene {
         // else if (secondLargest >= largest - this.marbleRadius * 2)
         //   this.throttledUpdate(secondLargestIndex, false);
         if (this.autoScroll) {
-          this.cameras.main.scrollY = largest - 300 * window.devicePixelRatio;
+          this.cameras.main.scrollY = largest - 300 * this.dpr;
         }
       }
 
