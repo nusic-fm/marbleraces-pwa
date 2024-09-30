@@ -172,7 +172,12 @@ const SelectedCover = (props: Props) => {
         noOfRaceTracks,
         selectedTrail,
       });
-      if (user?.uid) updateUserActivityTimestamp(user.uid, "played_single");
+      let decresableXp = 0;
+      if (noOfRaceTracks === 8) decresableXp -= 25;
+      if (noOfRaceTracks === 10) decresableXp -= 50;
+      if (showObstacles === false) decresableXp -= 50;
+      if (user?.uid)
+        updateUserActivityTimestamp(user.uid, "played_single", decresableXp);
       setReady(true);
     }
   };

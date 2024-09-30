@@ -3,6 +3,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  increment,
   limit,
   onSnapshot,
   query,
@@ -82,10 +83,15 @@ const updateLoginTimestamp = async (id: string) => {
 
 const updateUserActivityTimestamp = async (
   id: string,
-  activity: "played_single" | "challenge_created"
+  activity: "played_single" | "challenge_created",
+  decresableXp: number = 0
 ) => {
   const d = doc(db, DB_NAME, id);
-  updateDoc(d, { lastActivity: serverTimestamp(), activity });
+  updateDoc(d, {
+    lastActivity: serverTimestamp(),
+    activity,
+    xp: increment(decresableXp),
+  });
 };
 
 const getUserDocByEmail = async (email: string) => {

@@ -1227,7 +1227,7 @@ export default class Game extends Phaser.Scene {
     marbleRaceOnlyInstrument(this.coverDocId, 120, this.musicStartOffset).then(
       () => (this.isInstrumentPlaying = true)
     );
-    this.renderWeapons();
+    if (this.showObstacles) this.renderWeapons();
   }
   showResult() {
     const labelContent = this.winnerIdx === 1 ? "You Win!" : "You Lose";
