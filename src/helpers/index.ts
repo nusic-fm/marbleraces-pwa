@@ -29,7 +29,7 @@ export const duplicateArrayElemToN = (
   arr: string[],
   n: number = 6
 ): string[] => {
-  const result = arr;
+  const result = [...arr];
   while (result.length < n) {
     result.push(arr[createRandomNumber(0, arr.length - 1)]);
   }
@@ -71,3 +71,10 @@ export const getClientTimeInCustomFormat = () => {
   const timeArray = time.split(",");
   return `${timeArray[0]}, ${timeArray[2]} ${timeArray[1].trim()}`; // Format: 10:57 PM, Sep 28  2024
 };
+export const TRAILS_SELECTION = [
+  "firework.png",
+  "money08.png",
+  "protect_ball01.png",
+  "stars_01.png",
+  "snow.png",
+];

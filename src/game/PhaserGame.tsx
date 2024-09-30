@@ -50,6 +50,7 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
     challengeId,
     userDoc,
     onGameComplete,
+    showObstacles,
   },
   ref
 ) {
@@ -144,6 +145,7 @@ const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame(
       isRecord,
       challengeId,
       userDoc,
+      showObstacles,
     });
     if (typeof ref === "function") {
       ref({ game: game.current, scene: null });

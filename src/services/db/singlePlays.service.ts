@@ -15,6 +15,9 @@ const createSinglePlay = async (challengeObj: {
   voices: { id: string; name: string }[];
   coverId: string;
   win: boolean;
+  showObstacles: boolean;
+  noOfRaceTracks: number;
+  selectedTrail: string;
 }) => {
   const colRef = collection(db, COLLECTION_NAME);
   const d = await addDoc(colRef, {

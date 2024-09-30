@@ -6,12 +6,17 @@ import {
   useMediaQuery,
   useTheme,
   Checkbox,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
 type Props = {
   selectedTracksList: string[];
   setSelectedTracksList: React.Dispatch<React.SetStateAction<string[]>>;
+  noOfRaceTracksState: [number, React.Dispatch<React.SetStateAction<number>>];
 };
 
 export const tracks = [
@@ -29,11 +34,13 @@ export const tracks = [
 const SelectRacetracks = ({
   selectedTracksList,
   setSelectedTracksList,
+  noOfRaceTracksState,
 }: Props) => {
   const [dialogRef, setDialogRef] = useState<HTMLButtonElement | null>(null);
   const [showRemove, setShowRemove] = useState(false);
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
+  const [noOfRaceTracks, setNoOfRaceTracks] = noOfRaceTracksState;
 
   const availableTracksToSelect = tracks
     .filter((t) => !Object.values(selectedTracksList).includes(t))
@@ -61,6 +68,20 @@ const SelectRacetracks = ({
         justifyContent="center"
       >
         <Typography variant="h6">Choose Racetracks</Typography>
+        <FormControl color="secondary" size="small">
+          <InputLabel id="demo-simple-select-label">Total</InputLabel>
+          <Select
+            label="Total"
+            size="small"
+            value={noOfRaceTracks}
+            sx={{ width: 80 }}
+            onChange={(e) => setNoOfRaceTracks(e.target.value as number)}
+          >
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={8}>8</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+          </Select>
+        </FormControl>
         {/* <Button
           size="small"
           variant="outlined"
@@ -75,8 +96,9 @@ const SelectRacetracks = ({
         direction="row"
         gap={2}
         px={1}
+        mt={2}
         width={isMobileView ? "90vw" : "90%"}
-        height="160px"
+        // height="160px"
         justifyContent="start"
         alignItems={"center"}
         sx={{ overflowX: "auto" }}
@@ -94,6 +116,9 @@ const SelectRacetracks = ({
                 }}
                 onClick={() => {
                   if (selectedTracksList.includes(trackPath)) {
+                    if (selectedTracksList.length === 2) {
+                      return alert("Select at least 2 Racetracks");
+                    }
                     setSelectedTracksList((prevTracks) =>
                       prevTracks.filter((t) => t !== trackPath)
                     );
@@ -141,6 +166,9 @@ const SelectRacetracks = ({
                     trackPath,
                   ]);
                 } else {
+                  if (selectedTracksList.length === 2) {
+                    return alert("Select at least 2 Racetracks");
+                  }
                   setSelectedTracksList((prevTracks) =>
                     prevTracks.filter((t) => t !== trackPath)
                   );
@@ -167,7 +195,7 @@ const SelectRacetracks = ({
             </IconButton>
           </Box>
         </Box> */}
-        <Popover
+        {/* <Popover
           open={Boolean(dialogRef)}
           anchorEl={dialogRef}
           onClose={() => setDialogRef(null)}
@@ -179,7 +207,7 @@ const SelectRacetracks = ({
               gap={1}
               maxWidth="100%"
               justifyContent={"start"}
-              sx={{ overflowX: "auto" }}
+              sx={{ overflowX: "auto", overflowY: "hidden" }}
             >
               {availableTracksToSelect.map((t) => (
                 <img
@@ -199,8 +227,16 @@ const SelectRacetracks = ({
               ))}
             </Stack>
           </Stack>
-        </Popover>
+        </Popover> */}
       </Stack>
+      {/* <Typography
+        variant="caption"
+        align="center"
+        mt={-2}
+        color={"warning.main"}
+      >
+        Selected Racetracks are auto arranged for the Race
+      </Typography> */}
     </Stack>
   );
 };

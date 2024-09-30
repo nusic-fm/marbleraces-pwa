@@ -12,6 +12,9 @@ import {
   Badge,
   Backdrop,
   LinearProgress,
+  FormControlLabel,
+  Checkbox,
+  Switch,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import router from "next/router";
@@ -19,6 +22,7 @@ import {
   getBackgroundPath,
   getVoiceAvatarPath,
   getTrailPath,
+  TRAILS_SELECTION,
 } from "../helpers";
 import { createChallenge } from "../services/db/challenge.service";
 import { logFirebaseEvent } from "../services/firebase.service";
@@ -122,6 +126,11 @@ const SelectedCover = (props: Props) => {
   const [muted, setMuted] = useState(false);
   const canvasElemWidth = window.innerWidth > 414 ? 414 : window.innerWidth;
   const [surveyPlayId, setSurveyPlayId] = useState<string>("");
+  const [noOfRaceTracks, setNoOfRaceTracks] = useState(5);
+  const [showObstacles, setShowObstacles] = useState<boolean>(() => {
+    const showObstacles = localStorage.getItem("showObstacles");
+    return showObstacles ? JSON.parse(showObstacles) : true;
+  });
 
   const downloadAndPlay = async () => {
     if (isDownloading) return;
@@ -159,6 +168,9 @@ const SelectedCover = (props: Props) => {
         email: userDoc?.email?.split("@")[0],
         uid: userDoc?.uid,
         chosenVoiceId: selectedVoiceObj.id,
+        showObstacles,
+        noOfRaceTracks,
+        selectedTrail,
       });
       if (user?.uid) updateUserActivityTimestamp(user.uid, "played_single");
       setReady(true);
@@ -339,7 +351,8 @@ const SelectedCover = (props: Props) => {
                 // skinPath={getSkinPath(challenge.skinId)}
                 // backgroundPath={getBackgroundPath(challenge.bgId)}
                 // selectedTracks={challenge.tracksList.slice(0, 4)}
-                noOfRaceTracks={isMobileView ? 4 : 8}
+                noOfRaceTracks={noOfRaceTracks}
+                showObstacles={showObstacles}
                 gravityY={isMobileView ? 3 * window.devicePixelRatio : 0.8}
                 canvasElemWidth={canvasElemWidth}
                 onGameComplete={async (
@@ -374,12 +387,18 @@ const SelectedCover = (props: Props) => {
                           name: secondaryVoiceObj?.name || "",
                         },
                       ],
+                      showObstacles,
+                      noOfRaceTracks,
+                      selectedTrail,
                     });
                     logFirebaseEvent(GAEventNames.SINGLE_PLAY_COMPLETED, {
                       email: userDoc.email.split("@")[0],
                       uid: userDoc.uid,
                       win,
                       playId,
+                      showObstacles,
+                      noOfRaceTracks,
+                      selectedTrail,
                     });
                     setResultLoading(false);
                     setTimeout(() => {
@@ -582,7 +601,7 @@ const SelectedCover = (props: Props) => {
         </Stack>
         <GameEndSurvey
           open={!!surveyPlayId}
-          onClose={(
+          onClose={async (
             rating: number,
             likedFeatures: string[],
             tellUsMore: string
@@ -590,7 +609,12 @@ const SelectedCover = (props: Props) => {
             updateSinglePlay(surveyPlayId, {
               survey: { id: 1, rating, likedFeatures, tellUsMore },
             });
-            setSurveyPlayId("");
+            if (userDoc) {
+              await updateUserProfile(userDoc.uid, {
+                xp: increment(200),
+              });
+              setSurveyPlayId("");
+            }
             goBack(true);
           }}
         />
@@ -788,11 +812,11 @@ const SelectedCover = (props: Props) => {
               ))}
             </Stack>
           </Stack>
-          <Divider />
           <Box maxWidth={isMobileView ? "100%" : 380}>
             <SelectRacetracks
               selectedTracksList={selectedTracksList}
               setSelectedTracksList={setSelectedTracksList}
+              noOfRaceTracksState={[noOfRaceTracks, setNoOfRaceTracks]}
             />
           </Box>
           <Stack gap={2}>
@@ -805,7 +829,7 @@ const SelectedCover = (props: Props) => {
               alignItems="center"
               justifyContent={"center"}
             >
-              {["stars_01.png", "snow.png"].map((name) => (
+              {TRAILS_SELECTION.map((name) => (
                 <Avatar
                   key={name}
                   src={getTrailPath(name)}
@@ -823,6 +847,27 @@ const SelectedCover = (props: Props) => {
               ))}
             </Stack>
           </Stack>
+          <Box
+            maxWidth={isMobileView ? "100%" : 380}
+            display={"flex"}
+            gap={2}
+            alignItems={"center"}
+          >
+            <Typography align="center" variant="h6">
+              Obstacles
+            </Typography>
+            <Switch
+              checked={showObstacles}
+              color={showObstacles ? "success" : "error"}
+              onChange={() => {
+                setShowObstacles(!showObstacles);
+                localStorage.setItem(
+                  "showObstacles",
+                  JSON.stringify(!showObstacles)
+                );
+              }}
+            />
+          </Box>
           <Box my={4} position="relative">
             {!isMobileView && (
               <Box position={"absolute"} top={0} left={-45}>

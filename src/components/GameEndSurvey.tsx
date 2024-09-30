@@ -77,12 +77,12 @@ function GameEndSurvey({ open, onClose }: Props) {
             />
           </Stack>
           <Button
-            color="info"
             variant="contained"
             onClick={() => onClose(rating, likedFeatures, tellUsMore)}
             disabled={!rating || !likedFeatures.length}
+            color="success"
           >
-            Close
+            Submit and Earn 200 XP
           </Button>
         </Stack>
       </DialogContent>

@@ -22,6 +22,7 @@ type Props = {
   ) => Promise<void>;
   userDoc: UserDoc;
   noOfRaceTracks?: number;
+  showObstacles?: boolean;
   gravityY?: number;
 };
 
@@ -33,6 +34,7 @@ const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
     userDoc,
     noOfRaceTracks,
     gravityY,
+    showObstacles,
   },
   ref
 ) {
@@ -61,6 +63,7 @@ const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
       challengeId={challenge.id}
       userDoc={userDoc}
       onGameComplete={onGameComplete}
+      showObstacles={showObstacles}
     />
   );
 });

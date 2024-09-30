@@ -47,6 +47,7 @@ import Leaderboard from "../src/components/Leaderboard";
 import Footer from "../src/components/Footer";
 import { GAEventNames } from "../src/models/GAEventNames";
 import { tracks } from "../src/components/SelectRacetracks";
+import { TRAILS_SELECTION } from "../src/helpers";
 
 const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
   if (isLatest) {
@@ -93,6 +94,7 @@ export const cardVariants: (isMobileView: boolean) => Variants = (
     },
   },
 });
+
 const Index = () => {
   const [user, authLoading, authError] = useAuthState(auth);
   const [checkingAuth, setCheckingAuth] = useState(false);
@@ -116,7 +118,9 @@ const Index = () => {
     id: string;
   } | null>(null);
   const [selectedSkin, setSelectedSkin] = useState("smoke01.png");
-  const [selectedTrail, setSelectedTrail] = useState("snow.png");
+  const [selectedTrail, setSelectedTrail] = useState(
+    TRAILS_SELECTION[Math.floor(Math.random() * TRAILS_SELECTION.length)]
+  );
   const [selectedTracksList, setSelectedTracksList] =
     useState<string[]>(tracks);
   const router = useRouter();

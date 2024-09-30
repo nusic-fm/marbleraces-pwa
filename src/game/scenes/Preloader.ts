@@ -80,19 +80,24 @@ export default class Preloader extends Phaser.Scene {
   preload() {
     if (!this.params) return;
     this.load.image("background", this.params.backgroundPath);
-    ObstacleNames.map((name) => {
-      this.load.image(
-        `obstacle_${name}`,
-        `/assets/sprite/obstacles/${name}.png`
+    if (this.params.showObstacles) {
+      ObstacleNames.map((name) => {
+        this.load.image(
+          `obstacle_${name}`,
+          `/assets/sprite/obstacles/${name}.png`
+        );
+      });
+      this.load.image("hammer_1", "/assets/sprite/weapons/hammer_level_1.png");
+      this.load.image("hammer_2", "/assets/sprite/weapons/hammer_level_2.png");
+      this.load.image("whack", "/assets/sprite/weapons/whack.png");
+      // Load sound .wav files
+      this.load.audio("low_whack", "/assets/sounds/low_whack.wav");
+      this.load.audio("high_whack", "/assets/sounds/high_whack.wav");
+      this.load.json(
+        "obstacles_shapes",
+        "/assets/physics/obstacles_shapes.json"
       );
-    });
-    this.load.image("hammer_1", "/assets/sprite/weapons/hammer_level_1.png");
-    this.load.image("hammer_2", "/assets/sprite/weapons/hammer_level_2.png");
-    this.load.image("whack", "/assets/sprite/weapons/whack.png");
-    // Load sound .wav files
-    this.load.audio("low_whack", "/assets/sounds/low_whack.wav");
-    this.load.audio("high_whack", "/assets/sounds/high_whack.wav");
-    this.load.json("obstacles_shapes", "/assets/physics/obstacles_shapes.json");
+    }
     if (this.params.enableMotion)
       this.load.image("center_logo", "/assets/transparent_logo.png");
     // TODO: Enable the below and comment out the rest of the images

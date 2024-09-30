@@ -91,6 +91,7 @@ export default class Game extends Phaser.Scene {
     lifespan: 400,
     alpha: 0.5,
   };
+  showObstacles: boolean = false;
 
   init(data: IGameDataParams) {
     // Sort the voices randomly
@@ -98,7 +99,7 @@ export default class Game extends Phaser.Scene {
     // .sort(() => Math.random() - 0.5);
     this.coverDocId = data.coverDocId;
     this.musicStartOffset = data.musicStartOffset;
-    this.noOfRaceTracks = data.noOfRaceTracks;
+    this.noOfRaceTracks = data.noOfRaceTracks || 5;
     this.selectedTracks = duplicateArrayElemToN(
       data.selectedTracks,
       this.noOfRaceTracks
@@ -113,6 +114,7 @@ export default class Game extends Phaser.Scene {
     this.trailConfig.lifespan = data.trailsLifeSpace;
     this.trailConfig.alpha = data.trailsOpacity;
     this.dpr = window.devicePixelRatio || 2;
+    this.showObstacles = data.showObstacles || false;
   }
 
   throttledUpdate(index: number, switchOld: boolean = true) {
@@ -313,40 +315,42 @@ export default class Game extends Phaser.Scene {
       stiffness: 1,
       length: 0,
     });
-    const randomObstaclePosition = _.sample([
-      [this.centerX, seesawY - 200],
-      [this.centerX - 100, seesawY],
-      [this.centerX + 100, seesawY],
-      [this.centerX, seesawY + 200],
-      [this.centerX - 100, seesawY + 400],
-      [this.centerX + 100, seesawY + 400],
-    ]);
+    if (this.showObstacles) {
+      const randomObstaclePosition = _.sample([
+        [this.centerX, seesawY - 200],
+        [this.centerX - 100, seesawY],
+        [this.centerX + 100, seesawY],
+        [this.centerX, seesawY + 200],
+        [this.centerX - 100, seesawY + 400],
+        [this.centerX + 100, seesawY + 400],
+      ]);
 
-    const randomObstacle = _.sample(ObstacleNames);
-    if (randomObstaclePosition && randomObstacle) {
-      const target = this.matter.add
-        .sprite(
-          randomObstaclePosition[0],
-          randomObstaclePosition[1],
-          `obstacle_${randomObstacle}`,
-          undefined,
-          {
-            shape:
-              obstaclesShapes[randomObstacle as keyof typeof obstaclesShapes],
-            friction: 0,
-            frictionAir: 0,
-            frictionStatic: 0,
-          }
-        )
-        .setScale((0.17 / 414) * this.canvasWidth * this.dpr);
-      target.setInteractive();
-      target.on("pointerdown", (e: any) => {
-        this.handleDamage(target, e);
-      });
-      this.matter.world.add(contraint);
-      this.createTextureMask(seesawX, seesawY, seesaw);
-      this.createTextureMask(xOffset, yOffset, baseSprite);
+      const randomObstacle = _.sample(ObstacleNames);
+      if (randomObstaclePosition && randomObstacle) {
+        const target = this.matter.add
+          .sprite(
+            randomObstaclePosition[0],
+            randomObstaclePosition[1],
+            `obstacle_${randomObstacle}`,
+            undefined,
+            {
+              shape:
+                obstaclesShapes[randomObstacle as keyof typeof obstaclesShapes],
+              friction: 0,
+              frictionAir: 0,
+              frictionStatic: 0,
+            }
+          )
+          .setScale((0.17 / 414) * this.canvasWidth * this.dpr);
+        target.setInteractive();
+        target.on("pointerdown", (e: any) => {
+          this.handleDamage(target, e);
+        });
+      }
     }
+    this.matter.world.add(contraint);
+    this.createTextureMask(seesawX, seesawY, seesaw);
+    this.createTextureMask(xOffset, yOffset, baseSprite);
     return startOffset + baseSprite.height * this.dpr;
   };
   createCircleBlockers = (
@@ -558,35 +562,37 @@ export default class Game extends Phaser.Scene {
       })
       .setScale(this.dpr * (this.canvasWidth / (512 - 100)));
     this.createTextureMask(xOffset, yOffset, baseSprite);
-    const randomObstaclePosition = _.sample([
-      [100, startOffset],
-      [350, startOffset],
-      [this.centerX, startOffset + 200],
-      [100, startOffset + 400],
-      [400, startOffset + 400],
-    ]);
+    if (this.showObstacles) {
+      const randomObstaclePosition = _.sample([
+        [100, startOffset],
+        [350, startOffset],
+        [this.centerX, startOffset + 200],
+        [100, startOffset + 400],
+        [400, startOffset + 400],
+      ]);
 
-    const randomObstacle = _.sample(ObstacleNames);
-    if (randomObstaclePosition && randomObstacle) {
-      const target = this.matter.add.sprite(
-        randomObstaclePosition[0],
-        randomObstaclePosition[1],
-        `obstacle_${randomObstacle}`,
-        undefined,
-        {
-          shape:
-            obstaclesShapes[randomObstacle as keyof typeof obstaclesShapes],
-          // angle: 124,
-          friction: 0,
-          frictionAir: 0,
-          frictionStatic: 0,
-        }
-      );
-      target.setScale((0.17 / 414) * this.canvasWidth * this.dpr);
-      target.setInteractive();
-      target.on("pointerdown", (e: any) => {
-        this.handleDamage(target, e);
-      });
+      const randomObstacle = _.sample(ObstacleNames);
+      if (randomObstaclePosition && randomObstacle) {
+        const target = this.matter.add.sprite(
+          randomObstaclePosition[0],
+          randomObstaclePosition[1],
+          `obstacle_${randomObstacle}`,
+          undefined,
+          {
+            shape:
+              obstaclesShapes[randomObstacle as keyof typeof obstaclesShapes],
+            // angle: 124,
+            friction: 0,
+            frictionAir: 0,
+            frictionStatic: 0,
+          }
+        );
+        target.setScale((0.17 / 414) * this.canvasWidth * this.dpr);
+        target.setInteractive();
+        target.on("pointerdown", (e: any) => {
+          this.handleDamage(target, e);
+        });
+      }
     }
     return startOffset + baseSprite.height * this.dpr;
   };
@@ -780,36 +786,38 @@ export default class Game extends Phaser.Scene {
     const yOffset = startOffset + baseSprite.height / 2;
     baseSprite.setPosition(baseSprite.x, yOffset);
     this.createTextureMask(xOffset, yOffset, baseSprite);
-    const randomObstaclePosition = _.sample([
-      [150, startOffset],
-      [350, startOffset],
-      [150, startOffset + 300],
-      [this.centerX, startOffset + 200],
-      [390, startOffset + 200],
-      [150, startOffset + 400],
-      [350, startOffset + 400],
-      [this.centerX, startOffset + 600],
-    ]);
-    const randomObstacle = _.sample(ObstacleNames);
-    if (randomObstaclePosition && randomObstacle) {
-      const target = this.matter.add.sprite(
-        randomObstaclePosition[0],
-        randomObstaclePosition[1],
-        `obstacle_${randomObstacle}`,
-        undefined,
-        {
-          shape:
-            obstaclesShapes[randomObstacle as keyof typeof obstaclesShapes],
-          friction: 0,
-          frictionAir: 0,
-          frictionStatic: 0,
-        }
-      );
-      target.setScale((0.17 / 414) * this.canvasWidth * this.dpr);
-      target.setInteractive();
-      target.on("pointerdown", (e: any) => {
-        this.handleDamage(target, e);
-      });
+    if (this.showObstacles) {
+      const randomObstaclePosition = _.sample([
+        [150, startOffset],
+        [350, startOffset],
+        [150, startOffset + 300],
+        [this.centerX, startOffset + 200],
+        [390, startOffset + 200],
+        [150, startOffset + 400],
+        [350, startOffset + 400],
+        [this.centerX, startOffset + 600],
+      ]);
+      const randomObstacle = _.sample(ObstacleNames);
+      if (randomObstaclePosition && randomObstacle) {
+        const target = this.matter.add.sprite(
+          randomObstaclePosition[0],
+          randomObstaclePosition[1],
+          `obstacle_${randomObstacle}`,
+          undefined,
+          {
+            shape:
+              obstaclesShapes[randomObstacle as keyof typeof obstaclesShapes],
+            friction: 0,
+            frictionAir: 0,
+            frictionStatic: 0,
+          }
+        );
+        target.setScale((0.17 / 414) * this.canvasWidth * this.dpr);
+        target.setInteractive();
+        target.on("pointerdown", (e: any) => {
+          this.handleDamage(target, e);
+        });
+      }
     }
     return startOffset + baseSprite.height * this.dpr;
   };
@@ -836,36 +844,38 @@ export default class Game extends Phaser.Scene {
       startOffset + baseSprite.height / 2,
       baseSprite
     );
-    const randomObstaclePosition = _.sample([
-      [140, startOffset],
-      [350, startOffset],
-      [150, startOffset + 200],
-      [350, startOffset + 200],
-      [150, startOffset + 400],
-      [350, startOffset + 400],
-    ]);
-    const randomObstacle = _.sample(ObstacleNames);
-    if (randomObstaclePosition && randomObstacle) {
-      const target = this.matter.add
-        .sprite(
-          randomObstaclePosition[0],
-          randomObstaclePosition[1],
-          `obstacle_${randomObstacle}`,
-          undefined,
-          {
-            shape:
-              obstaclesShapes[randomObstacle as keyof typeof obstaclesShapes],
-            // angle: 124,
-            friction: 0,
-            frictionAir: 0,
-            frictionStatic: 0,
-          }
-        )
-        .setScale((0.17 / 414) * this.canvasWidth * this.dpr);
-      target.setInteractive();
-      target.on("pointerdown", (e: any) => {
-        this.handleDamage(target, e);
-      });
+    if (this.showObstacles) {
+      const randomObstaclePosition = _.sample([
+        [140, startOffset],
+        [350, startOffset],
+        [150, startOffset + 200],
+        [350, startOffset + 200],
+        [150, startOffset + 400],
+        [350, startOffset + 400],
+      ]);
+      const randomObstacle = _.sample(ObstacleNames);
+      if (randomObstaclePosition && randomObstacle) {
+        const target = this.matter.add
+          .sprite(
+            randomObstaclePosition[0],
+            randomObstaclePosition[1],
+            `obstacle_${randomObstacle}`,
+            undefined,
+            {
+              shape:
+                obstaclesShapes[randomObstacle as keyof typeof obstaclesShapes],
+              // angle: 124,
+              friction: 0,
+              frictionAir: 0,
+              frictionStatic: 0,
+            }
+          )
+          .setScale((0.17 / 414) * this.canvasWidth * this.dpr);
+        target.setInteractive();
+        target.on("pointerdown", (e: any) => {
+          this.handleDamage(target, e);
+        });
+      }
     }
     return startOffset + baseSprite.height * this.dpr;
   };
@@ -1030,8 +1040,10 @@ export default class Game extends Phaser.Scene {
 
   create() {
     console.log("Game Scene...");
-    this.sound.add("low_whack", { loop: false, volume: 0.5 });
-    this.sound.add("high_whack", { loop: false, volume: 0.5 });
+    if (this.showObstacles) {
+      this.sound.add("low_whack", { loop: false, volume: 0.5 });
+      this.sound.add("high_whack", { loop: false, volume: 0.5 });
+    }
     // Center the background image
     const centerX = this.cameras.main.width / 2;
     if (!this.enableMotion) {
@@ -1055,23 +1067,17 @@ export default class Game extends Phaser.Scene {
         .setScrollFactor(0);
     }
 
-    // const siteUrl = this.add
-    //   .text(this.centerX, this.centerY, "marblerace.ai", {
-    //     fontSize: "28px",
-    //     color: "#ffffff",
-    //     stroke: "rgba(0,0,0,1)",
-    //     strokeThickness: 4,
-    //   })
-    //   .setScrollFactor(0);
-    // // Below line placed at the right position when setScale is not used
-    // siteUrl.setPosition(siteUrl.x - siteUrl.width / 2, this.centerY + 100);
-
+    const siteUrl = this.add
+      .text(this.centerX, this.centerY, "marblerace.ai", {
+        fontSize: `${24 * this.dpr}px`,
+        color: "#ffffff",
+        stroke: "rgba(0,0,0,0.5)",
+        strokeThickness: 2,
+      })
+      .setScrollFactor(0);
+    siteUrl.setPosition(siteUrl.x - siteUrl.width / 2, siteUrl.y + 100);
     // siteUrl.setScale(this.dpr);
-    // // Fix the position of the siteUrl when setScale is used
-    // siteUrl.setPosition(
-    //   siteUrl.x - siteUrl.width / 2,
-    //   siteUrl.y - siteUrl.height / 2
-    // );
+    // siteUrl.setPosition(siteUrl.x - siteUrl.width / 2, siteUrl.y);
     // Enable camera scrolling
     const canvasWidth = this.cameras.main.width;
 
@@ -1228,7 +1234,7 @@ export default class Game extends Phaser.Scene {
     const xpContent = this.winnerIdx === 1 ? "+500 XP" : "+0 XP";
 
     const label = this.add
-      .text(this.centerX, this.centerY - 150, labelContent, {
+      .text(this.centerX, this.centerY - 180, labelContent, {
         fontSize: `${64 * this.dpr}px`,
         color: "#ffffff",
         stroke: "#000",
@@ -1238,7 +1244,7 @@ export default class Game extends Phaser.Scene {
     label.setDepth(1);
     label.setPosition(label.x - label.width / 2, label.y - label.height / 2);
     const labelXp = this.add
-      .text(this.centerX, this.centerY + 150, xpContent, {
+      .text(this.centerX, this.centerY + 250, xpContent, {
         fontSize: `${52 * this.dpr}px`,
         color: "#573FC8",
         stroke: "#fff",
