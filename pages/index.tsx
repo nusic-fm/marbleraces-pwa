@@ -318,7 +318,7 @@ const Index = () => {
                   {coversSnapshotDocs?.length ? (
                     <Box
                       width={window.innerWidth > 500 ? 500 : "100%"} // Responsive
-                      sx={{ overflowY: "auto" }}
+                      sx={{ overflowY: "auto", scrollSnapType: "y mandatory" }}
                       pt={3}
                       mb={"-120px"}
                       height={isMobileView ? 500 : 600}
@@ -339,6 +339,8 @@ const Index = () => {
                               position: "relative",
                               paddingTop: 20,
                               marginBottom: -40,
+                              scrollSnapAlign: "start",
+                              scrollSnapStop: "always",
                             }}
                             initial="offscreen"
                             whileInView="onscreen"
