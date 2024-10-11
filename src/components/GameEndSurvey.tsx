@@ -45,7 +45,13 @@ function GameEndSurvey({ open, onClose }: Props) {
               flexWrap={"wrap"}
               justifyContent={"center"}
             >
-              {["Voices", "Obstacles", "Music", "Visuals"].map((feature) => (
+              {[
+                "Rhythmic Boosters",
+                "Voices",
+                "Obstacles",
+                "Music",
+                "Visuals",
+              ].map((feature) => (
                 <Chip
                   key={feature}
                   label={feature}

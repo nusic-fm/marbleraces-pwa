@@ -24,6 +24,7 @@ type Props = {
   noOfRaceTracks?: number;
   showObstacles?: boolean;
   gravityY?: number;
+  showRythmicPads?: boolean;
 };
 
 const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
@@ -35,6 +36,7 @@ const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
     noOfRaceTracks,
     gravityY,
     showObstacles,
+    showRythmicPads,
   },
   ref
 ) {
@@ -64,6 +66,7 @@ const GameComponent = forwardRef<IRefPhaserGame, Props>(function GameComponent(
       userDoc={userDoc}
       onGameComplete={onGameComplete}
       showObstacles={showObstacles}
+      showRythmicPads={showRythmicPads}
     />
   );
 });

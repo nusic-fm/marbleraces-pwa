@@ -98,6 +98,17 @@ export default class Preloader extends Phaser.Scene {
         "/assets/physics/obstacles_shapes.json"
       );
     }
+    if (this.params.showRythmicPads) {
+      this.load.image("green_dot", "assets/sprite/rhythmicpads/green_dot.png");
+      this.load.image(
+        "green_dot_outline",
+        "assets/sprite/rhythmicpads/green_dot_outline.png"
+      );
+      this.load.image(
+        "joystick_frame",
+        "assets/sprite/rhythmicpads/joystick_frame.jpg"
+      );
+    }
     if (this.params.enableMotion)
       this.load.image("center_logo", "/assets/transparent_logo.png");
     // TODO: Enable the below and comment out the rest of the images

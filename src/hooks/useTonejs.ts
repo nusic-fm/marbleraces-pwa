@@ -192,6 +192,9 @@ const marbleRacePlayVocals = async (
     // );
   }
 };
+const getToneCurrentTime = () => {
+  return Tone.Transport.seconds;
+};
 
 const stopAndDestroyPlayers = () => {
   if (instrPlayerRef) {
@@ -244,4 +247,5 @@ export {
   stopAndDestroyPlayers,
   mutePlayers,
   unMutePlayers,
+  getToneCurrentTime,
 };

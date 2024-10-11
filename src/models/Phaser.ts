@@ -29,4 +29,5 @@ export interface IGameDataParams {
   dprAdjustedWidth?: number;
   dprAdjustedHeight?: number;
   showObstacles?: boolean;
+  showRythmicPads?: boolean;
 }

@@ -1,12 +1,17 @@
 import Phaser from "phaser";
 import {
+  getToneCurrentTime,
   marbleRaceOnlyInstrument,
   marbleRacePlayVocals,
 } from "../../hooks/useTonejs";
 import _ from "lodash";
 import { GameVoiceInfo, ObstacleNames } from "./Preloader";
 import { BodyType } from "matter";
-import { duplicateArrayElemToN } from "../../helpers";
+import {
+  duplicateArrayElemToN,
+  getBeatsArray,
+  createBeatsGroupWithInterval,
+} from "../../helpers";
 import { IGameDataParams } from "../../models/Phaser";
 import { EventBus } from "../EventBus";
 
@@ -92,6 +97,10 @@ export default class Game extends Phaser.Scene {
     alpha: 0.5,
   };
   showObstacles: boolean = false;
+  showRythmicPads: boolean = false;
+  initialGravity: number = 0;
+  perfectTapTime: number = 0;
+  goodTapTime: number = 0;
 
   init(data: IGameDataParams) {
     // Sort the voices randomly
@@ -99,6 +108,26 @@ export default class Game extends Phaser.Scene {
     // .sort(() => Math.random() - 0.5);
     this.coverDocId = data.coverDocId;
     this.musicStartOffset = data.musicStartOffset;
+    this.showRythmicPads = data.showRythmicPads || false;
+    if (this.showRythmicPads) {
+      this.allTapTimings = getBeatsArray(
+        this.coverDocId,
+        this.musicStartOffset
+      );
+      if (this.allTapTimings.length === 0) this.showRythmicPads = false;
+      else {
+        this.circleShouldFillInMs =
+          (this.allTapTimings[1] - this.allTapTimings[0]) * 3 * 1000;
+        this.perfectTapTime = this.circleShouldFillInMs / 3 / 1000;
+        this.goodTapTime = this.circleShouldFillInMs / 2 / 1000;
+        this.showTapTimings = createBeatsGroupWithInterval(
+          this.allTapTimings,
+          this.beatsGroupLength,
+          4,
+          12
+        );
+      }
+    }
     this.noOfRaceTracks = data.noOfRaceTracks || 5;
     this.selectedTracks = duplicateArrayElemToN(
       data.selectedTracks,
@@ -115,12 +144,13 @@ export default class Game extends Phaser.Scene {
     this.trailConfig.alpha = data.trailsOpacity;
     this.dpr = window.devicePixelRatio || 2;
     this.showObstacles = data.showObstacles || false;
+    this.initialGravity = data.gravityY || 0;
   }
 
   throttledUpdate(index: number, switchOld: boolean = true) {
     this.prevVoiceIdx = index;
     // Logic that should be throttled
-    marbleRacePlayVocals(this.coverDocId, this.voices[index].id, switchOld);
+    marbleRacePlayVocals(this.coverDocId, this.voices[index].id);
   }
 
   renderWeapons() {
@@ -898,7 +928,6 @@ export default class Game extends Phaser.Scene {
     this.largeCircle.setScale(
       (this.canvasWidth / this.largeCircle.width) * this.dpr
     );
-    // .setScale(0.8);
     const xOffsetValues = [
       this.centerX - 46,
       this.centerX + 23,
@@ -921,6 +950,7 @@ export default class Game extends Phaser.Scene {
           friction: 0,
           frictionAir: 0,
           frictionStatic: 0,
+          label: v.id,
         }
       );
       this.marbles.push(circleBody);
@@ -936,11 +966,9 @@ export default class Game extends Phaser.Scene {
       // this.trailGraphics.push(this.add.graphics());
       // this.trailPoints.push([]);
       // // Create an image and attach it to the circle body
-      const circleImage = this.add.image(
-        circleBody.position.x,
-        circleBody.position.y,
-        `resized_${v.id}`
-      );
+      const circleImage = this.add
+        .image(circleBody.position.x, circleBody.position.y, `resized_${v.id}`)
+        .setDepth(1);
       circleImage.setDisplaySize(marbleRadius * 2, marbleRadius * 2);
       circleImage.setOrigin(0.5, 0.5);
       // Circle mask
@@ -1220,6 +1248,7 @@ export default class Game extends Phaser.Scene {
             this.isRotating = false;
             this.countdownText.destroy();
             clock.destroy();
+            this.cameras.main.startFollow(this.marblesImages[1]);
           }
         }
       },
@@ -1228,6 +1257,7 @@ export default class Game extends Phaser.Scene {
       () => (this.isInstrumentPlaying = true)
     );
     if (this.showObstacles) this.renderWeapons();
+    if (this.showRythmicPads) this.renderJoystickButtons();
   }
   showResult() {
     const labelContent = this.winnerIdx === 1 ? "You Win!" : "You Lose";
@@ -1260,16 +1290,382 @@ export default class Game extends Phaser.Scene {
     EventBus.emit("game-over", this.winnerIdx === 1);
     this.isResultShown = true;
   }
+
+  graphics: Phaser.GameObjects.Graphics | undefined;
+  circle1: Phaser.GameObjects.Sprite | undefined;
+  outlineCircle1: Phaser.GameObjects.Sprite | undefined;
+  circle2: Phaser.GameObjects.Sprite | undefined;
+  outlineCircle2: Phaser.GameObjects.Sprite | undefined;
+  circle3: Phaser.GameObjects.Sprite | undefined;
+  outlineCircle3: Phaser.GameObjects.Sprite | undefined;
+  circle4: Phaser.GameObjects.Sprite | undefined;
+  outlineCircle4: Phaser.GameObjects.Sprite | undefined;
+  setIntervals: NodeJS.Timeout[] = [];
+  setTimeouts: NodeJS.Timeout[] = [];
+  tapTimings: number[] = [];
+  allTapTimings: number[] = [];
+  circleShouldFillInMs = 0;
+  showTapTimings: number[] = [];
+  currentTapIndex = 0;
+  beatsGroupLength = 8;
+
+  availableCircles: Phaser.GameObjects.Sprite[] = [];
+  innerCircles: Phaser.GameObjects.Sprite[] = [];
+  outlineCircles: Phaser.GameObjects.Sprite[] = [];
+
+  resultLabel: Phaser.GameObjects.Text | undefined;
+  tapScore: number = 0;
+  isBoosted = false;
+
+  buttonRadius = 40 * this.dpr;
+  joystickHolder: Phaser.GameObjects.Container | undefined;
+  joystickFrame: Phaser.GameObjects.Image | undefined;
+  hasGroupPassed = true;
+
+  renderJoystickButtons() {
+    const frameHeight = this.cameras.main.height / 3;
+    let circleYOffset =
+      this.cameras.main.height / 2 + frameHeight - this.buttonRadius;
+    // .image(0, 0, "joystick_frame")
+    // .setDisplaySize(this.buttonRadius * 2, this.buttonRadius * 2);
+    this.circle1 = this.add
+      .sprite(this.cameras.main.width / 2 - 200, circleYOffset, "green_dot")
+      .setDisplaySize(0, 0)
+      .setScrollFactor(0);
+
+    this.outlineCircle1 = this.add
+      .sprite(
+        this.cameras.main.width / 2 - 200,
+        circleYOffset,
+        "green_dot_outline"
+      )
+      .setScrollFactor(0)
+      .setDisplaySize(this.buttonRadius * 2, this.buttonRadius * 2);
+    this.circle2 = this.add
+      .sprite(this.cameras.main.width / 2 + 200, circleYOffset, "green_dot")
+      .setDisplaySize(0, 0)
+      .setScrollFactor(0);
+
+    this.outlineCircle2 = this.add
+      .sprite(
+        this.cameras.main.width / 2 + 200,
+        circleYOffset,
+        "green_dot_outline"
+      )
+      .setScrollFactor(0)
+      .setDisplaySize(this.buttonRadius * 2, this.buttonRadius * 2);
+    circleYOffset += this.buttonRadius * 2;
+    this.circle3 = this.add
+      .sprite(
+        this.cameras.main.width / 2 - this.buttonRadius,
+        circleYOffset,
+        "green_dot"
+      )
+      .setDisplaySize(0, 0)
+      .setScrollFactor(0);
+
+    this.outlineCircle3 = this.add
+      .sprite(
+        this.cameras.main.width / 2 - this.buttonRadius,
+        circleYOffset,
+        "green_dot_outline"
+      )
+      .setScrollFactor(0)
+      .setDisplaySize(this.buttonRadius * 2, this.buttonRadius * 2);
+    this.circle4 = this.add
+      .sprite(
+        this.cameras.main.width / 2 + this.buttonRadius,
+        circleYOffset,
+        "green_dot"
+      )
+      .setDisplaySize(0, 0)
+      .setScrollFactor(0);
+
+    this.outlineCircle4 = this.add
+      .sprite(
+        this.cameras.main.width / 2 + this.buttonRadius,
+        circleYOffset,
+        "green_dot_outline"
+      )
+      .setScrollFactor(0)
+      .setDisplaySize(this.buttonRadius * 2, this.buttonRadius * 2);
+    this.availableCircles = [
+      this.circle1,
+      this.circle2,
+      this.circle3,
+      this.circle4,
+    ];
+    this.innerCircles = [
+      this.circle1,
+      this.circle2,
+      this.circle3,
+      this.circle4,
+    ];
+    this.outlineCircles = [
+      this.outlineCircle1,
+      this.outlineCircle2,
+      this.outlineCircle3,
+      this.outlineCircle4,
+    ];
+    const fxs = this.outlineCircles.map((c) => {
+      c.preFX?.setPadding(32);
+      return c.preFX?.addGlow(0xffffff, 0, 0, true, 0.1, 32);
+    });
+    this.tweens.add({
+      targets: fxs,
+      outerStrength: 10,
+    });
+    [...this.innerCircles, ...this.outlineCircles].map((c) => {
+      c.setDepth(10);
+      c.setAlpha(0);
+    });
+    this.events.on("destroy", () => {
+      this.setTimeouts.map((timeout) => clearTimeout(timeout));
+      this.setIntervals.map((interval) => clearInterval(interval));
+    });
+    this.joystickFrame = this.add
+      .image(
+        this.cameras.main.width / 2,
+        this.cameras.main.height / 2 + frameHeight,
+        "joystick_frame"
+      )
+      .setDepth(9)
+      .setScrollFactor(0)
+      .setDisplaySize(this.cameras.main.width, frameHeight)
+      .setAlpha(0);
+  }
+  isJoystickButtonsShown = false;
+
+  hideJoystickButtons() {
+    this.isJoystickButtonsShown = false;
+    this.innerCircles.map((c) => {
+      c.setAlpha(0);
+    });
+    this.outlineCircles.map((c) => {
+      c.setAlpha(0);
+    });
+    this.innerCircles.map((c) => {
+      c.removeListener("pointerdown");
+    });
+    this.joystickFrame?.setTint(undefined);
+    this.joystickFrame?.setAlpha(0);
+  }
+  showJoystickButtons() {
+    this.isJoystickButtonsShown = true;
+    this.hasGroupPassed = false;
+    this.innerCircles.map((c) => {
+      c.setAlpha(1);
+    });
+    this.outlineCircles.map((c) => {
+      c.setAlpha(1);
+    });
+    this.joystickFrame?.setAlpha(1);
+  }
+  boostMultipler: number = 0;
+  tapResultLabel: Phaser.GameObjects.Text | undefined;
+  tapResultLabelTimer: NodeJS.Timeout | undefined;
   // update(time: number, delta: number): void {
   update(): void {
-    if (this.damageMultipliyer === 1) {
-      // Highlight level 1 hammer
-      this.level2Hammer?.setScale((0.1 / 414) * this.canvasWidth * this.dpr);
-      this.level1Hammer?.setScale((0.2 / 414) * this.canvasWidth * this.dpr);
-    } else if (this.damageMultipliyer === 1.5) {
-      // Highlight level 2 hammer
-      this.level1Hammer?.setScale((0.1 / 414) * this.canvasWidth * this.dpr);
-      this.level2Hammer?.setScale((0.2 / 414) * this.canvasWidth * this.dpr);
+    if (this.showRythmicPads && this.isResultShown === false) {
+      const currentTime = getToneCurrentTime();
+
+      if (this.tapScore >= 40) {
+        this.tapScore = 0;
+        this.isBoosted = true;
+        this.boostMultipler = this.marbles[1].velocity.y;
+        this.marbleTrailParticles[1].setConfig({
+          color: [0xfacc22, 0xf89800, 0xf83600, 0x9f0404],
+          colorEase: "quad.out",
+          lifespan: 2400,
+          angle: { min: -100, max: -80 },
+          scale: { start: 1, end: 0, ease: "sine.out" },
+          speed: { min: 250, max: 350 },
+          advance: 2000,
+          blendMode: "ADD",
+        });
+        this.hideJoystickButtons();
+        // this.tapResultLabel?.destroy();
+        // this.tapResultLabel = this.add
+        //     .text(
+        //         this.cameras.main.width / 2,
+        //         this.cameras.main.height / 2,
+        //         "Boosted",
+        //         {
+        //             fontSize: `${42 * this.dpr}px`,
+        //             color: "white",
+        //             stroke: "rgba(0,0,0,1)",
+        //             strokeThickness: 6,
+        //             backgroundColor: "rgba(0,0,0,1)",
+        //         }
+        //     )
+        //     .setScrollFactor(0);
+        // this.tapResultLabel?.setPosition(
+        //     this.tapResultLabel.x - this.tapResultLabel.width / 2,
+        //     this.tapResultLabel.y - this.tapResultLabel.height / 2
+        // );
+        // if (this.tapResultLabelTimer) {
+        //     clearTimeout(this.tapResultLabelTimer);
+        // }
+        // this.tapResultLabelTimer = setTimeout(() => {
+        //     // this.matter.world.setGravity(0, this.initialGravity);
+        //     this.tapResultLabel?.destroy();
+        // }, 2000);
+      }
+      const _currentTapIndex = this.currentTapIndex;
+      const nextTapTiming =
+        this.showTapTimings[_currentTapIndex] -
+        this.circleShouldFillInMs / 1000;
+      if (currentTime >= nextTapTiming) {
+        // console.log("Current Tap Idx: ", _currentTapIndex);
+        this.currentTapIndex++;
+        if (!this.isBoosted) {
+          this.showJoystickButtons();
+          const circleToFill = _.sample(this.availableCircles);
+          if (circleToFill) {
+            this.availableCircles = this.availableCircles.filter(
+              (c) => c !== circleToFill
+            );
+            circleToFill.setInteractive();
+            circleToFill.once("pointerdown", () => {
+              // Hide the Circle
+              circleToFill.setDisplaySize(0, 0);
+              circleToFill.setAlpha(0);
+              // Add a Label at the center of the screen with scrollFactor 0
+              const newCurrentTime = getToneCurrentTime();
+              const expectedTapTime = this.showTapTimings[_currentTapIndex];
+              const difference = expectedTapTime - newCurrentTime;
+              const resultText =
+                difference < this.perfectTapTime
+                  ? "Perfect"
+                  : difference < this.goodTapTime
+                  ? "Good"
+                  : "Miss";
+              this.tapScore +=
+                resultText === "Perfect" ? 10 : resultText === "Good" ? 5 : 0;
+              // Set green/success tint to the joystick frame
+              // green: #00ff00
+              // red: #ff0000
+              // yellow: #ffff00
+              this.joystickFrame?.setTint(
+                resultText === "Perfect"
+                  ? 0xffff00
+                  : resultText === "Good"
+                  ? 0xffff00
+                  : 0xff0000
+              );
+              // this.tapResultLabel?.destroy();
+              // this.tapResultLabel = this.add
+              //     .text(
+              //         this.cameras.main.width / 2,
+              //         this.cameras.main.height / 2,
+              //         resultText,
+              //         {
+              //             fontSize: `${42 * this.dpr}px`,
+              //             color:
+              //                 resultText === "Perfect"
+              //                     ? "green"
+              //                     : resultText === "Good"
+              //                     ? "yellow"
+              //                     : "red",
+              //             stroke: "rgba(0,0,0,1)",
+              //             strokeThickness: 6,
+              //             backgroundColor: "rgba(0,0,0,1)",
+              //         }
+              //     )
+              //     .setScrollFactor(0);
+              // this.tapResultLabel.setPosition(
+              //     this.tapResultLabel.x -
+              //         this.tapResultLabel.width / 2,
+              //     this.tapResultLabel.y -
+              //         this.tapResultLabel.height / 2
+              // );
+              if (this.tapResultLabelTimer) {
+                // this.joystickFrame?.setTint(undefined);
+                clearTimeout(this.tapResultLabelTimer);
+              }
+
+              // Destroy the label after 1 second
+              this.tapResultLabelTimer = setTimeout(() => {
+                this.joystickFrame?.setTint(undefined);
+                // this.tapResultLabel?.destroy();
+              }, 500);
+              // circleToFill.removeInteractive();
+              this.availableCircles.push(circleToFill);
+            });
+            // Gradually Increase the radius of the circle to be 80
+            // Create a SetInterval
+            const interval = setInterval(() => {
+              if (circleToFill) {
+                const radiuToIncreasePerMs =
+                  this.buttonRadius / (this.circleShouldFillInMs / 10);
+
+                circleToFill.setDisplaySize(
+                  circleToFill.displayWidth + radiuToIncreasePerMs * 2,
+                  circleToFill.displayHeight + radiuToIncreasePerMs * 2
+                );
+              }
+            }, 10);
+            this.setIntervals.push(interval);
+            const timeout = setTimeout(() => {
+              circleToFill.setDisplaySize(0, 0);
+              this.availableCircles.push(circleToFill);
+              circleToFill.removeInteractive();
+              clearInterval(interval);
+            }, this.circleShouldFillInMs);
+            this.setTimeouts.push(timeout);
+            // }
+          }
+        }
+      }
+      if (
+        _currentTapIndex &&
+        _currentTapIndex % this.beatsGroupLength === 0 &&
+        this.hasGroupPassed === false
+      ) {
+        this.hasGroupPassed = true;
+        // console.log("Group Passed");
+        // this.marbleTrailParticles[0].setConfig({
+        //     ...this.trailConfig,
+        //     scale: this.marbleTrailParticles[0].scale,
+        //     follow: this.marbles[0].position,
+        // });
+        // this.marbleTrailParticles[0].destroy();
+        this.hideJoystickButtons();
+      }
+      if (
+        this.isBoosted &&
+        this.boostMultipler < 20 &&
+        this.boostMultipler > 0
+      ) {
+        const userMarble = this.marbles[1]; // TODO: User chosen marble
+        this.matter.body.setVelocity(userMarble, {
+          x: userMarble.velocity.x,
+          y: this.boostMultipler,
+        });
+        this.boostMultipler += 0.1;
+      }
+      if (this.isBoosted && this.boostMultipler >= 20 && this.hasGroupPassed) {
+        this.isBoosted = false;
+        this.boostMultipler = 0;
+        this.marbleTrailParticles[1].destroy();
+        this.marbleTrailParticles[1] = this.add
+          .particles(0, 0, "trail", {
+            ...this.trailConfig,
+            follow: this.marbles[1].position,
+          })
+          .setDepth(0);
+      }
+    }
+    if (this.showObstacles) {
+      if (this.damageMultipliyer === 1) {
+        // Highlight level 1 hammer
+        this.level2Hammer?.setScale((0.1 / 414) * this.canvasWidth * this.dpr);
+        this.level1Hammer?.setScale((0.2 / 414) * this.canvasWidth * this.dpr);
+      } else if (this.damageMultipliyer === 1.5) {
+        // Highlight level 2 hammer
+        this.level1Hammer?.setScale((0.1 / 414) * this.canvasWidth * this.dpr);
+        this.level2Hammer?.setScale((0.2 / 414) * this.canvasWidth * this.dpr);
+      }
     }
     if (this.isGameOver && this.isResultShown === false) {
       // if (this.isResultShown) return;
@@ -1428,7 +1824,8 @@ export default class Game extends Phaser.Scene {
         // else if (secondLargest >= largest - this.marbleRadius * 2)
         //   this.throttledUpdate(secondLargestIndex, false);
         if (this.autoScroll) {
-          this.cameras.main.scrollY = largest - 300 * this.dpr;
+          // this.cameras.main.startFollow(this.marblesImages[0]);
+          // this.cameras.main.scrollY = largest - 300 * this.dpr;
         }
       }
 
