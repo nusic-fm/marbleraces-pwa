@@ -133,8 +133,11 @@ const SelectedCover = (props: Props) => {
   });
   const [showRhythmicBooster, setShowRhythmicBooster] = useState<boolean>(
     () => {
-      const showRhythmicBooster = localStorage.getItem("showRhythmicBooster");
-      return showRhythmicBooster ? JSON.parse(showRhythmicBooster) : true;
+      if (isMobileView) {
+        const showRhythmicBooster = localStorage.getItem("showRhythmicBooster");
+        return showRhythmicBooster ? JSON.parse(showRhythmicBooster) : true;
+      }
+      return false;
     }
   );
 
@@ -364,7 +367,7 @@ const SelectedCover = (props: Props) => {
                 // selectedTracks={challenge.tracksList.slice(0, 4)}
                 noOfRaceTracks={noOfRaceTracks}
                 showObstacles={showObstacles}
-                showRythmicPads={showRhythmicBooster}
+                showRythmicPads={isMobileView && showRhythmicBooster}
                 gravityY={isMobileView ? 3 * window.devicePixelRatio : 0.8}
                 canvasElemWidth={canvasElemWidth}
                 onGameComplete={async (
@@ -893,6 +896,10 @@ const SelectedCover = (props: Props) => {
               checked={showRhythmicBooster}
               color={showRhythmicBooster ? "success" : "error"}
               onChange={() => {
+                if (!isMobileView && !showRhythmicBooster) {
+                  alert("Available only on Mobile");
+                  return;
+                }
                 setShowRhythmicBooster(!showRhythmicBooster);
                 localStorage.setItem(
                   "showRhythmicBooster",
