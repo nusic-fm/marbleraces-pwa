@@ -1484,32 +1484,32 @@ export default class Game extends Phaser.Scene {
           blendMode: "ADD",
         });
         this.hideJoystickButtons();
-        // this.tapResultLabel?.destroy();
-        // this.tapResultLabel = this.add
-        //     .text(
-        //         this.cameras.main.width / 2,
-        //         this.cameras.main.height / 2,
-        //         "Boosted",
-        //         {
-        //             fontSize: `${42 * this.dpr}px`,
-        //             color: "white",
-        //             stroke: "rgba(0,0,0,1)",
-        //             strokeThickness: 6,
-        //             backgroundColor: "rgba(0,0,0,1)",
-        //         }
-        //     )
-        //     .setScrollFactor(0);
-        // this.tapResultLabel?.setPosition(
-        //     this.tapResultLabel.x - this.tapResultLabel.width / 2,
-        //     this.tapResultLabel.y - this.tapResultLabel.height / 2
-        // );
-        // if (this.tapResultLabelTimer) {
-        //     clearTimeout(this.tapResultLabelTimer);
-        // }
-        // this.tapResultLabelTimer = setTimeout(() => {
-        //     // this.matter.world.setGravity(0, this.initialGravity);
-        //     this.tapResultLabel?.destroy();
-        // }, 2000);
+        this.tapResultLabel?.destroy();
+        this.tapResultLabel = this.add
+          .text(
+            this.cameras.main.width / 2,
+            this.cameras.main.height / 2,
+            "Boosted",
+            {
+              fontSize: `${42 * this.dpr}px`,
+              color: "white",
+              stroke: "rgba(0,0,0,1)",
+              strokeThickness: 6,
+              // backgroundColor: "rgba(0,0,0,1)",
+            }
+          )
+          .setScrollFactor(0);
+        this.tapResultLabel?.setPosition(
+          this.tapResultLabel.x - this.tapResultLabel.width / 2,
+          this.tapResultLabel.y - this.tapResultLabel.height / 2
+        );
+        if (this.tapResultLabelTimer) {
+          clearTimeout(this.tapResultLabelTimer);
+        }
+        this.tapResultLabelTimer = setTimeout(() => {
+          // this.matter.world.setGravity(0, this.initialGravity);
+          this.tapResultLabel?.destroy();
+        }, 2000);
       }
       const _currentTapIndex = this.currentTapIndex;
       const nextTapTiming =
@@ -1553,32 +1553,30 @@ export default class Game extends Phaser.Scene {
                   ? 0xffff00
                   : 0xff0000
               );
-              // this.tapResultLabel?.destroy();
-              // this.tapResultLabel = this.add
-              //     .text(
-              //         this.cameras.main.width / 2,
-              //         this.cameras.main.height / 2,
-              //         resultText,
-              //         {
-              //             fontSize: `${42 * this.dpr}px`,
-              //             color:
-              //                 resultText === "Perfect"
-              //                     ? "green"
-              //                     : resultText === "Good"
-              //                     ? "yellow"
-              //                     : "red",
-              //             stroke: "rgba(0,0,0,1)",
-              //             strokeThickness: 6,
-              //             backgroundColor: "rgba(0,0,0,1)",
-              //         }
-              //     )
-              //     .setScrollFactor(0);
-              // this.tapResultLabel.setPosition(
-              //     this.tapResultLabel.x -
-              //         this.tapResultLabel.width / 2,
-              //     this.tapResultLabel.y -
-              //         this.tapResultLabel.height / 2
-              // );
+              this.tapResultLabel?.destroy();
+              this.tapResultLabel = this.add
+                .text(
+                  this.cameras.main.width / 2,
+                  this.cameras.main.height / 2,
+                  resultText,
+                  {
+                    fontSize: `${42 * this.dpr}px`,
+                    color:
+                      resultText === "Perfect"
+                        ? "green"
+                        : resultText === "Good"
+                        ? "yellow"
+                        : "red",
+                    stroke: "rgba(0,0,0,1)",
+                    strokeThickness: 6,
+                    // backgroundColor: "rgba(0,0,0,1)",
+                  }
+                )
+                .setScrollFactor(0);
+              this.tapResultLabel.setPosition(
+                this.tapResultLabel.x - this.tapResultLabel.width / 2,
+                this.tapResultLabel.y - this.tapResultLabel.height / 2
+              );
               if (this.tapResultLabelTimer) {
                 // this.joystickFrame?.setTint(undefined);
                 clearTimeout(this.tapResultLabelTimer);
@@ -1587,7 +1585,7 @@ export default class Game extends Phaser.Scene {
               // Destroy the label after 1 second
               this.tapResultLabelTimer = setTimeout(() => {
                 this.joystickFrame?.setTint(undefined);
-                // this.tapResultLabel?.destroy();
+                this.tapResultLabel?.destroy();
               }, 500);
               // circleToFill.removeInteractive();
               this.availableCircles.push(circleToFill);

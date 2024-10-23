@@ -236,7 +236,7 @@ const SelectedCover = (props: Props) => {
             <>
               <Box
                 position={"absolute"}
-                top={isMobileView ? "92%" : "100%"}
+                top={"10%"}
                 left={"50%"}
                 sx={{ transform: "translate(-50%, -50%)" }}
               >
@@ -276,7 +276,7 @@ const SelectedCover = (props: Props) => {
               </Box>
               <Box
                 position={"absolute"}
-                top={isMobileView ? "92%" : "100%"}
+                top={"10%"}
                 right={0}
                 sx={{ transform: "translate(-50%, -50%)" }}
               >
