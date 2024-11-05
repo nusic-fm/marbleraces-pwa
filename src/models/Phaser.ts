@@ -24,7 +24,7 @@ export interface IGameDataParams {
   recordDuration: number;
   isRecord: boolean;
   challengeId: string;
-  userDoc: UserDoc;
+  userDoc: UserDoc | null;
   height?: number;
   dprAdjustedWidth?: number;
   dprAdjustedHeight?: number;

@@ -336,7 +336,7 @@ const SelectedCover = (props: Props) => {
                 <LinearProgress color="inherit" />
               </Stack>
             </Backdrop>
-            {ready && userDoc ? (
+            {ready ? (
               <AppWithoutSSR
                 ref={phaserRef}
                 challenge={{
@@ -421,7 +421,7 @@ const SelectedCover = (props: Props) => {
                     }, 600);
                   }
                 }}
-                userDoc={userDoc}
+                userDoc={null}
                 // enableMotion={false}
                 // trailPath={challenge.trailpath}
                 // trailsLifeSpace={300}
@@ -600,7 +600,7 @@ const SelectedCover = (props: Props) => {
                           if (ready) {
                             goBack();
                           } else {
-                            if (user) downloadAndPlay();
+                            downloadAndPlay();
                           }
                         }}
                         color={"success"}

@@ -531,7 +531,7 @@ const Index = () => {
             </Stack>
           )} */}
         </Stack>
-        <RequestInvitation
+        {/* <RequestInvitation
           show={activeStep === 1 && !user && !authLoading && !checkingAuth}
           redirectUrl={
             typeof window !== "undefined"
@@ -539,7 +539,7 @@ const Index = () => {
                 `?coverId=${selectedCoverDoc?.id}&qBgNo=${bgNo}`
               : `https://marblerace.ai?coverId=${selectedCoverDoc?.id}&qBgNo=${bgNo}`
           }
-        />
+        /> */}
       </Stack>
       <Drawer
         open={showLeaderboardDrawer}

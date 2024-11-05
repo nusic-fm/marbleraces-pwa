@@ -20,7 +20,7 @@ type Props = {
     coverDocId: string,
     videoBlob: Blob
   ) => Promise<void>;
-  userDoc: UserDoc;
+  userDoc: UserDoc | null;
   noOfRaceTracks?: number;
   showObstacles?: boolean;
   gravityY?: number;
