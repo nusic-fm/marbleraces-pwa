@@ -17,7 +17,7 @@ const config: Phaser.Types.Core.GameConfig = {
       // debug: true,
     },
   },
-  powerPreference: "high-performance",
+  // powerPreference: "high-performance",
   scene: [Preloader, GameScene],
 };
 
