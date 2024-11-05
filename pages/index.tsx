@@ -63,17 +63,17 @@ const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
       collection(db, "covers"),
       where(documentId(), "in", [
         "PkOBGtGbdyMSEkG0BQ6O",
-        "f0pmE4twBXnJmVrJzh18",
-        // "ByE2N5MsLcSYpUR8s6a3",
-        "YE7LMzWbCKgkLgSKVX9Q",
-        "bkvtnO1D4fOUYvzwn0NJ",
-        // "abRoiarmwTRMqWTyqSGn",
-        "Sey1qVFqitYhnKkddMuQ",
-        "RL2bdU5NJOukDwQzzW1s",
-        "NAc4aENdcDHIh2k4K5oG",
-        "8FbtvPhkC13vo3HnAirx",
-        "lsUBEcaYfOidpvjUxpz1",
-        "hoZTAYrVO5qYmHz9CZtV",
+        // "f0pmE4twBXnJmVrJzh18",
+        // // "ByE2N5MsLcSYpUR8s6a3",
+        // "YE7LMzWbCKgkLgSKVX9Q",
+        // "bkvtnO1D4fOUYvzwn0NJ",
+        // // "abRoiarmwTRMqWTyqSGn",
+        // "Sey1qVFqitYhnKkddMuQ",
+        // "RL2bdU5NJOukDwQzzW1s",
+        // "NAc4aENdcDHIh2k4K5oG",
+        // "8FbtvPhkC13vo3HnAirx",
+        // "lsUBEcaYfOidpvjUxpz1",
+        // "hoZTAYrVO5qYmHz9CZtV",
       ])
     );
   }
@@ -256,7 +256,7 @@ const Index = () => {
                 borderRadius: 10,
               }}
             >
-              <Leaderboard />
+              {/* <Leaderboard /> */}
             </Stack>
           )}
           <Stack
@@ -514,7 +514,7 @@ const Index = () => {
               />
             )}
           </Stack>
-          {!isMobileView && activeStep === 0 && (
+          {/* {!isMobileView && activeStep === 0 && (
             <Stack
               width={"30%"}
               alignItems={"center"}
@@ -529,7 +529,7 @@ const Index = () => {
                 <OpenChallenges userUid={user?.uid} email={userDoc?.email} />
               )}
             </Stack>
-          )}
+          )} */}
         </Stack>
         <RequestInvitation
           show={activeStep === 1 && !user && !authLoading && !checkingAuth}
@@ -546,14 +546,14 @@ const Index = () => {
         anchor="bottom"
         onClose={() => setShowLeaderboardDrawer(false)}
       >
-        <Leaderboard />
+        {/* <Leaderboard /> */}
       </Drawer>
       <Drawer
         open={showChallengesDrawer}
         anchor="bottom"
         onClose={() => setShowChallengesDrawer(false)}
       >
-        <OpenChallenges userUid={user?.uid} email={userDoc?.email} />
+        {/* <OpenChallenges userUid={user?.uid} email={userDoc?.email} /> */}
       </Drawer>
       {isMobileView && (
         <Footer
