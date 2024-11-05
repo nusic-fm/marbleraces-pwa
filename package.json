@@ -7,7 +7,7 @@
     "name": "Logesh"
   },
   "scripts": {
-    "dev": "next dev --port 3000 --host 0.0.0.0",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
