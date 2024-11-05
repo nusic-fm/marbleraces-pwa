@@ -142,53 +142,53 @@ const SelectedCover = (props: Props) => {
   );
 
   const downloadAndPlay = async () => {
-    if (isDownloading) return;
-    if (!secondaryVoiceObj) {
-      alert("Choose a Voice to Play the Race");
-      return;
-    }
-    if (selectedVoiceObj && secondaryVoiceObj) {
-      const voices = [selectedVoiceObj, secondaryVoiceObj].map((v) => ({
-        id: v.id,
-        name: v.name,
-        avatar: `https://voxaudio.nusic.fm/${encodeURIComponent(
-          "voice_models/avatars/"
-        )}${v.id}?alt=media`,
-      }));
-      setIsDownloading(true);
-      await downloadAudioFiles(
-        [
-          `https://voxaudio.nusic.fm/covers/${selectedCoverDoc.id}/instrumental.mp3`,
-          ...voices.map(
-            (v) =>
-              `https://voxaudio.nusic.fm/covers/${selectedCoverDoc.id}/${v.id}.mp3`
-          ),
-        ],
-        (progress: number) => {
-          console.log("progress", progress);
-          setDownloadProgress(progress);
-        }
-      );
-      setIsDownloading(false);
-      logFirebaseEvent(GAEventNames.SINGLE_PLAY_STARTED, {
-        coverId: selectedCoverDoc?.id,
-        title: selectedCoverDoc?.title,
-        voiceId: secondaryVoiceObj.id,
-        email: userDoc?.email?.split("@")[0],
-        uid: userDoc?.uid,
-        chosenVoiceId: selectedVoiceObj.id,
-        showObstacles,
-        noOfRaceTracks,
-        selectedTrail,
-      });
-      let decresableXp = 0;
-      if (noOfRaceTracks === 8) decresableXp -= 25;
-      if (noOfRaceTracks === 10) decresableXp -= 50;
-      if (showObstacles === false) decresableXp -= 50;
-      if (user?.uid)
-        updateUserActivityTimestamp(user.uid, "played_single", decresableXp);
-      setReady(true);
-    }
+    // if (isDownloading) return;
+    // if (!secondaryVoiceObj) {
+    //   alert("Choose a Voice to Play the Race");
+    //   return;
+    // }
+    // if (selectedVoiceObj && secondaryVoiceObj) {
+    //   const voices = [selectedVoiceObj, secondaryVoiceObj].map((v) => ({
+    //     id: v.id,
+    //     name: v.name,
+    //     avatar: `https://voxaudio.nusic.fm/${encodeURIComponent(
+    //       "voice_models/avatars/"
+    //     )}${v.id}?alt=media`,
+    //   }));
+    //   setIsDownloading(true);
+    //   await downloadAudioFiles(
+    //     [
+    //       `https://voxaudio.nusic.fm/covers/${selectedCoverDoc.id}/instrumental.mp3`,
+    //       ...voices.map(
+    //         (v) =>
+    //           `https://voxaudio.nusic.fm/covers/${selectedCoverDoc.id}/${v.id}.mp3`
+    //       ),
+    //     ],
+    //     (progress: number) => {
+    //       console.log("progress", progress);
+    //       setDownloadProgress(progress);
+    //     }
+    //   );
+    //   setIsDownloading(false);
+    //   logFirebaseEvent(GAEventNames.SINGLE_PLAY_STARTED, {
+    //     coverId: selectedCoverDoc?.id,
+    //     title: selectedCoverDoc?.title,
+    //     voiceId: secondaryVoiceObj.id,
+    //     email: userDoc?.email?.split("@")[0],
+    //     uid: userDoc?.uid,
+    //     chosenVoiceId: selectedVoiceObj.id,
+    //     showObstacles,
+    //     noOfRaceTracks,
+    //     selectedTrail,
+    //   });
+    //   let decresableXp = 0;
+    //   if (noOfRaceTracks === 8) decresableXp -= 25;
+    //   if (noOfRaceTracks === 10) decresableXp -= 50;
+    //   if (showObstacles === false) decresableXp -= 50;
+    //   if (user?.uid)
+    //     updateUserActivityTimestamp(user.uid, "played_single", decresableXp);
+    setReady(true);
+    // }
   };
 
   const goBack = (goToHome?: boolean) => {
@@ -336,7 +336,7 @@ const SelectedCover = (props: Props) => {
                 <LinearProgress color="inherit" />
               </Stack>
             </Backdrop>
-            {ready && userDoc ? (
+            {ready ? (
               <AppWithoutSSR
                 ref={phaserRef}
                 challenge={{
@@ -421,7 +421,7 @@ const SelectedCover = (props: Props) => {
                     }, 600);
                   }
                 }}
-                userDoc={userDoc}
+                userDoc={null}
                 // enableMotion={false}
                 // trailPath={challenge.trailpath}
                 // trailsLifeSpace={300}
@@ -600,7 +600,7 @@ const SelectedCover = (props: Props) => {
                           if (ready) {
                             goBack();
                           } else {
-                            if (user) downloadAndPlay();
+                            downloadAndPlay();
                           }
                         }}
                         color={"success"}

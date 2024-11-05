@@ -17,13 +17,13 @@ const config: Phaser.Types.Core.GameConfig = {
       // debug: true,
     },
   },
-  powerPreference: "high-performance",
+  // powerPreference: "high-performance",
   scene: [Preloader, GameScene],
 };
 
 const StartGame = (parent: string, data: IGameDataParams) => {
   if (data.gravityY && config.physics?.matter?.gravity)
-    config.physics.matter.gravity.y = data.gravityY;
+    config.physics.matter.gravity.y = 0.5;
   const game = new Game({
     ...config,
     width: data.dprAdjustedWidth,
